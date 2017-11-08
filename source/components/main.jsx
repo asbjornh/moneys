@@ -30,6 +30,12 @@ class Main extends React.Component {
     this.setState({ formIsVisible: true });
   };
 
+  deleteStock = id => {
+    api.deleteStock(id).then(stocks => {
+      this.setState({ stocks });
+    });
+  };
+
   render() {
     return (
       <div>
@@ -41,7 +47,7 @@ class Main extends React.Component {
             easing="ease-out"
           >
             {this.state.stocks.map(stock => (
-              <Stock key={stock.id} {...stock} />
+              <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
             ))}
           </FlipMove>
         </Collapse>

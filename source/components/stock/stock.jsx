@@ -8,14 +8,30 @@ import css from "./stock.module.scss";
 class Stock extends React.Component {
   static propTypes = {
     currency: PropTypes.string,
+    id: PropTypes.string.isRequired,
     longName: PropTypes.string,
+    onDelete: PropTypes.func,
     price: PropTypes.number,
     purchasePrice: PropTypes.number,
     qty: PropTypes.number,
     symbol: PropTypes.string
   };
 
-  state = {};
+  state = {
+    hasHover: false
+  };
+
+  onMouseEnter = () => {
+    this.setState({ hasHover: true });
+  };
+
+  onMouseLeave = () => {
+    this.setState({ hasHover: false });
+  };
+
+  delete = () => {
+    this.props.onDelete(this.props.id);
+  };
 
   render() {
     const { currency, price, purchasePrice, qty } = this.props;
@@ -25,7 +41,7 @@ class Stock extends React.Component {
     const isPositive = absoluteDifference >= 0;
 
     return (
-      <tbody>
+      <tbody className={cn(css.stock, { [css.hasHover]: this.state.hasHover })}>
         <tr className={css.firstRow}>
           <td>
             <div className={css.description}>
@@ -48,6 +64,19 @@ class Stock extends React.Component {
           >
             {`${symbol}${absoluteDifference}`}
             <span className={css.currency}>{this.props.currency}</span>
+            <div
+              className={css.hoverTarget}
+              onMouseEnter={this.onMouseEnter}
+              onMouseLeave={this.onMouseLeave}
+            >
+              <button
+                className={css.deleteButton}
+                type="button"
+                onClick={this.delete}
+              >
+                Slett
+              </button>
+            </div>
           </td>
         </tr>
         <tr className={css.lastRow}>
@@ -59,6 +88,11 @@ class Stock extends React.Component {
               2
             )}`}</span>
             <span>{`Ant.: ${qty}`}</span>
+            <div
+              className={css.hoverTarget}
+              onMouseEnter={this.onMouseEnter}
+              onMouseLeave={this.onMouseLeave}
+            />
           </td>
         </tr>
       </tbody>

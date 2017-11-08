@@ -59,7 +59,17 @@ function addStock({ symbol, purchasePrice, qty }) {
   });
 }
 
+function deleteStock(id) {
+  return new Promise(resolve => {
+    const stocks = getStoredStocks().filter(stock => stock.id !== id);
+
+    storeStocks(stocks);
+    resolve(stocks);
+  });
+}
+
 export default {
   addStock,
+  deleteStock,
   getStocks
 };

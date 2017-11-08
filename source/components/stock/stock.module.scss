@@ -1,4 +1,52 @@
 @import "../../scss/vars";
+@import "../../scss/mixins";
+
+.stock {
+  tr {
+    transition: transform 0.3s $ease-out;
+  }
+
+  td {
+    position: relative;
+  }
+}
+
+.hasHover {
+  tr {
+    transform: translateX(-90px);
+  }
+
+  .hoverTarget {
+    transform: translateX(90px);
+  }
+
+  .deleteButton {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+.hoverTarget {
+  position: absolute;
+  z-index: 2;
+  height: 100%;
+  top: 0;
+  right: 0;
+  width: 80px;
+  transition: transform 0.3s $ease-out;
+  padding-top: 15px;
+  box-sizing: border-box;
+}
+
+.deleteButton {
+  @include button($red);
+  visibility: hidden;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: transform 0.3s $ease-out, opacity 0.3s, visibility 0s 0.3s;
+}
 
 .firstRow {
   td {

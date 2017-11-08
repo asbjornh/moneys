@@ -1,4 +1,5 @@
 @import "../../scss/vars";
+@import "../../scss/mixins";
 
 .form {
   display: flex;
@@ -31,12 +32,6 @@
 }
 
 .submitButton {
-  appearance: none;
+  @include button;
   align-self: flex-end;
-  white-space: nowrap;
-  background-color: $green;
-  border: none;
-  border-radius: 5px;
-  font-size: inherit;
-  padding: 10px 15px;
 }
