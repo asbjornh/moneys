@@ -1,0 +1,60 @@
+@import "../../scss/vars";
+
+.firstRow {
+  td {
+    padding-top: 15px;
+  }
+}
+
+.lastRow {
+  td {
+    padding-bottom: 20px;
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+.ticker {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.longName {
+  opacity: 0.4;
+}
+
+.moneys {
+  font-size: 2em;
+  text-align: right;
+  font-weight: bold;
+  width: 20%;
+}
+
+.isNegative {
+  color: $red;
+}
+
+.isPositive {
+  color: $green;
+}
+
+.currency {
+  font-size: 0.6em;
+  vertical-align: super;
+  margin-left: 5px;
+}
+
+.percentage {
+  font-weight: normal;
+  padding-right: 10px;
+  text-align: right;
+}
+
+.moreStuff {
+  opacity: 0.4;
+  text-align: right;
+
+  span {
+    padding-left: 20px;
+    white-space: nowrap;
+  }
+}

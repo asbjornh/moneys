@@ -1,0 +1,42 @@
+@import "../../scss/vars";
+
+.form {
+  display: flex;
+}
+
+.input {
+  flex-grow: 1;
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  input {
+    width: 90%;
+    font-size: 1.5em;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid white;
+    padding-bottom: 5px;
+    color: white;
+    text-transform: uppercase;
+
+    &[type="number"]::-webkit-inner-spin-button,
+    &[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+}
+
+.submitButton {
+  appearance: none;
+  align-self: flex-end;
+  white-space: nowrap;
+  background-color: $green;
+  border: none;
+  border-radius: 5px;
+  font-size: inherit;
+  padding: 10px 15px;
+}
