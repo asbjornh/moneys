@@ -21,9 +21,14 @@ class Main extends React.Component {
   }
 
   onSubmit = formData => {
-    api.addStock(formData).then(stocks => {
-      this.setState({ stocks, formIsVisible: false });
-    });
+    api
+      .addStock(formData)
+      .then(stocks => {
+        this.setState({ stocks, formIsVisible: false });
+      })
+      .catch(e => {
+        alert(e);
+      });
   };
 
   showForm = () => {

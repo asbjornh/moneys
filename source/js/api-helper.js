@@ -2,22 +2,26 @@ import get from "lodash/get";
 import yahooFinance from "yahoo-finance";
 
 function getStockData({ symbol, purchasePrice, qty }) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     yahooFinance.quote(
       {
         symbol: symbol.toUpperCase(),
         modules: ["price"]
       },
       (err, quotes) => {
-        resolve({
-          currency: get(quotes, "price.currencySymbol"),
-          id: symbol + purchasePrice + qty,
-          longName: get(quotes, "price.longName").replace(/&amp;/g, "&"),
-          price: get(quotes, "price.regularMarketPrice"),
-          purchasePrice: parseFloat(purchasePrice),
-          qty: parseInt(qty),
-          symbol: get(quotes, "price.symbol")
-        });
+        if (quotes) {
+          resolve({
+            currency: get(quotes, "price.currencySymbol"),
+            id: symbol + purchasePrice + qty,
+            longName: get(quotes, "price.longName").replace(/&amp;/g, "&"),
+            price: get(quotes, "price.regularMarketPrice"),
+            purchasePrice: parseFloat(purchasePrice),
+            qty: parseInt(qty),
+            symbol: get(quotes, "price.symbol")
+          });
+        } else {
+          reject("Fant ikke aksje");
+        }
       }
     );
   });
@@ -47,15 +51,19 @@ function getStocks() {
 }
 
 function addStock({ symbol, purchasePrice, qty }) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const storedStocks = getStoredStocks();
 
-    getStockData({ symbol, purchasePrice, qty }).then(enrichedStock => {
-      const stocks = storedStocks.concat(enrichedStock);
+    getStockData({ symbol, purchasePrice, qty })
+      .then(enrichedStock => {
+        const stocks = storedStocks.concat(enrichedStock);
 
-      storeStocks(stocks);
-      resolve(stocks);
-    });
+        storeStocks(stocks);
+        resolve(stocks);
+      })
+      .catch(e => {
+        reject("Fant ikke aksje");
+      });
   });
 }
 
