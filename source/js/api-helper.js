@@ -31,7 +31,7 @@ function getStockData({ symbol, purchasePrice, qty }) {
           reject("Fant ikke aksje");
         }
       })
-      .catch(e => {
+      .catch(() => {
         reject("Fant ikke aksje");
       });
   });
@@ -71,7 +71,7 @@ function addStock({ symbol, purchasePrice, qty }) {
         storeStocks(stocks);
         resolve(stocks);
       })
-      .catch(e => {
+      .catch(() => {
         reject("Fant ikke aksje");
       });
   });

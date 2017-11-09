@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import FormData from "formdata-polyfill";
+
 import css from "./form.module.scss";
 
 class Form extends React.Component {
@@ -14,8 +16,8 @@ class Form extends React.Component {
     e.preventDefault();
 
     const formData = {};
-    new FormData(e.target).forEach((value, key) => {
-      formData[key] = value;
+    Array.from(new FormData(e.target).entries()).forEach(value => {
+      formData[value[0]] = value[1];
     });
 
     this.props.onSubmit(formData);
