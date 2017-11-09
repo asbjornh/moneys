@@ -6,29 +6,37 @@ import FlipMove from "react-flip-move";
 import api from "../js/api-helper";
 
 import Form from "./form";
+import Spinner from "./spinner";
 import Stock from "./stock";
 
 class Main extends React.Component {
   state = {
     formIsVisible: false,
+    isLoading: api.hasStoredStocks(),
     stocks: []
   };
 
   componentDidMount() {
     api.getStocks().then(stocks => {
-      this.setState({ stocks });
+      this.setState({ isLoading: false, stocks });
     });
   }
 
-  onSubmit = formData => {
-    api
-      .addStock(formData)
-      .then(stocks => {
-        this.setState({ stocks, formIsVisible: false });
-      })
-      .catch(e => {
-        alert(e);
-      });
+  addStock = formData => {
+    this.setState({ formIsVisible: false, isLoading: true }, () => {
+      // Delay api call because flipMove doesn't do interrupts well
+      setTimeout(() => {
+        api
+          .addStock(formData)
+          .then(stocks => {
+            this.setState({ isLoading: false, stocks });
+          })
+          .catch(e => {
+            this.setState({ isLoading: false });
+            alert(e);
+          });
+      }, 700);
+    });
   };
 
   showForm = () => {
@@ -42,35 +50,49 @@ class Main extends React.Component {
   };
 
   render() {
+    const stocksWithLoader = this.state.stocks.map(stock => (
+      <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
+    ));
+
+    stocksWithLoader.push(
+      this.state.isLoading && (
+        <Spinner type="tbody" key="spinner">
+          {spinnerEl => (
+            <tr>
+              <td colSpan={3}>{spinnerEl}</td>
+            </tr>
+          )}
+        </Spinner>
+      )
+    );
+
     return (
       <div>
-        <Collapse isOpened={!!this.state.stocks.length}>
+        <Collapse isOpened={true}>
           <FlipMove
-            typeName="table"
             className="stocks"
-            duration={500}
-            easing="ease-out"
+            duration={700}
+            easing="cubic-bezier(0.25, 0.12, 0.22, 1)"
+            staggerDurationBy={50}
+            typeName="table"
           >
-            {this.state.stocks.map(stock => (
-              <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
-            ))}
+            {stocksWithLoader.map(element => element)}
           </FlipMove>
         </Collapse>
 
         <div className="form-container">
           <Collapse isOpened={this.state.formIsVisible}>
-            <Form onSubmit={this.onSubmit} />
+            <Form onSubmit={this.addStock} />
           </Collapse>
 
-          <Collapse isOpened={!this.state.formIsVisible}>
-            <button
-              className="form-button"
-              onClick={this.showForm}
-              type="button"
-            >
-              +
-            </button>
-          </Collapse>
+          <button
+            className="form-button"
+            onClick={this.showForm}
+            type="button"
+            disabled={this.state.formIsVisible}
+          >
+            +
+          </button>
         </div>
       </div>
     );

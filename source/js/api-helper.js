@@ -37,6 +37,10 @@ function getStockData({ symbol, purchasePrice, qty }) {
   });
 }
 
+function hasStoredStocks() {
+  return !!localStorage.getItem("stocks");
+}
+
 function getStoredStocks() {
   const storage = localStorage.getItem("stocks");
   return storage ? JSON.parse(storage) : [];
@@ -89,5 +93,6 @@ function deleteStock(id) {
 export default {
   addStock,
   deleteStock,
-  getStocks
+  getStocks,
+  hasStoredStocks
 };
