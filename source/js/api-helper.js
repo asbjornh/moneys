@@ -1,29 +1,39 @@
 import get from "lodash/get";
-import yahooFinance from "yahoo-finance";
 
 function getStockData({ symbol, purchasePrice, qty }) {
   return new Promise((resolve, reject) => {
-    yahooFinance.quote(
+    fetch(
+      `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
       {
-        symbol: symbol.toUpperCase(),
-        modules: ["price"]
-      },
-      (err, quotes) => {
-        if (quotes) {
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Origin: "localhost"
+        })
+      }
+    )
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        const data = get(json, "quoteSummary.result[0]");
+
+        if (data) {
           resolve({
-            currency: get(quotes, "price.currencySymbol"),
+            currency: get(data, "price.currencySymbol"),
             id: symbol + purchasePrice + qty,
-            longName: get(quotes, "price.longName").replace(/&amp;/g, "&"),
-            price: get(quotes, "price.regularMarketPrice"),
+            longName: get(data, "price.longName").replace(/&amp;/g, "&"),
+            price: get(data, "price.regularMarketPrice"),
             purchasePrice: parseFloat(purchasePrice),
             qty: parseInt(qty),
-            symbol: get(quotes, "price.symbol")
+            symbol: get(data, "price.symbol")
           });
         } else {
           reject("Fant ikke aksje");
         }
-      }
-    );
+      })
+      .catch(e => {
+        reject("Fant ikke aksje");
+      });
   });
 }
 
