@@ -73,7 +73,7 @@ function getStockData({ symbol, purchasePrice, qty, id }) {
       {
         headers: new Headers({
           "Content-Type": "application/json",
-          Origin: "localhost"
+          Origin: "asbjorn.org"
         })
       }
     )
@@ -118,7 +118,7 @@ function getStocks() {
     if (stocks && stocks.data) {
       resolve({
         stocks: stocks.data.filter(({ id }) => {
-          return userStocks.find(stock => stock.id === id);
+          return !!userStocks.find(stock => stock.id === id);
         }),
         lastUpdated: stocks.timeStamp
       });
@@ -150,10 +150,11 @@ function addStock({ symbol, purchasePrice, qty }) {
       })
     );
 
-    getStocks().then(stocks => {
+    getStocks().then(({ stocks }) => {
       getStockData({ symbol, purchasePrice, qty, id })
         .then(enrichedStock => {
           const newStocks = stocks.concat(enrichedStock);
+          console.log(newStocks);
 
           storeData("stocks", newStocks);
           resolve(newStocks);
@@ -170,7 +171,7 @@ function deleteStock(id) {
     const userStocksList = getUserStocks();
     setUserStocks(userStocksList.filter(stock => stock.id !== id));
 
-    getStocks().then(stocks => {
+    getStocks().then(({ stocks }) => {
       resolve(stocks);
     });
   });

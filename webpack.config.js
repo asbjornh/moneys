@@ -108,7 +108,10 @@ module.exports = (env = {}) => {
               NODE_ENV: JSON.stringify("production")
             }
           }),
-          new webpack.optimize.UglifyJsPlugin()
+          new webpack.optimize.UglifyJsPlugin(),
+          new CopyWebpackPlugin([
+            { from: "source/assets/apple-touch-icon.png", to: "" }
+          ])
         ]);
       }
 
