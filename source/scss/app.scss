@@ -28,6 +28,11 @@ html {
 
 body {
   @include font-size-base();
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.content {
   max-width: 600px;
   margin: 0 auto;
   padding: 30px 20px 50px;

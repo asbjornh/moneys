@@ -72,7 +72,7 @@ class Main extends React.Component {
     );
 
     return (
-      <div>
+      <div className="content">
         <Moneys stocks={this.state.stocks} currencies={this.state.currencies} />
 
         <Collapse isOpened={true}>
