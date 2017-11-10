@@ -2,12 +2,12 @@
 @import "vars";
 
 @mixin button($color: $green) {
+  @include font-size-base;
   appearance: none;
   white-space: nowrap;
   background-color: $color;
   border: none;
   border-radius: 5px;
-  font-size: inherit;
   padding: 10px 15px;
 }
 
