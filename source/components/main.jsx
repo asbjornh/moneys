@@ -4,6 +4,7 @@ import { UnmountClosed as Collapse } from "react-collapse";
 import FlipMove from "react-flip-move";
 
 import api from "../js/api-helper";
+import settings from "../settings.json";
 
 import Form from "./form";
 import Moneys from "./moneys";
@@ -18,14 +19,26 @@ class Main extends React.Component {
   };
 
   componentDidMount() {
-    api.getStocks().then(stocks => {
-      this.setState({ isLoading: false, stocks });
+    this.refreshData();
+  }
 
-      api.getCurrencies().then(currencies => {
-        this.setState({ currencies });
+  componentWillUnmount() {
+    clearInterval(this.updateLoop);
+  }
+
+  refreshData = () => {
+    this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
+    console.log("updating");
+    this.setState({ isLoading: true }, () => {
+      api.getStocks().then(({ stocks, lastUpdated }) => {
+        this.setState({ isLoading: false, stocks, lastUpdated });
+
+        api.getCurrencies().then(currencies => {
+          this.setState({ currencies });
+        });
       });
     });
-  }
+  };
 
   addStock = formData => {
     this.setState({ formIsVisible: false, isLoading: true }, () => {
@@ -73,7 +86,11 @@ class Main extends React.Component {
 
     return (
       <div className="content">
-        <Moneys stocks={this.state.stocks} currencies={this.state.currencies} />
+        <Moneys
+          stocks={this.state.stocks}
+          currencies={this.state.currencies}
+          lastUpdated={this.state.lastUpdated}
+        />
 
         <Collapse isOpened={true}>
           <FlipMove

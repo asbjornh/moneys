@@ -15,7 +15,7 @@ function getStoredData(key) {
 
   if (data && new Date().getTime() - data.timeStamp < settings.storage.maxAge) {
     console.log(`using stored ${key} data`);
-    return data.data;
+    return data;
   } else {
     return false;
   }
@@ -51,8 +51,8 @@ function getCurrencies() {
   return new Promise((resolve, reject) => {
     const currencies = getStoredData("currencies");
 
-    if (currencies) {
-      resolve(currencies);
+    if (currencies && currencies.data) {
+      resolve(currencies.data);
     } else {
       console.log("getting new currency data");
       getCurrencyData()
@@ -115,18 +115,19 @@ function getStocks() {
     const userStocks = getUserStocks();
     const stocks = getStoredData("stocks");
 
-    if (stocks) {
-      resolve(
-        stocks.filter(({ id }) => {
+    if (stocks && stocks.data) {
+      resolve({
+        stocks: stocks.data.filter(({ id }) => {
           return userStocks.find(stock => stock.id === id);
-        })
-      );
+        }),
+        lastUpdated: stocks.timeStamp
+      });
     } else {
       console.log("Henter nye aksjedata");
       Promise.all(userStocks.map(stock => getStockData(stock)))
         .then(stocks => {
           storeData("stocks", stocks);
-          resolve(stocks);
+          resolve({ stocks: stocks.data, lastUpdated: stocks.timeStamp });
         })
         .catch(() => {
           reject("Klarte ikke å hente nye aksjedata");

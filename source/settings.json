@@ -1,5 +1,6 @@
 {
+  "updateInterval": 600000,
   "storage": {
-    "maxAge": 600000
+    "maxAge": 3600000
   }
 }

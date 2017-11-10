@@ -10,7 +10,7 @@ import css from "./moneys.module.scss";
 
 import Number from "../number";
 
-const Moneys = ({ currencies, convertToCurrency, stocks }) => {
+const Moneys = ({ currencies, convertToCurrency, lastUpdated, stocks }) => {
   let sum = 0;
 
   if (stocks && currencies) {
@@ -30,12 +30,17 @@ const Moneys = ({ currencies, convertToCurrency, stocks }) => {
     `${convertToCurrency}.units.major.symbol`
   );
 
+  let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
+  time = time ? time.substr(0, 5) : "henter";
+
   return (
     <div className={css.moneys}>
       <h1>Moneys:</h1>
       <div className={css.number}>
         <Number number={sum} numberOfDecimals={0} currencySymbol={symbol} />
       </div>
+
+      <p>{`Sist oppdatert: ${time}`}</p>
     </div>
   );
 };
@@ -43,6 +48,7 @@ const Moneys = ({ currencies, convertToCurrency, stocks }) => {
 Moneys.propTypes = {
   currencies: PropTypes.object,
   convertToCurrency: PropTypes.string,
+  lastUpdated: PropTypes.number,
   stocks: PropTypes.arrayOf(
     PropTypes.shape({
       currency: PropTypes.string,
