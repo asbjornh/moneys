@@ -2,6 +2,7 @@
 
 .number {
   font-weight: bold;
+  text-shadow: 0 0 0.5em rgba(white, 0.1);
 
   span {
     font-size: 0.6em;
@@ -12,8 +13,10 @@
 
 .isPositive {
   color: $green;
+  text-shadow: 0 0 0.5em rgba($green, 0.1);
 }
 
 .isNegative {
   color: $red;
+  text-shadow: 0 0 0.5em rgba($red, 0.1);
 }

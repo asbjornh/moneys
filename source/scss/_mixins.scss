@@ -9,6 +9,8 @@
   border: none;
   border-radius: 5px;
   padding: 10px 15px;
+  box-shadow: 0 0 15px 0 rgba($color, 0.2);
+  color: darken($dark-gray, 0.2);
 }
 
 @mixin font-size-base {
