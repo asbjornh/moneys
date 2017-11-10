@@ -5,6 +5,8 @@ import cn from "classnames";
 
 import css from "./stock.module.scss";
 
+import Number from "../number";
+
 class Stock extends React.Component {
   static propTypes = {
     currencySymbol: PropTypes.string,
@@ -56,14 +58,12 @@ class Stock extends React.Component {
           >
             {`${symbol}${relativeDifference}%`}
           </td>
-          <td
-            className={cn(
-              css.moneys,
-              isPositive ? css.isPositive : css.isNegative
-            )}
-          >
-            {`${symbol}${absoluteDifference}`}
-            <span className={css.currency}>{currencySymbol}</span>
+          <td className={css.number}>
+            <Number
+              number={absoluteDifference}
+              currencySymbol={currencySymbol}
+            />
+
             <div
               className={css.hoverTarget}
               onMouseEnter={this.onMouseEnter}

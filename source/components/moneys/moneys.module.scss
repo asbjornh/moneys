@@ -1,0 +1,18 @@
+@import "../../scss/mixins";
+@import "../../scss/vars";
+
+.moneys {
+  text-align: right;
+  margin-bottom: 40px;
+
+  h1 {
+    @include font-size-lg;
+    font-weight: normal;
+    margin: 0;
+  }
+}
+
+.number {
+  @include fluid-type($breakpoint-sm, $breakpoint-lg, 50px, 90px);
+  line-height: 1;
+}

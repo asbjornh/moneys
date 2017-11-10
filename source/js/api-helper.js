@@ -1,5 +1,36 @@
 import get from "lodash/get";
 
+import settings from "../settings.json";
+
+function getUserStocks() {
+  return JSON.parse(localStorage.getItem("userStocks")) || [];
+}
+
+function setUserStocks(stocks) {
+  localStorage.setItem("userStocks", JSON.stringify(stocks));
+}
+
+function getStoredData(key) {
+  const data = JSON.parse(localStorage.getItem(key));
+
+  if (data && new Date().getTime() - data.timeStamp < settings.storage.maxAge) {
+    console.log(`using stored ${key} data`);
+    return data.data;
+  } else {
+    return false;
+  }
+}
+
+function storeData(key, data) {
+  localStorage.setItem(
+    key,
+    JSON.stringify({
+      data,
+      timeStamp: new Date().getTime()
+    })
+  );
+}
+
 function getCurrencyData() {
   return new Promise((resolve, reject) => {
     fetch(
@@ -7,13 +38,7 @@ function getCurrencyData() {
     )
       .then(response => response.json())
       .then(json => {
-        localStorage.setItem(
-          "currencies",
-          JSON.stringify({
-            data: json,
-            timeStamp: new Date().getTime()
-          })
-        );
+        storeData("currencies", json);
         resolve(json);
       })
       .catch(() => {
@@ -23,19 +48,25 @@ function getCurrencyData() {
 }
 
 function getCurrencies() {
-  return getCurrencyData();
-  // const storage = localStorage.getItem("currencies");
+  return new Promise((resolve, reject) => {
+    const currencies = getStoredData("currencies");
 
-  // if (storage) {
-  //   const currencies = JSON.parse(storage);
-
-  //   if (new Date().getTime() - currencies.timeStamp < 10000) {
-  //     return currencies.data;
-  //   }
-  // }
+    if (currencies) {
+      resolve(currencies);
+    } else {
+      console.log("getting new currency data");
+      getCurrencyData()
+        .then(currencyData => {
+          resolve(currencyData);
+        })
+        .catch(() => {
+          reject("Klarte ikke å hente ny valuta-data. Bruker lagret versjon");
+        });
+    }
+  });
 }
 
-function getStockData({ symbol, purchasePrice, qty }) {
+function getStockData({ symbol, purchasePrice, qty, id }) {
   return new Promise((resolve, reject) => {
     fetch(
       `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
@@ -56,7 +87,7 @@ function getStockData({ symbol, purchasePrice, qty }) {
           resolve({
             currency: get(data, "price.currency"),
             currencySymbol: get(data, "price.currencySymbol"),
-            id: symbol + purchasePrice + qty,
+            id,
             longName: get(data, "price.longName").replace(/&amp;/g, "&"),
             price: get(data, "price.regularMarketPrice"),
             purchasePrice: parseFloat(purchasePrice),
@@ -64,71 +95,83 @@ function getStockData({ symbol, purchasePrice, qty }) {
             symbol: get(data, "price.symbol")
           });
         } else {
+          console.log("no data");
           reject("Fant ikke aksje");
         }
       })
       .catch(() => {
+        console.log("fetch failed");
         reject("Fant ikke aksje");
       });
   });
 }
 
 function hasStoredStocks() {
-  return !!getStoredStocks().length;
-}
-
-function getStoredStocks() {
-  const storage = localStorage.getItem("stocks");
-  return storage ? get(JSON.parse(storage), "data", []) : [];
-}
-
-function storeStocks(stocks) {
-  localStorage.setItem(
-    "stocks",
-    JSON.stringify({
-      data: stocks,
-      timeStamp: new Date().getTime()
-    })
-  );
+  return !!getUserStocks().length;
 }
 
 function getStocks() {
-  return new Promise(resolve => {
-    Promise.all(
-      getStoredStocks().map(stock => getStockData(stock))
-    ).then(stocks => {
-      storeStocks(stocks);
-      resolve(stocks);
-    });
+  return new Promise((resolve, reject) => {
+    const userStocks = getUserStocks();
+    const stocks = getStoredData("stocks");
+
+    if (stocks) {
+      resolve(
+        stocks.filter(({ id }) => {
+          return userStocks.find(stock => stock.id === id);
+        })
+      );
+    } else {
+      console.log("Henter nye aksjedata");
+      Promise.all(userStocks.map(stock => getStockData(stock)))
+        .then(stocks => {
+          storeData("stocks", stocks);
+          resolve(stocks);
+        })
+        .catch(() => {
+          reject("Klarte ikke å hente nye aksjedata");
+        });
+    }
   });
-  // return new Promise(resolve => {
-  //   resolve(getStoredStocks());
-  // });
 }
 
 function addStock({ symbol, purchasePrice, qty }) {
+  const id = symbol + purchasePrice + qty;
+
   return new Promise((resolve, reject) => {
-    const storedStocks = getStoredStocks();
-
-    getStockData({ symbol, purchasePrice, qty })
-      .then(enrichedStock => {
-        const stocks = storedStocks.concat(enrichedStock);
-
-        storeStocks(stocks);
-        resolve(stocks);
+    const userStocksList = getUserStocks();
+    setUserStocks(
+      userStocksList.concat({
+        symbol,
+        purchasePrice,
+        qty,
+        id
       })
-      .catch(() => {
-        reject("Fant ikke aksje");
-      });
+    );
+
+    getStocks().then(stocks => {
+      getStockData({ symbol, purchasePrice, qty, id })
+        .then(enrichedStock => {
+          const newStocks = stocks.concat(enrichedStock);
+
+          storeData("stocks", newStocks);
+          resolve(newStocks);
+        })
+        .catch(() => {
+          reject("Fant ikke aksje");
+        });
+    });
   });
 }
 
 function deleteStock(id) {
   return new Promise(resolve => {
-    const stocks = getStoredStocks().filter(stock => stock.id !== id);
+    const userStocksList = getUserStocks();
+    setUserStocks(userStocksList.filter(stock => stock.id !== id));
 
-    storeStocks(stocks);
-    resolve(stocks);
+    getStocks().then(stocks => {
+      resolve(stocks);
+    });
   });
 }
 

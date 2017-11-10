@@ -1,0 +1,19 @@
+@import "../../scss/vars";
+
+.number {
+  font-weight: bold;
+
+  span {
+    font-size: 0.6em;
+    vertical-align: super;
+    margin-left: 5px;
+  }
+}
+
+.isPositive {
+  color: $green;
+}
+
+.isNegative {
+  color: $red;
+}

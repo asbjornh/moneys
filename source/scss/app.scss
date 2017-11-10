@@ -1,4 +1,5 @@
 @import "vars";
+@import "mixins";
 
 *,
 :before,
@@ -16,9 +17,14 @@ body {
 }
 
 body {
+  @include font-size-base();
   max-width: 600px;
   margin: 0 auto;
-  padding: 30px 30px 50px;
+  padding: 30px 20px 50px;
+
+  @media (min-width: $breakpoint-md) {
+    padding: 30px 30px 50px;
+  }
 }
 
 .stocks {

@@ -20,6 +20,10 @@ class Main extends React.Component {
   componentDidMount() {
     api.getStocks().then(stocks => {
       this.setState({ isLoading: false, stocks });
+
+      api.getCurrencies().then(currencies => {
+        this.setState({ currencies });
+      });
     });
   }
 
@@ -69,7 +73,7 @@ class Main extends React.Component {
 
     return (
       <div>
-        <Moneys stocks={this.state.stocks} />
+        <Moneys stocks={this.state.stocks} currencies={this.state.currencies} />
 
         <Collapse isOpened={true}>
           <FlipMove

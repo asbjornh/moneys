@@ -62,7 +62,7 @@
 }
 
 .ticker {
-  font-size: 2em;
+  @include font-size-lg;
   font-weight: bold;
 }
 
@@ -70,25 +70,10 @@
   opacity: 0.4;
 }
 
-.moneys {
-  font-size: 2em;
+.number {
+  @include font-size-lg;
   text-align: right;
-  font-weight: bold;
   width: 20%;
-}
-
-.isNegative {
-  color: $red;
-}
-
-.isPositive {
-  color: $green;
-}
-
-.currency {
-  font-size: 0.6em;
-  vertical-align: super;
-  margin-left: 5px;
 }
 
 .percentage {

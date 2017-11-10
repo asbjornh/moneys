@@ -1,9 +1,52 @@
+@import "functions";
+@import "vars";
+
 @mixin button($color: $green) {
   appearance: none;
   white-space: nowrap;
   background-color: $color;
   border: none;
   border-radius: 5px;
-  font-size: 1rem;
+  font-size: inherit;
   padding: 10px 15px;
+}
+
+@mixin font-size-base {
+  @include fluid-type($breakpoint-sm, $breakpoint-lg, 12px, 18px);
+}
+
+@mixin font-size-lg {
+  @include fluid-type($breakpoint-sm, $breakpoint-lg, 22px, 32px);
+}
+
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size, $default: true) {
+  $u1: unit($min-vw);
+  $u2: unit($max-vw);
+  $u3: unit($min-font-size);
+  $u4: unit($max-font-size);
+
+  $min-font-size: convert-to-rem($min-font-size);
+  $max-font-size: convert-to-rem($max-font-size);
+
+  @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+    & {
+      @if $default == true {
+        font-size: $min-font-size;
+      }
+      @media screen and (min-width: $min-vw) {
+        font-size: calc(
+          #{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw -
+                    #{convert-to-rem(
+                      $min-vw
+                    )}) / #{strip-unit(convert-to-rem($max-vw - $min-vw))})
+        );
+      }
+
+      @media screen and (min-width: $max-vw) {
+        font-size: $max-font-size;
+      }
+    }
+  } @else {
+    @error "Detected mixed units. Please use the same units for all parameters.";
+  }
 }

@@ -25,7 +25,7 @@ class Form extends React.Component {
 
   render() {
     return (
-      <form className={css.form} onSubmit={this.onSubmit}>
+      <form className={css.form} onSubmit={this.onSubmit} noValidate>
         <div className={css.input}>
           <label>Ticker:</label>
           <input name="symbol" placeholder="AAPL" />
