@@ -6,6 +6,7 @@ import FlipMove from "react-flip-move";
 import api from "../js/api-helper";
 
 import Form from "./form";
+import Moneys from "./moneys";
 import Spinner from "./spinner";
 import Stock from "./stock";
 
@@ -68,6 +69,8 @@ class Main extends React.Component {
 
     return (
       <div>
+        <Moneys stocks={this.state.stocks} />
+
         <Collapse isOpened={true}>
           <FlipMove
             className="stocks"

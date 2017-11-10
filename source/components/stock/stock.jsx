@@ -7,7 +7,7 @@ import css from "./stock.module.scss";
 
 class Stock extends React.Component {
   static propTypes = {
-    currency: PropTypes.string,
+    currencySymbol: PropTypes.string,
     id: PropTypes.string.isRequired,
     longName: PropTypes.string,
     onDelete: PropTypes.func,
@@ -34,7 +34,7 @@ class Stock extends React.Component {
   };
 
   render() {
-    const { currency, price, purchasePrice, qty } = this.props;
+    const { currencySymbol, price, purchasePrice, qty } = this.props;
     const absoluteDifference = ((price - purchasePrice) * qty).toFixed(2);
     const relativeDifference = (price / purchasePrice * 100 - 100).toFixed(2);
     const symbol = absoluteDifference >= 0 ? "+" : "";
@@ -63,7 +63,7 @@ class Stock extends React.Component {
             )}
           >
             {`${symbol}${absoluteDifference}`}
-            <span className={css.currency}>{this.props.currency}</span>
+            <span className={css.currency}>{currencySymbol}</span>
             <div
               className={css.hoverTarget}
               onMouseEnter={this.onMouseEnter}
@@ -84,7 +84,7 @@ class Stock extends React.Component {
             <div className={css.longName}>{this.props.longName}</div>
           </td>
           <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currency} ${purchasePrice} → ${currency} ${price.toFixed(
+            <span >{`${currencySymbol} ${purchasePrice} → ${currencySymbol} ${price.toFixed(
               2
             )}`}</span>
             <span>{`Ant.: ${qty}`}</span>

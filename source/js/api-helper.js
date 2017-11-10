@@ -1,5 +1,40 @@
 import get from "lodash/get";
 
+function getCurrencyData() {
+  return new Promise((resolve, reject) => {
+    fetch(
+      "https://cors-anywhere.herokuapp.com/https://openexchangerates.org/api/latest.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0"
+    )
+      .then(response => response.json())
+      .then(json => {
+        localStorage.setItem(
+          "currencies",
+          JSON.stringify({
+            data: json,
+            timeStamp: new Date().getTime()
+          })
+        );
+        resolve(json);
+      })
+      .catch(() => {
+        reject("Klarte ikke å hente valuta");
+      });
+  });
+}
+
+function getCurrencies() {
+  return getCurrencyData();
+  // const storage = localStorage.getItem("currencies");
+
+  // if (storage) {
+  //   const currencies = JSON.parse(storage);
+
+  //   if (new Date().getTime() - currencies.timeStamp < 10000) {
+  //     return currencies.data;
+  //   }
+  // }
+}
+
 function getStockData({ symbol, purchasePrice, qty }) {
   return new Promise((resolve, reject) => {
     fetch(
@@ -19,7 +54,8 @@ function getStockData({ symbol, purchasePrice, qty }) {
 
         if (data) {
           resolve({
-            currency: get(data, "price.currencySymbol"),
+            currency: get(data, "price.currency"),
+            currencySymbol: get(data, "price.currencySymbol"),
             id: symbol + purchasePrice + qty,
             longName: get(data, "price.longName").replace(/&amp;/g, "&"),
             price: get(data, "price.regularMarketPrice"),
@@ -38,16 +74,22 @@ function getStockData({ symbol, purchasePrice, qty }) {
 }
 
 function hasStoredStocks() {
-  return !!localStorage.getItem("stocks");
+  return !!getStoredStocks().length;
 }
 
 function getStoredStocks() {
   const storage = localStorage.getItem("stocks");
-  return storage ? JSON.parse(storage) : [];
+  return storage ? get(JSON.parse(storage), "data", []) : [];
 }
 
 function storeStocks(stocks) {
-  localStorage.setItem("stocks", JSON.stringify(stocks));
+  localStorage.setItem(
+    "stocks",
+    JSON.stringify({
+      data: stocks,
+      timeStamp: new Date().getTime()
+    })
+  );
 }
 
 function getStocks() {
@@ -93,6 +135,7 @@ function deleteStock(id) {
 export default {
   addStock,
   deleteStock,
+  getCurrencies,
   getStocks,
   hasStoredStocks
 };
