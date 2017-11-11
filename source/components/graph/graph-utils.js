@@ -18,14 +18,11 @@ function getOptions() {
     },
     layout: {
       padding: {
-        bottom: 20,
         left: 5,
-        right: 20
+        right: 30
       }
     },
     legend: { display: false },
-    responsive: false, // Don't let Chart.js handle dimensions. It gets messy
-    devicePixelRatio: 1, // Don't let Chart.js handle this either
     scales: {
       xAxes: [{ display: false }],
       yAxes: [
@@ -33,6 +30,9 @@ function getOptions() {
           display: false
         }
       ]
+    },
+    tooltips: {
+      displayColors: false
     }
   });
 }

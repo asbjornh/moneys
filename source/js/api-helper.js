@@ -220,6 +220,7 @@ function deleteStock(id) {
 function deleteAllStocks() {
   localStorage.removeItem("userStocks");
   localStorage.removeItem("stocks");
+  localStorage.removeItem("graphPoints");
 }
 
 export default {

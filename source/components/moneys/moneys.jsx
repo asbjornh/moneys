@@ -46,7 +46,11 @@ class Moneys extends React.Component {
 
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>
-        {this.state.graphWidth && <Graph width={this.state.graphWidth} />}
+        {this.state.graphWidth && (
+          <div style={{ width: this.state.width }}>
+            <Graph width={this.state.graphWidth} />
+          </div>
+        )}
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1>Moneys:</h1>
           <div className={css.number}>

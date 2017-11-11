@@ -31,9 +31,9 @@ class Graph extends React.Component {
     const mid = utils.rangeMap(0, min, max, 1, 0);
     const ctx = canvas.getContext("2d");
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(Math.max(mid - 0.1, 0), "#69e697");
-    gradient.addColorStop(mid, "#cbb16f");
-    gradient.addColorStop(Math.min(mid + 0.1, 1), "#ff6874");
+    gradient.addColorStop(Math.max(0, mid - 0.1), "#69e697");
+    gradient.addColorStop(Math.max(0, Math.min(1, mid)), "#cbb16f");
+    gradient.addColorStop(Math.min(1, mid + 0.1), "#ff6874");
     return gradient;
   };
 
@@ -58,6 +58,7 @@ class Graph extends React.Component {
         className={css.graph}
         data={data}
         width={this.props.width}
+        height={this.props.width / 2.5}
         options={graphUtils.getOptions()}
         ref={l => (this.chart = l)}
       />
