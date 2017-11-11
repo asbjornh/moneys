@@ -38,31 +38,35 @@ class Graph extends React.Component {
   };
 
   render() {
-    const data = canvas => {
-      return {
-        datasets: [
-          {
-            data: this.state.points,
-            borderColor: this.getGradient(canvas, this.state.points)
-          }
-        ],
-        labels: this.state.points.map(p => {
-          const date = new Date(p.x);
-          return `${date.getDate()} ${months[date.getMonth()]}`;
-        })
-      };
-    };
+    return !this.state.showGraph
+      ? null
+      : (() => {
+          const data = canvas => {
+            return {
+              datasets: [
+                {
+                  data: this.state.points,
+                  borderColor: this.getGradient(canvas, this.state.points)
+                }
+              ],
+              labels: this.state.points.map(p => {
+                const date = new Date(p.x);
+                return `${date.getDate()} ${months[date.getMonth()]}`;
+              })
+            };
+          };
 
-    return !this.state.showGraph ? null : (
-      <Line
-        className={css.graph}
-        data={data}
-        width={this.props.width}
-        height={this.props.width / 2.5}
-        options={graphUtils.getOptions()}
-        ref={l => (this.chart = l)}
-      />
-    );
+          return (
+            <Line
+              className={css.graph}
+              data={data}
+              width={this.props.width}
+              height={this.props.width / 2.5}
+              options={graphUtils.getOptions()}
+              ref={l => (this.chart = l)}
+            />
+          );
+        })();
   }
 }
 
