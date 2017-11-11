@@ -22,14 +22,25 @@ class Moneys extends React.Component {
 
   state = {};
 
+  componentDidMount() {
+    window.addEventListener("resize", this.getGraphWidth);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.getGraphWidth);
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.sum !== this.props.sum && this.props.sum) {
-      console.log("update", this.props.sum);
-      this.setState({
-        graphWidth: this.container.offsetWidth - this.textContainer.offsetWidth
-      });
+      this.getGraphWidth();
     }
   }
+
+  getGraphWidth = () => {
+    this.setState({
+      graphWidth: this.container.offsetWidth - this.textContainer.offsetWidth
+    });
+  };
 
   render() {
     const { convertToCurrency, lastUpdated, sum } = this.props;
