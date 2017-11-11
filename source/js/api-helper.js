@@ -1,6 +1,7 @@
 import get from "lodash/get";
 
 import settings from "../settings.json";
+import utils from "./utils";
 
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
@@ -8,6 +9,32 @@ function getUserStocks() {
 
 function setUserStocks(stocks) {
   localStorage.setItem("userStocks", JSON.stringify(stocks));
+}
+
+function addGraphPoint(stocks) {
+  const points = JSON.parse(localStorage.getItem("graphData")) || [];
+  const lastPoint = points.slice(-1)[0];
+
+  if (
+    lastPoint &&
+    new Date().getTime() - lastPoint.x < settings.graph.updateInterval
+  ) {
+    return;
+  }
+
+  getCurrencies().then(currencies => {
+    const sum = utils.sumAndConvert(stocks, currencies);
+    sum &&
+      localStorage.setItem(
+        "graphData",
+        JSON.stringify(
+          points.concat({
+            x: new Date().getTime(),
+            y: sum.toFixed(2)
+          })
+        )
+      );
+  });
 }
 
 function getStoredData(key) {
@@ -68,41 +95,45 @@ function getCurrencies() {
 
 function getStockData({ symbol, purchasePrice, qty, id }) {
   return new Promise((resolve, reject) => {
-    fetch(
-      `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
-      {
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Origin: "asbjorn.org"
-        })
-      }
-    )
-      .then(response => {
-        return response.json();
-      })
-      .then(json => {
-        const data = get(json, "quoteSummary.result[0]");
-
-        if (data) {
-          resolve({
-            currency: get(data, "price.currency"),
-            currencySymbol: get(data, "price.currencySymbol"),
-            id,
-            longName: get(data, "price.longName").replace(/&amp;/g, "&"),
-            price: get(data, "price.regularMarketPrice"),
-            purchasePrice: parseFloat(purchasePrice),
-            qty: parseInt(qty),
-            symbol: get(data, "price.symbol")
-          });
-        } else {
-          console.log("no data");
-          reject("Fant ikke aksje");
+    if (!symbol || !purchasePrice || !qty) {
+      reject("Fyll ut alle feltene");
+    } else {
+      fetch(
+        `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+        {
+          headers: new Headers({
+            "Content-Type": "application/json",
+            Origin: "asbjorn.org"
+          })
         }
-      })
-      .catch(() => {
-        console.log("fetch failed");
-        reject("Fant ikke aksje");
-      });
+      )
+        .then(response => {
+          return response.json();
+        })
+        .then(json => {
+          const data = get(json, "quoteSummary.result[0]");
+
+          if (data) {
+            resolve({
+              currency: get(data, "price.currency"),
+              currencySymbol: get(data, "price.currencySymbol"),
+              id,
+              longName: get(data, "price.longName").replace(/&amp;/g, "&"),
+              price: get(data, "price.regularMarketPrice"),
+              purchasePrice: parseFloat(purchasePrice),
+              qty: parseInt(qty),
+              symbol: get(data, "price.symbol")
+            });
+          } else {
+            console.log("no data");
+            reject("Fant ikke aksje");
+          }
+        })
+        .catch(() => {
+          console.log("fetch failed");
+          reject("Fant ikke aksje");
+        });
+    }
   });
 }
 
@@ -116,6 +147,7 @@ function getStocks() {
     const stocks = getStoredData("stocks");
 
     if (stocks && stocks.data) {
+      addGraphPoint(stocks.data);
       resolve({
         stocks: stocks.data.filter(({ id }) => {
           return !!userStocks.find(stock => stock.id === id);
@@ -127,7 +159,8 @@ function getStocks() {
       Promise.all(userStocks.map(stock => getStockData(stock)))
         .then(stocks => {
           storeData("stocks", stocks);
-          resolve({ stocks: stocks.data, lastUpdated: stocks.timeStamp });
+          addGraphPoint(stocks.data);
+          resolve({ stocks: stocks.data || [], lastUpdated: stocks.timeStamp });
         })
         .catch(() => {
           reject("Klarte ikke å hente nye aksjedata");

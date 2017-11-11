@@ -1,7 +1,14 @@
-function sumAndConvert(array, currencies, outputCurrency) {
-  if (!array || !currencies || !outputCurrency) return false;
+function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
+  if (!stocks || !stocks.length || !currencies) return false;
 
-  const baseSum = array
+  const values = stocks.map(stock => {
+    return {
+      amount: (stock.price - stock.purchasePrice) * stock.qty,
+      currency: stock.currency
+    };
+  });
+
+  const baseSum = values
     .reduce((accum, { currency }) => {
       // Create array of unique currency names
       return accum.indexOf(currency) === -1 ? accum.concat(currency) : accum;
@@ -10,7 +17,7 @@ function sumAndConvert(array, currencies, outputCurrency) {
       // Create array of partial sums per currency
       return accum.concat({
         currency,
-        amount: array
+        amount: values
           .filter(value => value.currency === currency) // get all values of same currency
           .reduce((accum, value) => accum + value.amount, 0) // sum
       });

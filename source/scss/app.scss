@@ -5,6 +5,8 @@
 :before,
 :after {
   box-sizing: border-box;
+  user-select: none;
+  outline: none;
 }
 
 html,
@@ -19,11 +21,6 @@ body {
 
 html {
   background-color: #38384c;
-  // background-image: radial-gradient(
-  //   ellipse at 50% 30%,
-  //   #3a3a4f 1%,
-  //   #323243 100%
-  // );
 }
 
 body {
@@ -56,12 +53,11 @@ body {
 }
 
 .form-button {
+  @include button($border-color);
+  @include font-size-lg;
   display: block;
   width: 100%;
-  appearance: none;
-  background-color: $border-color;
   color: white;
-  border: none;
   font-size: 2em;
   font-weight: bold;
   border-radius: 10px;

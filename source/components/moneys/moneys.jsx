@@ -14,15 +14,7 @@ const Moneys = ({ currencies, convertToCurrency, lastUpdated, stocks }) => {
   let sum = 0;
 
   if (stocks && currencies) {
-    const moneys =
-      stocks.map(stock => {
-        return {
-          amount: (stock.price - stock.purchasePrice) * stock.qty,
-          currency: stock.currency
-        };
-      }) || 0;
-
-    sum = utils.sumAndConvert(moneys, currencies, convertToCurrency);
+    sum = utils.sumAndConvert(stocks, currencies, convertToCurrency);
   }
 
   const symbol = get(

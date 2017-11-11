@@ -31,6 +31,10 @@ class Stock extends React.Component {
     this.setState({ hasHover: false });
   };
 
+  onClick = () => {
+    this.setState(state => ({ hasHover: !state.hasHover }));
+  };
+
   delete = () => {
     this.props.onDelete(this.props.id);
   };
@@ -43,11 +47,14 @@ class Stock extends React.Component {
     const isPositive = absoluteDifference >= 0;
 
     return (
-      <tbody className={cn(css.stock, { [css.hasHover]: this.state.hasHover })}>
+      <tbody
+        className={cn(css.stock, { [css.hasHover]: this.state.hasHover })}
+        onClick={this.onClick}
+      >
         <tr className={css.firstRow}>
           <td>
             <div className={css.description}>
-              <div className={css.ticker}>{this.props.symbol}</div>
+              <div className={css.ticker}>{this.props.symbol}</div>{" "}
             </div>
           </td>
           <td
