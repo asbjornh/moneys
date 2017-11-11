@@ -189,7 +189,6 @@ function addStock({ symbol, purchasePrice, qty }) {
         getStockData({ symbol, purchasePrice, qty, id })
           .then(enrichedStock => {
             const newStocks = stocks.concat(enrichedStock);
-            console.log(newStocks);
 
             storeData("stocks", newStocks);
             resolve(newStocks);

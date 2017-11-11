@@ -4,11 +4,10 @@ import PropTypes from "prop-types";
 import cn from "classnames";
 
 import css from "./number.module.scss";
+import utils from "../../js/utils";
 
 const Number = ({ className, currencySymbol, number, numberOfDecimals }) => {
-  const parsedNumber = parseFloat(number).toFixed(numberOfDecimals);
-
-  const symbol = parsedNumber > 0 ? "+" : "";
+  const parsedNumber = parseFloat(number);
 
   return (
     <div
@@ -18,7 +17,7 @@ const Number = ({ className, currencySymbol, number, numberOfDecimals }) => {
         [css.isNegative]: parsedNumber < 0
       })}
     >
-      {`${symbol}${parsedNumber}`}
+      {utils.formatNumber(parsedNumber, numberOfDecimals)}
       <span>{currencySymbol}</span>
     </div>
   );

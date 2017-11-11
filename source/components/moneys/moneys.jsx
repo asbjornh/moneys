@@ -25,11 +25,15 @@ const Moneys = ({ currencies, convertToCurrency, lastUpdated, stocks }) => {
   let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
   time = time ? time.substr(0, 5) : "";
 
+  const fontSize = `${1 - (String(parseInt(sum)).length - 2) * 0.05}em`;
+
   return (
     <div className={css.moneys}>
       <h1>Moneys:</h1>
       <div className={css.number}>
-        <Number number={sum} numberOfDecimals={0} currencySymbol={symbol} />
+        <div style={{ fontSize }}>
+          <Number number={sum} numberOfDecimals={0} currencySymbol={symbol} />
+        </div>
       </div>
 
       <p>{`Sist oppdatert: ${time}`}</p>

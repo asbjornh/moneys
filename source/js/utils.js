@@ -29,6 +29,21 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
   return baseSum * currencies.rates[outputCurrency];
 }
 
+function formatNumber(number, numberOfDecimals) {
+  const symbol = number > 0 ? "+" : "";
+
+  if (number < 10000) {
+    return symbol + number.toFixed(numberOfDecimals);
+  } else if (number < 100000) {
+    return `${symbol}${(number / 1000).toFixed(2)}k`;
+  } else if (number < 1000000) {
+    return `${symbol}${(number / 1000).toFixed(1)}k`;
+  } else {
+    return `${symbol}${(number / 1000000).toFixed(3)}M`;
+  }
+}
+
 export default {
+  formatNumber,
   sumAndConvert
 };

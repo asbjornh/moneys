@@ -79,6 +79,14 @@
   width: 20%;
 }
 
+.isPositive {
+  color: $green;
+}
+
+.isNegative {
+  color: $red;
+}
+
 .percentage {
   font-weight: normal;
   padding-right: 10px;

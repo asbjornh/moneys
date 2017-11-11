@@ -44,7 +44,6 @@ class Stock extends React.Component {
     const absoluteDifference = ((price - purchasePrice) * qty).toFixed(2);
     const relativeDifference = (price / purchasePrice * 100 - 100).toFixed(2);
     const symbol = absoluteDifference >= 0 ? "+" : "";
-    const isPositive = absoluteDifference >= 0;
 
     return (
       <tbody
@@ -58,10 +57,10 @@ class Stock extends React.Component {
             </div>
           </td>
           <td
-            className={cn(
-              css.percentage,
-              isPositive ? css.isPositive : css.isNegative
-            )}
+            className={cn(css.percentage, {
+              [css.isPositive]: absoluteDifference > 0,
+              [css.isNegative]: absoluteDifference < 0
+            })}
           >
             {`${symbol}${relativeDifference}%`}
           </td>

@@ -31,7 +31,8 @@ body {
 .content {
   max-width: 600px;
   margin: 0 auto;
-  padding: 30px 20px 50px;
+  padding: 0 20px 50px;
+  padding-bottom: 50px;
   transition: transform 0.4s $ease-out;
 
   &.menuIsVisible {
@@ -39,7 +40,7 @@ body {
   }
 
   @media (min-width: $breakpoint-md) {
-    padding: 30px 40px 50px;
+    padding: 0 40px 50px;
   }
 }
 
