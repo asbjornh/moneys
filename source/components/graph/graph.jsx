@@ -25,6 +25,8 @@ class Graph extends React.Component {
   }
 
   getGradient = (canvas, points) => {
+    if (!points || !points.length) return "white";
+
     const max = points.reduce((accum, p) => (p.y > accum ? p.y : accum), 0);
     const min = points.reduce((accum, p) => (p.y < accum ? p.y : accum), 0);
     const mid = utils.rangeMap(0, min, max, 1, 0);
