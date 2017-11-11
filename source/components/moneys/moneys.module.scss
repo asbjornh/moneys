@@ -2,6 +2,14 @@
 @import "../../scss/vars";
 
 .moneys {
+  display: flex;
+}
+
+.graph {
+  flex-grow: 0;
+}
+
+.text {
   text-align: right;
   margin-bottom: 40px;
   user-select: none;

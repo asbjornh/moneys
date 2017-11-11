@@ -4,59 +4,66 @@ import PropTypes from "prop-types";
 import currencySymbols from "world-currencies";
 import get from "lodash/get";
 
-import utils from "../../js/utils";
-
 import css from "./moneys.module.scss";
 
+import Graph from "../graph";
 import Number from "../number";
 
-const Moneys = ({ currencies, convertToCurrency, lastUpdated, stocks }) => {
-  let sum = 0;
+class Moneys extends React.Component {
+  static propTypes = {
+    convertToCurrency: PropTypes.string,
+    lastUpdated: PropTypes.number,
+    sum: PropTypes.number
+  };
 
-  if (stocks && currencies) {
-    sum = utils.sumAndConvert(stocks, currencies, convertToCurrency);
+  static defaultProps = {
+    convertToCurrency: "NOK"
+  };
+
+  state = {};
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.sum !== this.props.sum && this.props.sum) {
+      console.log("update", this.props.sum);
+      this.setState({
+        graphWidth: this.container.offsetWidth - this.textContainer.offsetWidth
+      });
+    }
   }
 
-  const symbol = get(
-    currencySymbols,
-    `${convertToCurrency}.units.major.symbol`
-  );
+  render() {
+    const { convertToCurrency, lastUpdated, sum } = this.props;
 
-  let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
-  time = time ? time.substr(0, 5) : "";
+    const symbol = get(
+      currencySymbols,
+      `${convertToCurrency}.units.major.symbol`
+    );
 
-  const fontSize = `${1 - (String(parseInt(sum)).length - 2) * 0.05}em`;
+    let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
+    time = time ? time.substr(0, 5) : "";
 
-  return (
-    <div className={css.moneys}>
-      <h1>Moneys:</h1>
-      <div className={css.number}>
-        <div style={{ fontSize }}>
-          <Number number={sum} numberOfDecimals={0} currencySymbol={symbol} />
+    const fontSize = `${1 - (String(parseInt(sum)).length - 2) * 0.05}em`;
+
+    return (
+      <div className={css.moneys} ref={div => (this.container = div)}>
+        {this.state.graphWidth && <Graph width={this.state.graphWidth} />}
+        <div className={css.text} ref={div => (this.textContainer = div)}>
+          <h1>Moneys:</h1>
+          <div className={css.number}>
+            <div style={{ fontSize }}>
+              <Number
+                number={sum}
+                numberOfDecimals={0}
+                currencySymbol={symbol}
+              />
+            </div>
+          </div>
+
+          <p>{`Sist oppdatert: ${time}`}</p>
         </div>
       </div>
-
-      <p>{`Sist oppdatert: ${time}`}</p>
-    </div>
-  );
-};
-
-Moneys.propTypes = {
-  currencies: PropTypes.object,
-  convertToCurrency: PropTypes.string,
-  lastUpdated: PropTypes.number,
-  stocks: PropTypes.arrayOf(
-    PropTypes.shape({
-      currency: PropTypes.string,
-      purchasePrice: PropTypes.number,
-      price: PropTypes.number,
-      qty: PropTypes.number
-    })
-  )
-};
-
-Moneys.defaultProps = {
-  convertToCurrency: "NOK"
-};
+    );
+  }
+}
 
 export default Moneys;

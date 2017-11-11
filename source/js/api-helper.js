@@ -30,11 +30,15 @@ function addGraphPoint(stocks) {
         JSON.stringify(
           points.concat({
             x: new Date().getTime(),
-            y: sum.toFixed(2)
+            y: parseFloat(sum).toFixed(2)
           })
         )
       );
   });
+}
+
+function getGraphPoints() {
+  return JSON.parse(localStorage.getItem("graphData"));
 }
 
 function getStoredData(key) {
@@ -223,6 +227,7 @@ export default {
   deleteAllStocks,
   deleteStock,
   getCurrencies,
+  getGraphPoints,
   getStocks,
   hasStoredStocks
 };

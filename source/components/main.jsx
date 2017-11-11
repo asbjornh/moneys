@@ -6,6 +6,7 @@ import FlipMove from "react-flip-move";
 
 import api from "../js/api-helper";
 import settings from "../settings.json";
+import utils from "../js/utils";
 
 import Form from "./form";
 import Header from "./header";
@@ -39,7 +40,10 @@ class Main extends React.Component {
           this.setState({ isLoading: false, stocks, lastUpdated });
 
           api.getCurrencies().then(currencies => {
-            this.setState({ currencies });
+            this.setState({
+              currencies,
+              sum: utils.sumAndConvert(stocks, currencies, "NOK")
+            });
           });
         })
         .catch(e => {
@@ -56,7 +60,14 @@ class Main extends React.Component {
         api
           .addStock(formData)
           .then(({ stocks, lastUpdated }) => {
-            this.setState({ isLoading: false, lastUpdated, stocks });
+            api.getCurrencies().then(currencies => {
+              this.setState({
+                isLoading: false,
+                lastUpdated,
+                stocks,
+                sum: utils.sumAndConvert(stocks, currencies, "NOK")
+              });
+            });
           })
           .catch(e => {
             this.setState({ isLoading: false });
@@ -76,13 +87,18 @@ class Main extends React.Component {
 
   deleteStock = id => {
     api.deleteStock(id).then(stocks => {
-      this.setState({ stocks });
+      api.getCurrencies().then(currencies => {
+        this.setState({
+          stocks,
+          sum: utils.sumAndConvert(stocks, currencies, "NOK")
+        });
+      });
     });
   };
 
   deleteAllStocks = () => {
     api.deleteAllStocks();
-    this.setState({ stocks: [] });
+    this.setState({ stocks: [], sum: 0 });
   };
 
   render() {
@@ -117,11 +133,7 @@ class Main extends React.Component {
           toggleMenu={this.toggleMenu}
         />
 
-        <Moneys
-          stocks={this.state.stocks}
-          currencies={this.state.currencies}
-          lastUpdated={this.state.lastUpdated}
-        />
+        <Moneys lastUpdated={this.state.lastUpdated} sum={this.state.sum} />
 
         <Collapse isOpened={true}>
           <FlipMove
