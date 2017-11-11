@@ -18,7 +18,7 @@ function getOptions() {
     },
     layout: {
       padding: {
-        top: 0,
+        bottom: 20,
         left: 5,
         right: 20
       }
