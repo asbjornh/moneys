@@ -93,7 +93,7 @@ module.exports = (env = {}) => {
     plugins: (() => {
       const plugins = [
         new ExtractTextPlugin({
-          filename: "app.css",
+          filename: isProduction ? "app.[hash].css" : "app.css",
           allChunks: true
         }),
         new HtmlWebpackPlugin({

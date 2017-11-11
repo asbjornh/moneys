@@ -1,5 +1,5 @@
 function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
-  if (!stocks || !stocks.length || !currencies) return false;
+  if (!stocks || !stocks.length || !currencies) return 0;
 
   const values = stocks.map(stock => {
     return {
