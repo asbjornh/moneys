@@ -4,6 +4,7 @@
 .moneys {
   text-align: right;
   margin-bottom: 40px;
+  user-select: none;
 
   h1 {
     @include font-size-lg;

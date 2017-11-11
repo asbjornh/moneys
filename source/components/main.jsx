@@ -30,13 +30,19 @@ class Main extends React.Component {
     this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
     console.log("updating");
     this.setState({ isLoading: true }, () => {
-      api.getStocks().then(({ stocks, lastUpdated }) => {
-        this.setState({ isLoading: false, stocks, lastUpdated });
+      api
+        .getStocks()
+        .then(({ stocks, lastUpdated }) => {
+          this.setState({ isLoading: false, stocks, lastUpdated });
 
-        api.getCurrencies().then(currencies => {
-          this.setState({ currencies });
+          api.getCurrencies().then(currencies => {
+            this.setState({ currencies });
+          });
+        })
+        .catch(e => {
+          this.setState({ isLoading: false });
+          console.log(e);
         });
-      });
     });
   };
 

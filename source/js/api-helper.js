@@ -68,7 +68,8 @@ function getCurrencyData() {
         storeData("currencies", json);
         resolve(json);
       })
-      .catch(() => {
+      .catch(e => {
+        console.log(e);
         reject("Klarte ikke å hente valuta");
       });
   });
@@ -86,8 +87,9 @@ function getCurrencies() {
         .then(currencyData => {
           resolve(currencyData);
         })
-        .catch(() => {
-          reject("Klarte ikke å hente ny valuta-data. Bruker lagret versjon");
+        .catch(e => {
+          console.log(e);
+          reject("Klarte ikke å hente ny valuta-data.");
         });
     }
   });
@@ -95,45 +97,41 @@ function getCurrencies() {
 
 function getStockData({ symbol, purchasePrice, qty, id }) {
   return new Promise((resolve, reject) => {
-    if (!symbol || !purchasePrice || !qty) {
-      reject("Fyll ut alle feltene");
-    } else {
-      fetch(
-        `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
-        {
-          headers: new Headers({
-            "Content-Type": "application/json",
-            Origin: "asbjorn.org"
-          })
-        }
-      )
-        .then(response => {
-          return response.json();
+    fetch(
+      `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+      {
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Origin: "asbjorn.org"
         })
-        .then(json => {
-          const data = get(json, "quoteSummary.result[0]");
+      }
+    )
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        const data = get(json, "quoteSummary.result[0]");
 
-          if (data) {
-            resolve({
-              currency: get(data, "price.currency"),
-              currencySymbol: get(data, "price.currencySymbol"),
-              id,
-              longName: get(data, "price.longName").replace(/&amp;/g, "&"),
-              price: get(data, "price.regularMarketPrice"),
-              purchasePrice: parseFloat(purchasePrice),
-              qty: parseInt(qty),
-              symbol: get(data, "price.symbol")
-            });
-          } else {
-            console.log("no data");
-            reject("Fant ikke aksje");
-          }
-        })
-        .catch(() => {
-          console.log("fetch failed");
+        if (data) {
+          resolve({
+            currency: get(data, "price.currency"),
+            currencySymbol: get(data, "price.currencySymbol"),
+            id,
+            longName: get(data, "price.longName").replace(/&amp;/g, "&"),
+            price: get(data, "price.regularMarketPrice"),
+            purchasePrice: parseFloat(purchasePrice),
+            qty: parseInt(qty),
+            symbol: get(data, "price.symbol")
+          });
+        } else {
+          console.log("Server returned bad data");
           reject("Fant ikke aksje");
-        });
-    }
+        }
+      })
+      .catch(e => {
+        console.log(e);
+        reject("Fant ikke aksje");
+      });
   });
 }
 
@@ -162,7 +160,8 @@ function getStocks() {
           addGraphPoint(stocks.data);
           resolve({ stocks: stocks.data || [], lastUpdated: stocks.timeStamp });
         })
-        .catch(() => {
+        .catch(e => {
+          console.log(e);
           reject("Klarte ikke å hente nye aksjedata");
         });
     }
@@ -173,29 +172,34 @@ function addStock({ symbol, purchasePrice, qty }) {
   const id = symbol + purchasePrice + qty;
 
   return new Promise((resolve, reject) => {
-    const userStocksList = getUserStocks();
-    setUserStocks(
-      userStocksList.concat({
-        symbol,
-        purchasePrice,
-        qty,
-        id
-      })
-    );
-
-    getStocks().then(({ stocks }) => {
-      getStockData({ symbol, purchasePrice, qty, id })
-        .then(enrichedStock => {
-          const newStocks = stocks.concat(enrichedStock);
-          console.log(newStocks);
-
-          storeData("stocks", newStocks);
-          resolve(newStocks);
+    if (!symbol || !purchasePrice || !qty) {
+      reject("Fyll ut alle feltene");
+    } else {
+      const userStocksList = getUserStocks();
+      setUserStocks(
+        userStocksList.concat({
+          symbol,
+          purchasePrice,
+          qty,
+          id
         })
-        .catch(() => {
-          reject("Fant ikke aksje");
-        });
-    });
+      );
+
+      getStocks().then(({ stocks }) => {
+        getStockData({ symbol, purchasePrice, qty, id })
+          .then(enrichedStock => {
+            const newStocks = stocks.concat(enrichedStock);
+            console.log(newStocks);
+
+            storeData("stocks", newStocks);
+            resolve(newStocks);
+          })
+          .catch(e => {
+            console.log(e);
+            reject("Klarte ikke å hente aksjedata");
+          });
+      });
+    }
   });
 }
 
