@@ -169,7 +169,7 @@ function getStocks() {
 }
 
 function addStock({ symbol, purchasePrice, qty }) {
-  const id = symbol + purchasePrice + qty;
+  const id = String(new Date().getTime());
 
   return new Promise((resolve, reject) => {
     if (!symbol || !purchasePrice || !qty) {
@@ -214,8 +214,14 @@ function deleteStock(id) {
   });
 }
 
+function deleteAllStocks() {
+  localStorage.removeItem("userStocks");
+  localStorage.removeItem("stocks");
+}
+
 export default {
   addStock,
+  deleteAllStocks,
   deleteStock,
   getCurrencies,
   getStocks,

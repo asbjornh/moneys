@@ -1,0 +1,50 @@
+@import "../../scss/vars";
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 30px;
+
+  button {
+    position: relative;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid $medium-gray;
+    height: 36px;
+    width: 36px;
+    padding: 0;
+    border-radius: 100%;
+    color: $medium-gray;
+  }
+}
+
+.icon {
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 4px;
+  left: 4px;
+}
+
+.menuButton {
+  .icon {
+    opacity: 0;
+    transform: scale(0.5) rotate(90deg);
+    transition: transform 0.3s 0.3s, opacity 0.3s 0.3s;
+
+    &.isActive {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+.refreshButton {
+  .icon {
+    left: 2px;
+
+    svg {
+      width: 21px;
+    }
+  }
+}

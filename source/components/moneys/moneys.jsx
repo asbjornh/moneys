@@ -23,7 +23,7 @@ const Moneys = ({ currencies, convertToCurrency, lastUpdated, stocks }) => {
   );
 
   let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
-  time = time ? time.substr(0, 5) : "henter";
+  time = time ? time.substr(0, 5) : "";
 
   return (
     <div className={css.moneys}>

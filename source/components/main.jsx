@@ -1,5 +1,6 @@
 import React from "react";
 
+import cn from "classnames";
 import { UnmountClosed as Collapse } from "react-collapse";
 import FlipMove from "react-flip-move";
 
@@ -7,6 +8,8 @@ import api from "../js/api-helper";
 import settings from "../settings.json";
 
 import Form from "./form";
+import Header from "./header";
+import Menu from "./menu";
 import Moneys from "./moneys";
 import Spinner from "./spinner";
 import Stock from "./stock";
@@ -67,10 +70,19 @@ class Main extends React.Component {
     this.setState({ formIsVisible: true });
   };
 
+  toggleMenu = () => {
+    this.setState(state => ({ menuIsVisible: !state.menuIsVisible }));
+  };
+
   deleteStock = id => {
     api.deleteStock(id).then(stocks => {
       this.setState({ stocks });
     });
+  };
+
+  deleteAllStocks = () => {
+    api.deleteAllStocks();
+    this.setState({ stocks: [] });
   };
 
   render() {
@@ -90,8 +102,21 @@ class Main extends React.Component {
       )
     );
 
-    return (
-      <div className="content">
+    return [
+      <Menu
+        isVisible={this.state.menuIsVisible}
+        key="menu"
+        deleteAllStocks={this.deleteAllStocks}
+      />,
+      <div
+        className={cn("content", { menuIsVisible: this.state.menuIsVisible })}
+        key="content"
+      >
+        <Header
+          menuIsVisible={this.state.menuIsVisible}
+          toggleMenu={this.toggleMenu}
+        />
+
         <Moneys
           stocks={this.state.stocks}
           currencies={this.state.currencies}
@@ -125,7 +150,7 @@ class Main extends React.Component {
           </button>
         </div>
       </div>
-    );
+    ];
   }
 }
 

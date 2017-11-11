@@ -1,0 +1,29 @@
+@import "../../scss/vars";
+@import "../../scss/mixins";
+
+.menu {
+  position: fixed;
+  width: 50%;
+  height: 100%;
+  top: 0;
+  right: -50%;
+  padding-top: 30px;
+  padding-right: 30px;
+  transition: transform 0.4s $ease-out;
+
+  &.isVisible {
+    transform: translateX(-100%);
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: right;
+  }
+
+  button {
+    @include button($border-color);
+    color: white;
+  }
+}
