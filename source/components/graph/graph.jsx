@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { Line } from "react-chartjs-2";
 
 import api from "../../js/api-helper";
-import css from "./graph.module.scss";
 import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
 import utils from "../../js/utils";
@@ -58,7 +57,6 @@ class Graph extends React.Component {
 
           return (
             <Line
-              className={css.graph}
               data={data}
               width={this.props.width}
               height={this.props.width / 2.5}
