@@ -185,13 +185,13 @@ function addStock({ symbol, purchasePrice, qty }) {
         })
       );
 
-      getStocks().then(({ stocks }) => {
+      getStocks().then(({ stocks, lastUpdated }) => {
         getStockData({ symbol, purchasePrice, qty, id })
           .then(enrichedStock => {
             const newStocks = stocks.concat(enrichedStock);
 
             storeData("stocks", newStocks);
-            resolve(newStocks);
+            resolve({ stocks: newStocks, lastUpdated: lastUpdated });
           })
           .catch(e => {
             console.log(e);

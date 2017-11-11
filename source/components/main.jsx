@@ -55,8 +55,8 @@ class Main extends React.Component {
       setTimeout(() => {
         api
           .addStock(formData)
-          .then(stocks => {
-            this.setState({ isLoading: false, stocks });
+          .then(({ stocks, lastUpdated }) => {
+            this.setState({ isLoading: false, lastUpdated, stocks });
           })
           .catch(e => {
             this.setState({ isLoading: false });
