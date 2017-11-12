@@ -45,7 +45,7 @@ function getStoredData(key) {
   const data = JSON.parse(localStorage.getItem(key));
 
   if (data && new Date().getTime() - data.timeStamp < settings.storage.maxAge) {
-    console.log(`using stored ${key} data`);
+    console.log(`Bruker lagret data for '${key}'`);
     return data;
   } else {
     return false;
@@ -86,7 +86,7 @@ function getCurrencies() {
     if (currencies && currencies.data) {
       resolve(currencies.data);
     } else {
-      console.log("getting new currency data");
+      console.log("Henter nye valutadata");
       getCurrencyData()
         .then(currencyData => {
           resolve(currencyData);
@@ -100,6 +100,7 @@ function getCurrencies() {
 }
 
 function getStockData({ symbol, purchasePrice, qty, id }) {
+  console.log(`Henter data for ${symbol}`);
   return new Promise((resolve, reject) => {
     fetch(
       `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
@@ -160,9 +161,10 @@ function getStocks() {
       console.log("Henter nye aksjedata");
       Promise.all(userStocks.map(stock => getStockData(stock)))
         .then(stocks => {
+          console.log("Fant aksjedata", stocks);
           storeData("stocks", stocks);
-          addGraphPoint(stocks.data);
-          resolve({ stocks: stocks.data || [], lastUpdated: stocks.timeStamp });
+          addGraphPoint(stocks);
+          resolve({ stocks: stocks || [], lastUpdated: new Date().getTime() });
         })
         .catch(e => {
           console.log(e);
@@ -220,7 +222,7 @@ function deleteStock(id) {
 function deleteAllStocks() {
   localStorage.removeItem("userStocks");
   localStorage.removeItem("stocks");
-  localStorage.removeItem("graphPoints");
+  localStorage.removeItem("graphData");
 }
 
 export default {

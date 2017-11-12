@@ -23,22 +23,25 @@ class Moneys extends React.Component {
   state = {};
 
   componentDidMount() {
-    window.addEventListener("resize", this.getGraphWidth);
+    window.addEventListener("resize", this.getGraphSize);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.getGraphWidth);
+    window.removeEventListener("resize", this.getGraphSize);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.sum !== this.props.sum && this.props.sum) {
-      this.getGraphWidth();
+      this.getGraphSize();
     }
   }
 
-  getGraphWidth = () => {
+  getGraphSize = () => {
     this.setState({
-      graphWidth: this.container.offsetWidth - this.textContainer.offsetWidth
+      graphSize: {
+        width: this.container.offsetWidth - this.textContainer.offsetWidth,
+        height: this.textContainer.offsetHeight
+      }
     });
   };
 
@@ -57,11 +60,7 @@ class Moneys extends React.Component {
 
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>
-        {this.state.graphWidth && (
-          <div style={{ width: this.state.width }}>
-            <Graph width={this.state.graphWidth} />
-          </div>
-        )}
+        {this.state.graphSize && <Graph {...this.state.graphSize} />}
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1>Moneys:</h1>
           <div className={css.number}>

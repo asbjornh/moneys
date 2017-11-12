@@ -32,7 +32,7 @@ class Main extends React.Component {
 
   refreshData = () => {
     this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
-    console.log("updating");
+    console.log("Oppdaterer");
     this.setState({ isLoading: true }, () => {
       api
         .getStocks()

@@ -1,7 +1,11 @@
 import Chart from "chart.js";
 import merge from "lodash/merge";
 
-function getOptions() {
+function getOptions(points) {
+  const i = Infinity;
+  const max = points.reduce((accum, p) => (p.y > accum ? p.y : accum), -i);
+  const min = points.reduce((accum, p) => (p.y < accum ? p.y : accum), i);
+
   return merge(Chart.defaults.global, {
     animation: {
       duration: 0
@@ -18,16 +22,21 @@ function getOptions() {
     },
     layout: {
       padding: {
+        bottom: 4,
         left: 5,
-        right: 30
+        right: 30,
+        top: 4
       }
     },
     legend: { display: false },
+    maintainAspectRatio: false,
+    responsive: false,
     scales: {
       xAxes: [{ display: false }],
       yAxes: [
         {
-          display: false
+          display: false,
+          ticks: { min, max }
         }
       ]
     },
