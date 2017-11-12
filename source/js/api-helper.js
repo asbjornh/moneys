@@ -11,6 +11,13 @@ function setUserStocks(stocks) {
   localStorage.setItem("userStocks", JSON.stringify(stocks));
 }
 
+function getBackupData() {
+  return JSON.stringify({
+    userStocks: JSON.parse(localStorage.getItem("userStocks")),
+    graphData: JSON.parse(localStorage.getItem("graphData"))
+  });
+}
+
 function addGraphPoint(stocks) {
   const points = JSON.parse(localStorage.getItem("graphData")) || [];
   const lastPoint = points.slice(-1)[0];
@@ -229,6 +236,7 @@ export default {
   addStock,
   deleteAllStocks,
   deleteStock,
+  getBackupData,
   getCurrencies,
   getGraphPoints,
   getStocks,
