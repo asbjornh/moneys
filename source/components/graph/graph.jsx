@@ -26,10 +26,6 @@ class Graph extends React.Component {
     });
   }
 
-  componentDidMount() {
-    console.log(this.chart.chart_instance);
-  }
-
   getGradient = (canvas, points) => {
     if (!points || !points.length) return "white";
 
