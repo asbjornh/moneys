@@ -47,7 +47,7 @@ class Graph extends React.Component {
   };
 
   render() {
-    return !this.state.showGraph || !this.state.points.length < 2
+    return !this.state.showGraph || this.state.points.length < 2
       ? null
       : (() => {
           const data = canvas => {

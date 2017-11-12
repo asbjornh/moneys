@@ -118,51 +118,55 @@ class Main extends React.Component {
       )
     );
 
-    return [
-      <Menu
-        isVisible={this.state.menuIsVisible}
-        key="menu"
-        deleteAllStocks={this.deleteAllStocks}
-      />,
-      <div
-        className={cn("content", { menuIsVisible: this.state.menuIsVisible })}
-        key="content"
-      >
-        <Header
-          menuIsVisible={this.state.menuIsVisible}
-          toggleMenu={this.toggleMenu}
-        />
-
-        <Moneys lastUpdated={this.state.lastUpdated} sum={this.state.sum} />
-
-        <Collapse isOpened={true}>
-          <FlipMove
-            className="stocks"
-            duration={700}
-            easing="cubic-bezier(0.25, 0.12, 0.22, 1)"
-            staggerDurationBy={50}
-            typeName="table"
+    return (
+      <div className="scroll-wrapper-outer">
+        <div className="scroll-wrapper-inner">
+          <Menu
+            isVisible={this.state.menuIsVisible}
+            deleteAllStocks={this.deleteAllStocks}
+          />
+          <div
+            className={cn("content", {
+              menuIsVisible: this.state.menuIsVisible
+            })}
           >
-            {stocksWithLoader.map(element => element)}
-          </FlipMove>
-        </Collapse>
+            <Header
+              menuIsVisible={this.state.menuIsVisible}
+              toggleMenu={this.toggleMenu}
+            />
 
-        <div className="form-container">
-          <Collapse isOpened={this.state.formIsVisible}>
-            <Form onSubmit={this.addStock} />
-          </Collapse>
+            <Moneys lastUpdated={this.state.lastUpdated} sum={this.state.sum} />
 
-          <button
-            className="form-button"
-            onClick={this.showForm}
-            type="button"
-            disabled={this.state.formIsVisible}
-          >
-            +
-          </button>
+            <Collapse isOpened={true}>
+              <FlipMove
+                className="stocks"
+                duration={700}
+                easing="cubic-bezier(0.25, 0.12, 0.22, 1)"
+                staggerDurationBy={50}
+                typeName="table"
+              >
+                {stocksWithLoader.map(element => element)}
+              </FlipMove>
+            </Collapse>
+
+            <div className="form-container">
+              <Collapse isOpened={this.state.formIsVisible}>
+                <Form onSubmit={this.addStock} />
+              </Collapse>
+
+              <button
+                className="form-button"
+                onClick={this.showForm}
+                type="button"
+                disabled={this.state.formIsVisible}
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    ];
+    );
   }
 }
 

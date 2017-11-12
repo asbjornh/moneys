@@ -18,6 +18,16 @@ function getBackupData() {
   });
 }
 
+function insertBackupData(data) {
+  const newData = JSON.parse(data);
+
+  Object.keys(newData).forEach(key => {
+    localStorage.setItem(key, JSON.stringify(newData[key]));
+  });
+
+  window.location.reload();
+}
+
 function addGraphPoint(stocks) {
   const points = JSON.parse(localStorage.getItem("graphData")) || [];
   const lastPoint = points.slice(-1)[0];
@@ -239,5 +249,6 @@ export default {
   getCurrencies,
   getGraphPoints,
   getStocks,
-  hasStoredStocks
+  hasStoredStocks,
+  insertBackupData
 };

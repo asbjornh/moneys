@@ -5,10 +5,15 @@ import cn from "classnames";
 
 import api from "../../js/api-helper";
 import css from "./menu.module.scss";
+import FileUpload from "../file-upload";
 
 const createDownloadLink = content => {
   var file = new Blob([content], { type: "application/json" });
   return URL.createObjectURL(file);
+};
+
+const onFileUpload = content => {
+  api.insertBackupData(content);
 };
 
 const Menu = ({ isVisible, deleteAllStocks }) => (
@@ -26,6 +31,13 @@ const Menu = ({ isVisible, deleteAllStocks }) => (
         >
           Last ned backup
         </a>
+      </li>
+      <li>
+        <FileUpload
+          label="Last opp backup"
+          accept="application/json"
+          onFileUpload={onFileUpload}
+        />
       </li>
     </ul>
   </div>
