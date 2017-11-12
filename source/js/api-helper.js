@@ -45,7 +45,7 @@ function addGraphPoint(stocks) {
 }
 
 function getGraphPoints() {
-  return JSON.parse(localStorage.getItem("graphData"));
+  return JSON.parse(localStorage.getItem("graphData")) || [];
 }
 
 function getStoredData(key) {
@@ -168,7 +168,6 @@ function getStocks() {
       console.log("Henter nye aksjedata");
       Promise.all(userStocks.map(stock => getStockData(stock)))
         .then(stocks => {
-          console.log("Fant aksjedata", stocks);
           storeData("stocks", stocks);
           addGraphPoint(stocks);
           resolve({ stocks: stocks || [], lastUpdated: new Date().getTime() });

@@ -21,6 +21,7 @@ class Graph extends React.Component {
   };
 
   componentWillReceiveProps() {
+    // Unmount and mount graph again to force repaint
     this.setState({ showGraph: false }, () => {
       this.setState({ showGraph: true });
     });
@@ -46,7 +47,7 @@ class Graph extends React.Component {
   };
 
   render() {
-    return !this.state.showGraph
+    return !this.state.showGraph || !this.state.points.length < 2
       ? null
       : (() => {
           const data = canvas => {
