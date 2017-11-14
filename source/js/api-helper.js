@@ -1,5 +1,6 @@
 import get from "lodash/get";
 
+import cryptoCurrencies from "../data/cryptocurrencies.json";
 import settings from "../settings.json";
 import utils from "./utils";
 
@@ -161,11 +162,17 @@ function getStockData({
         const data = get(json, "quoteSummary.result[0]");
 
         if (data) {
+          const longName =
+            cryptoCurrencies[symbol] ||
+            get(data, "price.longName") ||
+            get(data, "price.shortName") ||
+            get(data, "price.symbol");
+
           resolve({
             currency: get(data, "price.currency"),
             currencySymbol: get(data, "price.currencySymbol"),
             id,
-            longName: get(data, "price.longName").replace(/&amp;/g, "&"),
+            longName: longName.replace(/&amp;/g, "&"),
             price: get(data, "price.regularMarketPrice"),
             purchaseCurrency,
             purchaseExchangeRate,
@@ -195,7 +202,7 @@ function getStocks() {
     const stocks = getStoredData("stocks");
 
     getCurrencies().then(currencies => {
-      if (stocks && stocks.data && stocks.data.length === userStocks.length) {
+      if (stocks && stocks.data && stocks.data.length >= userStocks.length) {
         addGraphPoint(stocks.data);
         resolve({
           lastUpdated: stocks.timeStamp,
@@ -244,7 +251,6 @@ function addStock(formData) {
         );
 
         newStock.purchaseExchangeRate = purchaseExchangeRate;
-        enrichedStock.purchaseExchangeRate = purchaseExchangeRate;
 
         const userStocksList = getUserStocks();
         setUserStocks(userStocksList.concat(newStock));
@@ -266,6 +272,8 @@ function deleteStock(id) {
   return new Promise(resolve => {
     const userStocksList = getUserStocks();
     setUserStocks(userStocksList.filter(stock => stock.id !== id));
+    const stocks = getStoredData("stocks");
+    storeData("stocks", stocks.data.filter(stock => stock.id !== id));
 
     getStocks().then(({ stocks, sum }) => {
       resolve({ stocks, sum });
