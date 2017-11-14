@@ -41,7 +41,7 @@ function addGraphPoint(stocks) {
 
   getCurrencies().then(currencies => {
     const sum = utils.sumAndConvert(stocks, currencies);
-    sum &&
+    if (sum) {
       localStorage.setItem(
         "graphData",
         JSON.stringify(
@@ -51,6 +51,7 @@ function addGraphPoint(stocks) {
           })
         )
       );
+    }
   });
 }
 

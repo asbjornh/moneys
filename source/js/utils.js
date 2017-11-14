@@ -30,6 +30,7 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
 }
 
 function formatNumber(number, numberOfDecimals) {
+  if (isNaN(number)) return 0;
   const symbol = number > 0 ? "+" : "";
 
   if (number < 10000) {

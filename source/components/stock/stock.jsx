@@ -19,6 +19,12 @@ class Stock extends React.Component {
     symbol: PropTypes.string
   };
 
+  static defaultProps = {
+    price: 0,
+    purchasePrice: 0,
+    qty: 0
+  };
+
   state = {
     hasHover: false
   };
