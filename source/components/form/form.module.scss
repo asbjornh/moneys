@@ -3,11 +3,31 @@
 
 .form {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   padding-bottom: 40px;
 }
 
+.formRow {
+  width: 100%;
+  display: flex;
+  padding-bottom: 20px;
+
+  &:last-of-type {
+    padding-bottom: 30px;
+  }
+}
+
 .input {
-  flex-grow: 1;
+  width: 33.3%;
+
+  &:last-child {
+    flex-grow: 1;
+
+    input {
+      width: 100%;
+    }
+  }
 
   label {
     display: block;
@@ -16,6 +36,8 @@
 
   input {
     width: 90%;
+    height: 1.4em;
+    font-family: inherit;
     font-size: 1.5em;
     background-color: transparent;
     border: none;
@@ -44,7 +66,17 @@
   }
 }
 
+.cancelButton,
+.submitButton {
+  width: calc(50% - 5px);
+}
+
+.cancelButton {
+  @include button($border-color);
+  color: white;
+}
+
 .submitButton {
   @include button;
-  align-self: flex-end;
+  padding: 15px;
 }

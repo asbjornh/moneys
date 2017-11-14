@@ -6,7 +6,6 @@ import FlipMove from "react-flip-move";
 
 import api from "../js/api-helper";
 import settings from "../settings.json";
-import utils from "../js/utils";
 
 import Form from "./form";
 import Header from "./header";
@@ -36,15 +35,8 @@ class Main extends React.Component {
     this.setState({ isLoading: true }, () => {
       api
         .getStocks()
-        .then(({ stocks, lastUpdated }) => {
-          this.setState({ isLoading: false, stocks, lastUpdated });
-
-          api.getCurrencies().then(currencies => {
-            this.setState({
-              currencies,
-              sum: utils.sumAndConvert(stocks, currencies, "NOK")
-            });
-          });
+        .then(({ stocks, lastUpdated, sum }) => {
+          this.setState({ isLoading: false, stocks, lastUpdated, sum });
         })
         .catch(e => {
           this.setState({ isLoading: false });
@@ -59,14 +51,12 @@ class Main extends React.Component {
       setTimeout(() => {
         api
           .addStock(formData)
-          .then(({ stocks, lastUpdated }) => {
-            api.getCurrencies().then(currencies => {
-              this.setState({
-                isLoading: false,
-                lastUpdated,
-                stocks,
-                sum: utils.sumAndConvert(stocks, currencies, "NOK")
-              });
+          .then(({ stocks, lastUpdated, sum }) => {
+            this.setState({
+              isLoading: false,
+              lastUpdated,
+              stocks,
+              sum
             });
           })
           .catch(e => {
@@ -81,24 +71,22 @@ class Main extends React.Component {
     this.setState({ formIsVisible: true });
   };
 
+  hideForm = () => {
+    this.setState({ formIsVisible: false });
+  };
+
   toggleMenu = () => {
     this.setState(state => ({ menuIsVisible: !state.menuIsVisible }));
   };
 
   deleteStock = id => {
-    api.deleteStock(id).then(stocks => {
-      api.getCurrencies().then(currencies => {
-        this.setState({
-          stocks,
-          sum: utils.sumAndConvert(stocks, currencies, "NOK")
-        });
-      });
+    api.deleteStock(id).then(({ stocks, sum }) => {
+      this.setState({ stocks, sum });
     });
   };
 
   deleteAllStocks = () => {
     api.deleteAllStocks();
-    this.setState({ stocks: [], sum: 0 });
   };
 
   render() {
@@ -151,7 +139,7 @@ class Main extends React.Component {
 
             <div className="form-container">
               <Collapse isOpened={this.state.formIsVisible}>
-                <Form onSubmit={this.addStock} />
+                <Form onSubmit={this.addStock} onCancelClick={this.hideForm} />
               </Collapse>
 
               <button
