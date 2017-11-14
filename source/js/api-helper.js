@@ -195,7 +195,7 @@ function getStocks() {
     const stocks = getStoredData("stocks");
 
     getCurrencies().then(currencies => {
-      if (stocks && stocks.data) {
+      if (stocks && stocks.data && stocks.data.length === userStocks.length) {
         addGraphPoint(stocks.data);
         resolve({
           lastUpdated: stocks.timeStamp,
@@ -211,8 +211,9 @@ function getStocks() {
             storeData("stocks", stocks);
             addGraphPoint(stocks);
             resolve({
-              stocks: stocks || [],
-              lastUpdated: new Date().getTime()
+              stocks,
+              lastUpdated: new Date().getTime(),
+              sum: utils.sumAndConvert(stocks, currencies)
             });
           })
           .catch(e => {
@@ -250,10 +251,7 @@ function addStock(formData) {
 
         getStocks()
           .then(({ stocks, lastUpdated, sum }) => {
-            const newStocks = stocks.concat(enrichedStock);
-            storeData("stocks", newStocks);
-
-            resolve({ stocks: newStocks, lastUpdated: lastUpdated, sum });
+            resolve({ stocks, lastUpdated, sum });
           })
           .catch(e => {
             console.log(e);
