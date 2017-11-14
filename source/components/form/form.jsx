@@ -24,8 +24,6 @@ class Form extends React.Component {
       if (!value[1]) formIsValid = false;
     });
 
-    console.log(formData);
-
     if (formIsValid) {
       this.props.onSubmit(formData);
     } else {
