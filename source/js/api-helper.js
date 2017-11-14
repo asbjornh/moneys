@@ -47,7 +47,7 @@ function addGraphPoint(stocks) {
         JSON.stringify(
           points.concat({
             x: new Date().getTime(),
-            y: parseFloat(sum).toFixed(2)
+            y: parseFloat(sum.toFixed(2))
           })
         )
       );
