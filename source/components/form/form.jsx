@@ -7,6 +7,7 @@ import css from "./form.module.scss";
 
 class Form extends React.Component {
   static propTypes = {
+    onCancelClick: PropTypes.func,
     onSubmit: PropTypes.func
   };
 
@@ -16,28 +17,54 @@ class Form extends React.Component {
     e.preventDefault();
 
     const formData = {};
+    let formIsValid = true;
+
     Array.from(new FormData(e.target).entries()).forEach(value => {
-      formData[value[0]] = value[1];
+      formData[value[0]] = value[1].toUpperCase();
+      if (!value[1]) formIsValid = false;
     });
 
-    this.props.onSubmit(formData);
+    if (formIsValid) {
+      this.props.onSubmit(formData);
+    } else {
+      alert("Fyll ut alle feltene");
+    }
   };
 
   render() {
     return (
       <form className={css.form} onSubmit={this.onSubmit} noValidate>
-        <div className={css.input}>
-          <label>Ticker:</label>
-          <input name="symbol" placeholder="AAPL" />
+        <div className={css.formRow}>
+          <div className={css.input}>
+            <label>Ticker:</label>
+            <input name="symbol" placeholder="AAPL" />
+          </div>
+          <div className={css.input}>
+            <label>Antall:</label>
+            <input name="qty" type="number" placeholder="1" />
+          </div>
+          <div className={css.input}>
+            <label>Totalpris:</label>
+            <input name="purchasePrice" type="number" placeholder="1000" />
+          </div>
         </div>
-        <div className={css.input}>
-          <label>Pris:</label>
-          <input name="purchasePrice" type="number" placeholder="250" />
+        <div className={css.formRow}>
+          <div className={css.input}>
+            <label>Valuta:</label>
+            <input name="purchaseCurrency" type="text" placeholder="NOK" />
+          </div>
+          <div className={css.input}>
+            <label>Dato kjøpt:</label>
+            <input name="purchaseDate" type="date" />
+          </div>
         </div>
-        <div className={css.input}>
-          <label>Antall:</label>
-          <input name="qty" type="number" placeholder="1" />
-        </div>
+        <button
+          className={css.cancelButton}
+          type="button"
+          onClick={this.props.onCancelClick}
+        >
+          Avbryt
+        </button>
         <button className={css.submitButton} type="submit">
           Legg til
         </button>

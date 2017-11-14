@@ -1,7 +1,10 @@
 import get from "lodash/get";
 
+import cryptoCurrencies from "../data/cryptocurrencies.json";
 import settings from "../settings.json";
 import utils from "./utils";
+
+const CORSBlaster = "https://cors-anywhere.herokuapp.com/";
 
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
@@ -83,7 +86,7 @@ function storeData(key, data) {
 function getCurrencyData() {
   return new Promise((resolve, reject) => {
     fetch(
-      "https://cors-anywhere.herokuapp.com/https://openexchangerates.org/api/latest.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0"
+      `${CORSBlaster}https://openexchangerates.org/api/latest.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
     )
       .then(response => response.json())
       .then(json => {
@@ -93,6 +96,22 @@ function getCurrencyData() {
       .catch(e => {
         console.log(e);
         reject("Klarte ikke å hente valuta");
+      });
+  });
+}
+
+function getHistoricalCurrencyData(date) {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${CORSBlaster}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
+    )
+      .then(response => response.json())
+      .then(json => {
+        resolve(json);
+      })
+      .catch(e => {
+        console.log(e);
+        reject("Klarte ikke å hente historiske valutadata");
       });
   });
 }
@@ -111,17 +130,24 @@ function getCurrencies() {
         })
         .catch(e => {
           console.log(e);
-          reject("Klarte ikke å hente ny valuta-data.");
+          reject("Klarte ikke å hente ny valutadata.");
         });
     }
   });
 }
 
-function getStockData({ symbol, purchasePrice, qty, id }) {
+function getStockData({
+  symbol,
+  purchaseCurrency,
+  purchaseExchangeRate,
+  purchasePrice,
+  qty,
+  id
+}) {
   console.log(`Henter data for ${symbol}`);
   return new Promise((resolve, reject) => {
     fetch(
-      `https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+      `${CORSBlaster}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
       {
         headers: new Headers({
           "Content-Type": "application/json",
@@ -136,14 +162,21 @@ function getStockData({ symbol, purchasePrice, qty, id }) {
         const data = get(json, "quoteSummary.result[0]");
 
         if (data) {
-          const longName = get(data, "price.longName") || get(data, "price.shortName") || get(data, "price.symbol");
+          const longName =
+            cryptoCurrencies[symbol] ||
+            get(data, "price.longName") ||
+            get(data, "price.shortName") ||
+            get(data, "price.symbol");
+
           resolve({
             currency: get(data, "price.currency"),
             currencySymbol: get(data, "price.currencySymbol"),
             id,
             longName: longName.replace(/&amp;/g, "&"),
             price: get(data, "price.regularMarketPrice"),
-            purchasePrice: parseFloat(purchasePrice),
+            purchaseCurrency,
+            purchaseExchangeRate,
+            purchasePrice: parseFloat(purchasePrice) / parseInt(qty),
             qty: parseInt(qty),
             symbol: get(data, "price.symbol")
           });
@@ -168,61 +201,70 @@ function getStocks() {
     const userStocks = getUserStocks();
     const stocks = getStoredData("stocks");
 
-    if (stocks && stocks.data) {
-      addGraphPoint(stocks.data);
-      resolve({
-        stocks: stocks.data.filter(({ id }) => {
-          return !!userStocks.find(stock => stock.id === id);
-        }),
-        lastUpdated: stocks.timeStamp
-      });
-    } else {
-      console.log("Henter nye aksjedata");
-      Promise.all(userStocks.map(stock => getStockData(stock)))
-        .then(stocks => {
-          storeData("stocks", stocks);
-          addGraphPoint(stocks);
-          resolve({ stocks: stocks || [], lastUpdated: new Date().getTime() });
-        })
-        .catch(e => {
-          console.log(e);
-          reject("Klarte ikke å hente nye aksjedata");
+    getCurrencies().then(currencies => {
+      if (stocks && stocks.data && stocks.data.length >= userStocks.length) {
+        addGraphPoint(stocks.data);
+        resolve({
+          lastUpdated: stocks.timeStamp,
+          stocks: stocks.data.filter(({ id }) => {
+            return !!userStocks.find(stock => stock.id === id);
+          }),
+          sum: utils.sumAndConvert(stocks.data, currencies)
         });
-    }
+      } else {
+        console.log("Henter nye aksjedata");
+        Promise.all(userStocks.map(stock => getStockData(stock)))
+          .then(stocks => {
+            storeData("stocks", stocks);
+            addGraphPoint(stocks);
+            resolve({
+              stocks,
+              lastUpdated: new Date().getTime(),
+              sum: utils.sumAndConvert(stocks, currencies)
+            });
+          })
+          .catch(e => {
+            console.log(e);
+            reject("Klarte ikke å hente nye aksjedata");
+          });
+      }
+    });
   });
 }
 
-function addStock({ symbol, purchasePrice, qty }) {
-  const id = String(new Date().getTime());
-
+function addStock(formData) {
   return new Promise((resolve, reject) => {
-    if (!symbol || !purchasePrice || !qty) {
-      reject("Fyll ut alle feltene");
-    } else {
-      const userStocksList = getUserStocks();
-      setUserStocks(
-        userStocksList.concat({
-          symbol,
-          purchasePrice,
-          qty,
-          id
-        })
-      );
+    getHistoricalCurrencyData(
+      formData.purchaseDate
+    ).then(historicalCurrencies => {
+      const newStock = Object.assign({}, formData, {
+        id: String(new Date().getTime())
+      });
 
-      getStocks().then(({ stocks, lastUpdated }) => {
-        getStockData({ symbol, purchasePrice, qty, id })
-          .then(enrichedStock => {
-            const newStocks = stocks.concat(enrichedStock);
+      getStockData(newStock).then(enrichedStock => {
+        // Get exchange rate at time of purchase
+        const purchaseExchangeRate = utils.convert(
+          1,
+          enrichedStock.currency,
+          formData.purchaseCurrency,
+          historicalCurrencies
+        );
 
-            storeData("stocks", newStocks);
-            resolve({ stocks: newStocks, lastUpdated: lastUpdated });
+        newStock.purchaseExchangeRate = purchaseExchangeRate;
+
+        const userStocksList = getUserStocks();
+        setUserStocks(userStocksList.concat(newStock));
+
+        getStocks()
+          .then(({ stocks, lastUpdated, sum }) => {
+            resolve({ stocks, lastUpdated, sum });
           })
           .catch(e => {
             console.log(e);
             reject("Klarte ikke å hente aksjedata");
           });
       });
-    }
+    });
   });
 }
 
@@ -230,9 +272,11 @@ function deleteStock(id) {
   return new Promise(resolve => {
     const userStocksList = getUserStocks();
     setUserStocks(userStocksList.filter(stock => stock.id !== id));
+    const stocks = getStoredData("stocks");
+    storeData("stocks", stocks.data.filter(stock => stock.id !== id));
 
-    getStocks().then(({ stocks }) => {
-      resolve(stocks);
+    getStocks().then(({ stocks, sum }) => {
+      resolve({ stocks, sum });
     });
   });
 }
@@ -241,6 +285,7 @@ function deleteAllStocks() {
   localStorage.removeItem("userStocks");
   localStorage.removeItem("stocks");
   localStorage.removeItem("graphData");
+  window.location.reload();
 }
 
 export default {

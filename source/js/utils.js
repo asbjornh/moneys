@@ -1,32 +1,21 @@
+function convert(value, fromCurrency, toCurrency, currencies) {
+  const baseValue = value / currencies.rates[fromCurrency]; // convert to base value
+  return baseValue * currencies.rates[toCurrency]; // convert to output currency
+}
+
 function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
-  if (!stocks || !stocks.length || !currencies) return 0;
+  return stocks.reduce((accum, stock) => {
+    const currentPrice = stock.price * stock.qty;
+    const convertedCurrentPrice = convert(
+      currentPrice,
+      stock.currency,
+      outputCurrency,
+      currencies
+    );
+    const difference = convertedCurrentPrice - stock.purchasePrice * stock.qty;
 
-  const values = stocks.map(stock => {
-    return {
-      amount: (stock.price - stock.purchasePrice) * stock.qty,
-      currency: stock.currency
-    };
-  });
-
-  const baseSum = values
-    .reduce((accum, { currency }) => {
-      // Create array of unique currency names
-      return accum.indexOf(currency) === -1 ? accum.concat(currency) : accum;
-    }, [])
-    .reduce((accum, currency) => {
-      // Create array of partial sums per currency
-      return accum.concat({
-        currency,
-        amount: values
-          .filter(value => value.currency === currency) // get all values of same currency
-          .reduce((accum, value) => accum + value.amount, 0) // sum
-      });
-    }, [])
-    .reduce((accum, { amount, currency }) => {
-      return accum + amount / currencies.rates[currency];
-    }, 0);
-
-  return baseSum * currencies.rates[outputCurrency];
+    return accum + difference;
+  }, 0);
 }
 
 function formatNumber(number, numberOfDecimals) {
@@ -49,6 +38,7 @@ function rangeMap(value, in_min, in_max, out_min, out_max) {
 }
 
 export default {
+  convert,
   formatNumber,
   rangeMap,
   sumAndConvert
