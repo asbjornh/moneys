@@ -145,51 +145,48 @@ function getStockData({
   id
 }) {
   console.log(`Henter data for ${symbol}`);
-  return new Promise((resolve, reject) => {
-    fetch(
-      `${CORSBlaster}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
-      {
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Origin: "asbjorn.org"
-        })
-      }
-    )
-      .then(response => {
+  return fetch(
+    `${CORSBlaster}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+    {
+      headers: new Headers({
+        "Content-Type": "application/json",
+        Origin: "asbjorn.org"
+      })
+    }
+  )
+    .then(response => {
+      if (response.ok) {
         return response.json();
-      })
-      .then(json => {
-        const data = get(json, "quoteSummary.result[0]");
+      } else {
+        throw new Error("Fant ikke aksje");
+      }
+    })
+    .then(json => {
+      const data = get(json, "quoteSummary.result[0]");
 
-        if (data) {
-          const longName =
-            cryptoCurrencies[symbol] ||
-            get(data, "price.longName") ||
-            get(data, "price.shortName") ||
-            get(data, "price.symbol");
+      if (data) {
+        const longName =
+          cryptoCurrencies[symbol] ||
+          get(data, "price.longName") ||
+          get(data, "price.shortName") ||
+          get(data, "price.symbol");
 
-          resolve({
-            currency: get(data, "price.currency"),
-            currencySymbol: get(data, "price.currencySymbol"),
-            id,
-            longName: longName.replace(/&amp;/g, "&"),
-            price: get(data, "price.regularMarketPrice"),
-            purchaseCurrency,
-            purchaseExchangeRate,
-            purchasePrice: parseFloat(purchasePrice) / parseInt(qty),
-            qty: parseInt(qty),
-            symbol: get(data, "price.symbol")
-          });
-        } else {
-          console.log("Server returned bad data");
-          reject("Fant ikke aksje");
-        }
-      })
-      .catch(e => {
-        console.log(e);
-        reject("Fant ikke aksje");
-      });
-  });
+        return {
+          currency: get(data, "price.currency"),
+          currencySymbol: get(data, "price.currencySymbol"),
+          id,
+          longName: longName.replace(/&amp;/g, "&"),
+          price: get(data, "price.regularMarketPrice"),
+          purchaseCurrency,
+          purchaseExchangeRate,
+          purchasePrice: parseFloat(purchasePrice) / parseInt(qty),
+          qty: parseInt(qty),
+          symbol: get(data, "price.symbol")
+        };
+      } else {
+        throw new Error("Uforventet svarformat");
+      }
+    });
 }
 
 function hasStoredStocks() {
