@@ -238,29 +238,34 @@ function addStock(formData) {
         id: String(new Date().getTime())
       });
 
-      getStockData(newStock).then(enrichedStock => {
-        // Get exchange rate at time of purchase
-        const purchaseExchangeRate = utils.convert(
-          1,
-          enrichedStock.currency,
-          formData.purchaseCurrency,
-          historicalCurrencies
-        );
+      getStockData(newStock)
+        .then(enrichedStock => {
+          // Get exchange rate at time of purchase
+          const purchaseExchangeRate = utils.convert(
+            1,
+            enrichedStock.currency,
+            formData.purchaseCurrency,
+            historicalCurrencies
+          );
 
-        newStock.purchaseExchangeRate = purchaseExchangeRate;
+          newStock.purchaseExchangeRate = purchaseExchangeRate;
 
-        const userStocksList = getUserStocks();
-        setUserStocks(userStocksList.concat(newStock));
+          const userStocksList = getUserStocks();
+          setUserStocks(userStocksList.concat(newStock));
 
-        getStocks()
-          .then(({ stocks, lastUpdated, sum }) => {
-            resolve({ stocks, lastUpdated, sum });
-          })
-          .catch(e => {
-            console.log(e);
-            reject("Klarte ikke å hente aksjedata");
-          });
-      });
+          getStocks()
+            .then(({ stocks, lastUpdated, sum }) => {
+              resolve({ stocks, lastUpdated, sum });
+            })
+            .catch(e => {
+              console.log(e);
+              reject("Klarte ikke å hente aksjedata");
+            });
+        })
+        .catch(e => {
+          console.log(e);
+          reject("Fant ikke aksje");
+        });
     });
   });
 }
