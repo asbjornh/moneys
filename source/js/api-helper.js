@@ -31,31 +31,28 @@ function insertBackupData(data) {
   window.location.reload();
 }
 
-function addGraphPoint(stocks) {
+function addGraphPoint(sum) {
   const points = JSON.parse(localStorage.getItem("graphData")) || [];
-  const lastPoint = points.slice(-1)[0];
+  const lastPoint = points[points.length - 1];
+  const newPoint = {
+    x: new Date(new Date().toDateString()).getTime(),
+    y: parseFloat(sum.toFixed(2))
+  };
 
   if (
     lastPoint &&
     new Date().getTime() - lastPoint.x < settings.graph.updateInterval
   ) {
-    return;
+    // Last point is newer than 24 hours. Update point
+    points[points.length - 1] = Object.assign({}, newPoint);
+  } else {
+    // Last point is older than 24 hours or does not exist. Add new point
+    points.push(newPoint);
   }
 
-  getCurrencies().then(currencies => {
-    const sum = utils.sumAndConvert(stocks, currencies);
-    if (sum) {
-      localStorage.setItem(
-        "graphData",
-        JSON.stringify(
-          points.concat({
-            x: new Date().getTime(),
-            y: parseFloat(sum.toFixed(2))
-          })
-        )
-      );
-    }
-  });
+  if (sum) {
+    localStorage.setItem("graphData", JSON.stringify(points));
+  }
 }
 
 function getGraphPoints() {
@@ -200,24 +197,26 @@ function getStocks() {
 
     getCurrencies().then(currencies => {
       if (stocks && stocks.data && stocks.data.length >= userStocks.length) {
-        addGraphPoint(stocks.data);
+        const sum = utils.sumAndConvert(stocks.data, currencies);
+        addGraphPoint(sum);
         resolve({
           lastUpdated: stocks.timeStamp,
           stocks: stocks.data.filter(({ id }) => {
             return !!userStocks.find(stock => stock.id === id);
           }),
-          sum: utils.sumAndConvert(stocks.data, currencies)
+          sum
         });
       } else {
         console.log("Henter nye aksjedata");
         Promise.all(userStocks.map(stock => getStockData(stock)))
           .then(stocks => {
+            const sum = utils.sumAndConvert(stocks, currencies);
             storeData("stocks", stocks);
-            addGraphPoint(stocks);
+            addGraphPoint(sum);
             resolve({
               stocks,
               lastUpdated: new Date().getTime(),
-              sum: utils.sumAndConvert(stocks, currencies)
+              sum
             });
           })
           .catch(e => {
