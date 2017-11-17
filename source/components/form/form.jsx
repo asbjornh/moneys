@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import cn from "classnames";
 import FormData from "formdata-polyfill";
 
 import css from "./form.module.scss";
@@ -8,26 +9,38 @@ import css from "./form.module.scss";
 class Form extends React.Component {
   static propTypes = {
     onCancelClick: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    userCurrency: PropTypes.string
   };
 
-  state = {};
+  state = {
+    dateInputHasContent: false
+  };
+
+  onDateInput = () => {
+    this.setState({ dateInputHasContent: true });
+  };
 
   onSubmit = e => {
     e.preventDefault();
 
     const formData = {};
-    let formIsValid = true;
 
     Array.from(new FormData(e.target).entries()).forEach(value => {
       formData[value[0]] = value[1].toUpperCase();
-      if (!value[1]) formIsValid = false;
     });
+
+    const { symbol, qty, purchasePrice, purchaseRate, purchaseDate } = formData;
+    let formIsValid = true;
+
+    if (!symbol || !qty || !purchasePrice || (!purchaseRate && !purchaseDate)) {
+      formIsValid = false;
+    }
 
     if (formIsValid) {
       this.props.onSubmit(formData);
     } else {
-      alert("Fyll ut alle feltene");
+      alert("Fyll inn alle påkrevde felter");
     }
   };
 
@@ -44,20 +57,32 @@ class Form extends React.Component {
             <input name="qty" type="number" placeholder="1" />
           </div>
           <div className={css.input}>
-            <label>Totalpris:</label>
+            <label>{`Totalpris (${this.props.userCurrency}):`}</label>
             <input name="purchasePrice" type="number" placeholder="1000" />
           </div>
         </div>
         <div className={css.formRow}>
           <div className={css.input}>
-            <label>Valuta:</label>
-            <input name="purchaseCurrency" type="text" placeholder="NOK" />
+            <label>Kurs ved kjøp:</label>
+            <input name="purchaseRate" type="text" placeholder="100" />
           </div>
           <div className={css.input}>
             <label>Dato kjøpt:</label>
-            <input name="purchaseDate" type="date" />
+            <input
+              className={cn({
+                [css.hasContent]: this.state.dateInputHasContent
+              })}
+              name="purchaseDate"
+              type="date"
+              onKeyPress={this.onDateInput}
+              onChange={this.onDateInput}
+            />
           </div>
         </div>
+        <p>
+          Fyll inn kjøpskurs hvis du vet den, dato hvis du ikke vet den (mindre
+          presis kurs-differanse).
+        </p>
         <button
           className={css.cancelButton}
           type="button"

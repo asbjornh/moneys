@@ -12,7 +12,7 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
       outputCurrency,
       currencies
     );
-    const difference = convertedCurrentPrice - stock.purchasePrice * stock.qty;
+    const difference = convertedCurrentPrice - stock.purchasePrice;
 
     return accum + difference;
   }, 0);

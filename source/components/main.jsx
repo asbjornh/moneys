@@ -18,11 +18,16 @@ class Main extends React.Component {
   state = {
     formIsVisible: false,
     isLoading: api.hasStoredStocks(),
-    stocks: []
+    stocks: [],
+    userCurrency: api.getUserCurrency()
   };
 
   componentDidMount() {
     this.refreshData();
+
+    api.getCurrencies().then(currencies => {
+      this.setState({ currencies: currencies.rates });
+    });
   }
 
   componentWillUnmount() {
@@ -85,11 +90,13 @@ class Main extends React.Component {
     });
   };
 
-  deleteAllStocks = () => {
-    api.deleteAllStocks();
+  deleteAllData = () => {
+    api.deleteAllData();
   };
 
-  onCurrencySelect = currency => {};
+  onCurrencySelect = currency => {
+    api.setUserCurrency(currency);
+  };
 
   render() {
     const stocksWithLoader = this.state.stocks.map(stock => (
@@ -112,8 +119,11 @@ class Main extends React.Component {
       <div className="scroll-wrapper-outer">
         <div className="scroll-wrapper-inner">
           <Menu
+            currencies={this.state.currencies}
+            deleteAllData={this.deleteAllData}
             isVisible={this.state.menuIsVisible}
-            deleteAllStocks={this.deleteAllStocks}
+            onCurrencySelect={this.onCurrencySelect}
+            userCurrency={this.state.userCurrency}
           />
           <div
             className={cn("content", {
@@ -125,7 +135,11 @@ class Main extends React.Component {
               toggleMenu={this.toggleMenu}
             />
 
-            <Moneys lastUpdated={this.state.lastUpdated} sum={this.state.sum} />
+            <Moneys
+              lastUpdated={this.state.lastUpdated}
+              sum={this.state.sum}
+              userCurrency={this.state.userCurrency}
+            />
 
             <Collapse isOpened={true}>
               <FlipMove
@@ -141,7 +155,11 @@ class Main extends React.Component {
 
             <div className="form-container">
               <Collapse isOpened={this.state.formIsVisible}>
-                <Form onSubmit={this.addStock} onCancelClick={this.hideForm} />
+                <Form
+                  onSubmit={this.addStock}
+                  onCancelClick={this.hideForm}
+                  userCurrency={this.state.userCurrency}
+                />
               </Collapse>
 
               <button

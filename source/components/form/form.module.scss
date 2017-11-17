@@ -6,6 +6,12 @@
   flex-wrap: wrap;
   justify-content: space-between;
   padding-bottom: 40px;
+
+  > p {
+    margin: 0;
+    padding-bottom: 30px;
+    color: $green;
+  }
 }
 
 .formRow {
@@ -14,7 +20,7 @@
   padding-bottom: 20px;
 
   &:last-of-type {
-    padding-bottom: 30px;
+    padding-bottom: 10px;
   }
 }
 
@@ -62,6 +68,14 @@
     }
     :-moz-placeholder {
       color: rgba(white, 0.2);
+    }
+
+    &[type="date"] {
+      color: rgba(white, 0.2);
+
+      &.hasContent {
+        color: white;
+      }
     }
   }
 }

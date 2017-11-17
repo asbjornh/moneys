@@ -11,13 +11,13 @@ import Number from "../number";
 
 class Moneys extends React.Component {
   static propTypes = {
-    convertToCurrency: PropTypes.string,
     lastUpdated: PropTypes.number,
-    sum: PropTypes.number
+    sum: PropTypes.number,
+    userCurrency: PropTypes.string
   };
 
   static defaultProps = {
-    convertToCurrency: "NOK"
+    userCurrency: "NOK"
   };
 
   state = {};
@@ -46,12 +46,9 @@ class Moneys extends React.Component {
   };
 
   render() {
-    const { convertToCurrency, lastUpdated, sum } = this.props;
+    const { userCurrency, lastUpdated, sum } = this.props;
 
-    const symbol = get(
-      currencySymbols,
-      `${convertToCurrency}.units.major.symbol`
-    );
+    const symbol = get(currencySymbols, `${userCurrency}.units.major.symbol`);
 
     let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
     time = time ? time.substr(0, 5) : "";

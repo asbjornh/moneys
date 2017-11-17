@@ -14,6 +14,16 @@ function setUserStocks(stocks) {
   localStorage.setItem("userStocks", JSON.stringify(stocks));
 }
 
+function getUserCurrency() {
+  return localStorage.getItem("userCurrency") || "NOK";
+}
+
+function setUserCurrency(currency) {
+  localStorage.clear();
+  localStorage.setItem("userCurrency", currency);
+  window.location.reload();
+}
+
 function getBackupData() {
   return JSON.stringify({
     userStocks: JSON.parse(localStorage.getItem("userStocks")),
@@ -133,14 +143,7 @@ function getCurrencies() {
   });
 }
 
-function getStockData({
-  symbol,
-  purchaseCurrency,
-  purchaseExchangeRate,
-  purchasePrice,
-  qty,
-  id
-}) {
+function getStockData(symbol) {
   console.log(`Henter data for ${symbol}`);
   return fetch(
     `${CORSBlaster}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
@@ -171,14 +174,8 @@ function getStockData({
         return {
           currency: get(data, "price.currency"),
           currencySymbol: get(data, "price.currencySymbol"),
-          id,
           longName: longName.replace(/&amp;/g, "&"),
-          price: get(data, "price.regularMarketPrice"),
-          purchaseCurrency,
-          purchaseExchangeRate,
-          purchasePrice: parseFloat(purchasePrice) / parseInt(qty),
-          qty: parseInt(qty),
-          symbol: get(data, "price.symbol")
+          price: get(data, "price.regularMarketPrice")
         };
       } else {
         throw new Error("Uforventet svarformat");
@@ -197,7 +194,11 @@ function getStocks() {
 
     getCurrencies().then(currencies => {
       if (stocks && stocks.data && stocks.data.length >= userStocks.length) {
-        const sum = utils.sumAndConvert(stocks.data, currencies);
+        const sum = utils.sumAndConvert(
+          stocks.data,
+          currencies,
+          getUserCurrency()
+        );
         addGraphPoint(sum);
         resolve({
           lastUpdated: stocks.timeStamp,
@@ -208,9 +209,18 @@ function getStocks() {
         });
       } else {
         console.log("Henter nye aksjedata");
-        Promise.all(userStocks.map(stock => getStockData(stock)))
-          .then(stocks => {
-            const sum = utils.sumAndConvert(stocks, currencies);
+        Promise.all(userStocks.map(stock => getStockData(stock.symbol)))
+          .then(stockData => {
+            // Merge userStocks data and stockData
+            const stocks = userStocks.map((stock, index) =>
+              Object.assign({}, stock, stockData[index])
+            );
+
+            const sum = utils.sumAndConvert(
+              stocks,
+              currencies,
+              getUserCurrency()
+            );
             storeData("stocks", stocks);
             addGraphPoint(sum);
             resolve({
@@ -228,44 +238,63 @@ function getStocks() {
   });
 }
 
+function getPurchaseRate(stock, stockCurrency) {
+  return new Promise(resolve => {
+    if (stock.purchaseRate) {
+      resolve(stock.purchaseRate);
+    } else {
+      getHistoricalCurrencyData(
+        stock.purchaseDate
+      ).then(historicalCurrencies => {
+        resolve(
+          utils.convert(
+            stock.purchasePrice / stock.qty,
+            getUserCurrency(),
+            stockCurrency,
+            historicalCurrencies
+          )
+        );
+      });
+    }
+  });
+}
+
 function addStock(formData) {
   return new Promise((resolve, reject) => {
-    getHistoricalCurrencyData(
-      formData.purchaseDate
-    ).then(historicalCurrencies => {
-      const newStock = Object.assign({}, formData, {
-        id: String(new Date().getTime())
+    getStockData(formData.symbol)
+      .then(stockData => {
+        // Get exchange rate at time of purchase
+        getPurchaseRate(formData, stockData.currency)
+          .then(purchaseRate => {
+            const newStock = {
+              id: String(new Date().getTime()),
+              symbol: formData.symbol,
+              qty: parseInt(formData.qty),
+              purchasePrice: parseFloat(formData.purchasePrice),
+              purchaseRate: parseFloat(purchaseRate)
+            };
+
+            const userStocksList = getUserStocks();
+            setUserStocks(userStocksList.concat(newStock));
+
+            getStocks()
+              .then(({ stocks, lastUpdated, sum }) => {
+                resolve({ stocks, lastUpdated, sum });
+              })
+              .catch(e => {
+                console.log(e);
+                reject("Klarte ikke å hente aksjedata");
+              });
+          })
+          .catch(e => {
+            console.log(e);
+            reject("Klarte ikke å finne valutakurs ved kjøp");
+          });
+      })
+      .catch(e => {
+        console.log(e);
+        reject("Fant ikke aksje");
       });
-
-      getStockData(newStock)
-        .then(enrichedStock => {
-          // Get exchange rate at time of purchase
-          const purchaseExchangeRate = utils.convert(
-            1,
-            enrichedStock.currency,
-            formData.purchaseCurrency,
-            historicalCurrencies
-          );
-
-          newStock.purchaseExchangeRate = purchaseExchangeRate;
-
-          const userStocksList = getUserStocks();
-          setUserStocks(userStocksList.concat(newStock));
-
-          getStocks()
-            .then(({ stocks, lastUpdated, sum }) => {
-              resolve({ stocks, lastUpdated, sum });
-            })
-            .catch(e => {
-              console.log(e);
-              reject("Klarte ikke å hente aksjedata");
-            });
-        })
-        .catch(e => {
-          console.log(e);
-          reject("Fant ikke aksje");
-        });
-    });
   });
 }
 
@@ -282,21 +311,21 @@ function deleteStock(id) {
   });
 }
 
-function deleteAllStocks() {
-  localStorage.removeItem("userStocks");
-  localStorage.removeItem("stocks");
-  localStorage.removeItem("graphData");
+function deleteAllData() {
+  localStorage.clear();
   window.location.reload();
 }
 
 export default {
   addStock,
-  deleteAllStocks,
+  deleteAllData,
   deleteStock,
   getBackupData,
   getCurrencies,
   getGraphPoints,
   getStocks,
+  getUserCurrency,
   hasStoredStocks,
-  insertBackupData
+  insertBackupData,
+  setUserCurrency
 };

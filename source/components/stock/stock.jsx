@@ -14,8 +14,7 @@ class Stock extends React.Component {
     longName: PropTypes.string,
     onDelete: PropTypes.func,
     price: PropTypes.number,
-    purchaseExchangeRate: PropTypes.number,
-    purchasePrice: PropTypes.number,
+    purchaseRate: PropTypes.number,
     qty: PropTypes.number,
     symbol: PropTypes.string
   };
@@ -47,20 +46,9 @@ class Stock extends React.Component {
   };
 
   render() {
-    const {
-      currencySymbol,
-      purchasePrice,
-      purchaseExchangeRate,
-      price,
-      qty
-    } = this.props;
-    const convertedPurchasePrice = purchasePrice / purchaseExchangeRate;
-    const absoluteDifference = ((price - convertedPurchasePrice) * qty).toFixed(
-      2
-    );
-    const relativeDifference = (price / convertedPurchasePrice * 100 -
-      100
-    ).toFixed(2);
+    const { currencySymbol, purchaseRate, price, qty } = this.props;
+    const absoluteDifference = ((price - purchaseRate) * qty).toFixed(2);
+    const relativeDifference = (price / purchaseRate * 100 - 100).toFixed(2);
     const symbol = absoluteDifference >= 0 ? "+" : "";
 
     return (
@@ -108,7 +96,7 @@ class Stock extends React.Component {
             <div className={css.longName}>{this.props.longName}</div>
           </td>
           <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currencySymbol} ${convertedPurchasePrice.toFixed(
+            <span>{`${currencySymbol} ${purchaseRate.toFixed(
               2
             )} → ${currencySymbol} ${price.toFixed(2)}`}</span>
             <span>{`Ant.: ${qty}`}</span>

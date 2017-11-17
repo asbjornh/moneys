@@ -17,12 +17,18 @@ const onFileUpload = content => {
   api.insertBackupData(content);
 };
 
-const Menu = ({ deleteAllStocks, isVisible, onCurrencySelect }) => (
+const Menu = ({
+  currencies,
+  deleteAllData,
+  isVisible,
+  onCurrencySelect,
+  userCurrency
+}) => (
   <div className={cn(css.menu, { [css.isVisible]: isVisible })}>
     <ul>
       <li>
-        <button type="button" onClick={deleteAllStocks}>
-          Slett alle aksjer
+        <button type="button" onClick={deleteAllData}>
+          Slett alle data
         </button>
       </li>
       <li>
@@ -41,20 +47,27 @@ const Menu = ({ deleteAllStocks, isVisible, onCurrencySelect }) => (
         />
       </li>
       <li>
-        <Select
-          label="Valuta"
-          onChange={onCurrencySelect}
-          values={["NOK", "SEK", "USD"]}
-        />
+        {currencies && (
+          <Select
+            confirmationMessage="Dette vil slette alle data. Vil du fortsette?"
+            defaultValue={userCurrency}
+            label="Valuta"
+            onChange={onCurrencySelect}
+            requireConfirmation={true}
+            values={Object.keys(currencies)}
+          />
+        )}
       </li>
     </ul>
   </div>
 );
 
 Menu.propTypes = {
-  deleteAllStocks: PropTypes.func,
+  currencies: PropTypes.object,
+  deleteAllData: PropTypes.func,
   isVisible: PropTypes.bool,
-  onCurrencySelect: PropTypes.func
+  onCurrencySelect: PropTypes.func,
+  userCurrency: PropTypes.string
 };
 
 export default Menu;
