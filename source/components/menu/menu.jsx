@@ -6,6 +6,7 @@ import cn from "classnames";
 import api from "../../js/api-helper";
 import css from "./menu.module.scss";
 import FileUpload from "../file-upload";
+import Select from "../select";
 
 const createDownloadLink = content => {
   var file = new Blob([content], { type: "application/json" });
@@ -16,7 +17,7 @@ const onFileUpload = content => {
   api.insertBackupData(content);
 };
 
-const Menu = ({ isVisible, deleteAllStocks }) => (
+const Menu = ({ deleteAllStocks, isVisible, onCurrencySelect }) => (
   <div className={cn(css.menu, { [css.isVisible]: isVisible })}>
     <ul>
       <li>
@@ -39,13 +40,21 @@ const Menu = ({ isVisible, deleteAllStocks }) => (
           onFileUpload={onFileUpload}
         />
       </li>
+      <li>
+        <Select
+          label="Valuta"
+          onChange={onCurrencySelect}
+          values={["NOK", "SEK", "USD"]}
+        />
+      </li>
     </ul>
   </div>
 );
 
 Menu.propTypes = {
+  deleteAllStocks: PropTypes.func,
   isVisible: PropTypes.bool,
-  deleteAllStocks: PropTypes.func
+  onCurrencySelect: PropTypes.func
 };
 
 export default Menu;

@@ -89,6 +89,8 @@ class Main extends React.Component {
     api.deleteAllStocks();
   };
 
+  onCurrencySelect = currency => {};
+
   render() {
     const stocksWithLoader = this.state.stocks.map(stock => (
       <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
