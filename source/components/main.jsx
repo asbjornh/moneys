@@ -28,6 +28,11 @@ class Main extends React.Component {
     api.getCurrencies().then(currencies => {
       this.setState({ currencies: currencies.rates });
     });
+
+    this.setState({
+      scrollWrapperWidth: `calc(100% + ${this.scrollWrapper.offsetWidth -
+        this.scrollWrapper.clientWidth}px)`
+    });
   }
 
   componentWillUnmount() {
@@ -117,7 +122,11 @@ class Main extends React.Component {
 
     return (
       <div className="scroll-wrapper-outer">
-        <div className="scroll-wrapper-inner">
+        <div
+          className="scroll-wrapper-inner"
+          ref={div => (this.scrollWrapper = div)}
+          style={{ width: this.state.scrollWrapperWidth }}
+        >
           <Menu
             currencies={this.state.currencies}
             deleteAllData={this.deleteAllData}
