@@ -21,14 +21,18 @@ const Menu = ({
   currencies,
   deleteAllData,
   isVisible,
+  labels,
+  languages,
   onCurrencySelect,
-  userCurrency
+  onLanguageSelect,
+  userCurrency,
+  userLanguage
 }) => (
   <div className={cn(css.menu, { [css.isVisible]: isVisible })}>
     <ul>
       <li>
         <button type="button" onClick={deleteAllData}>
-          Slett alle data
+          {labels.deleteAllData}
         </button>
       </li>
       <li>
@@ -36,12 +40,12 @@ const Menu = ({
           href={createDownloadLink(api.getBackupData())}
           download="moneys.json"
         >
-          Last ned backup
+          {labels.downloadBackup}
         </a>
       </li>
       <li>
         <FileUpload
-          label="Last opp backup"
+          label={labels.uploadBackup}
           accept="application/json"
           onFileUpload={onFileUpload}
         />
@@ -49,14 +53,27 @@ const Menu = ({
       <li>
         {currencies && (
           <Select
-            confirmationMessage="Dette vil slette alle data. Vil du fortsette?"
+            confirmationMessage={labels.currencyConfirmationMessage}
             defaultValue={userCurrency}
-            label="Valuta"
+            label={labels.currencySelect}
             onChange={onCurrencySelect}
             requireConfirmation={true}
-            values={Object.keys(currencies)}
+            values={Object.keys(currencies).map(currency => ({
+              label: currency,
+              value: currency
+            }))}
           />
         )}
+      </li>
+      <li>
+        <Select
+          defaultValue={userLanguage}
+          onChange={onLanguageSelect}
+          values={languages.map(language => ({
+            label: language.name,
+            value: language.id
+          }))}
+        />
       </li>
     </ul>
   </div>
@@ -66,8 +83,16 @@ Menu.propTypes = {
   currencies: PropTypes.object,
   deleteAllData: PropTypes.func,
   isVisible: PropTypes.bool,
+  labels: PropTypes.object,
+  languages: PropTypes.array,
   onCurrencySelect: PropTypes.func,
-  userCurrency: PropTypes.string
+  onLanguageSelect: PropTypes.func,
+  userCurrency: PropTypes.string,
+  userLanguage: PropTypes.string
+};
+
+Menu.defaultProps = {
+  labels: {}
 };
 
 export default Menu;

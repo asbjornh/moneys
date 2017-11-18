@@ -1,0 +1,32 @@
+{
+  "name": "🇳🇴 Norsk",
+  "id": "norwegian",
+  "labels": {
+    "form": {
+      "addButton": "Legg til",
+      "cancelButton": "Avbryt",
+      "invalidForm": "Fyll inn alle feltene",
+      "purchasePriceInput": "Totalpris",
+      "purchaseRateInput": "Kurs ved kjøp",
+      "purchaseDateInput": "Dato kjøpt",
+      "qtyInput": "Antall",
+      "rateOrDateHelpText":
+        "Fyll inn kjøpskurs hvis du vet den, dato hvis du ikke vet den (mindre presis kurs-differanse).",
+      "tickerInput": "Ticker"
+    },
+    "moneys": {
+      "lastUpdatedLabel": "Sist oppdatert"
+    },
+    "main": {
+      "stockNotFound": "Fant ikke aksje"
+    },
+    "menu": {
+      "currencyConfirmationMessage":
+        "Dette vil slette alle data. Vil du fortsette?",
+      "deleteAllData": "Slett alle data",
+      "downloadBackup": "Last ned backup",
+      "uploadBackup": "Last opp backup",
+      "currencySelect": "Valuta"
+    }
+  }
+}

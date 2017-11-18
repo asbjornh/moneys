@@ -5,6 +5,7 @@ import { UnmountClosed as Collapse } from "react-collapse";
 import FlipMove from "react-flip-move";
 
 import api from "../js/api-helper";
+import languages from "../data/languages";
 import settings from "../settings.json";
 
 import Form from "./form";
@@ -14,12 +15,25 @@ import Moneys from "./moneys";
 import Spinner from "./spinner";
 import Stock from "./stock";
 
+const getLanguageLabels = langId => {
+  return languages.reduce((accum, lang) => {
+    if (lang.id === langId) {
+      return lang.labels;
+    } else {
+      return accum;
+    }
+  }, {});
+};
+
 class Main extends React.Component {
   state = {
     formIsVisible: false,
     isLoading: api.hasStoredStocks(),
+    labels: getLanguageLabels(api.getUserLanguage()),
+    languages: languages.map(({ id, name }) => ({ id, name })),
     stocks: [],
-    userCurrency: api.getUserCurrency()
+    userCurrency: api.getUserCurrency(),
+    userLanguage: api.getUserLanguage()
   };
 
   componentDidMount() {
@@ -69,9 +83,9 @@ class Main extends React.Component {
               sum
             });
           })
-          .catch(e => {
+          .catch(() => {
             this.setState({ isLoading: false });
-            alert(e);
+            alert(this.state.labels.main.stockNotFound);
           });
       }, 700);
     });
@@ -103,6 +117,13 @@ class Main extends React.Component {
     api.setUserCurrency(currency);
   };
 
+  onLanguageSelect = language => {
+    api.setUserLanguage(language);
+    this.setState({
+      labels: getLanguageLabels(language)
+    });
+  };
+
   render() {
     const stocksWithLoader = this.state.stocks.map(stock => (
       <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
@@ -131,8 +152,12 @@ class Main extends React.Component {
             currencies={this.state.currencies}
             deleteAllData={this.deleteAllData}
             isVisible={this.state.menuIsVisible}
+            labels={this.state.labels.menu}
+            languages={this.state.languages}
             onCurrencySelect={this.onCurrencySelect}
+            onLanguageSelect={this.onLanguageSelect}
             userCurrency={this.state.userCurrency}
+            userLanguage={this.state.userLanguage}
           />
           <div
             className={cn("content", {
@@ -145,6 +170,7 @@ class Main extends React.Component {
             />
 
             <Moneys
+              labels={this.state.labels.moneys}
               lastUpdated={this.state.lastUpdated}
               sum={this.state.sum}
               userCurrency={this.state.userCurrency}
@@ -165,6 +191,7 @@ class Main extends React.Component {
             <div className="form-container">
               <Collapse isOpened={this.state.formIsVisible}>
                 <Form
+                  labels={this.state.labels.form}
                   onSubmit={this.addStock}
                   onCancelClick={this.hideForm}
                   userCurrency={this.state.userCurrency}

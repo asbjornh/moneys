@@ -11,6 +11,7 @@ import Number from "../number";
 
 class Moneys extends React.Component {
   static propTypes = {
+    labels: PropTypes.object,
     lastUpdated: PropTypes.number,
     sum: PropTypes.number,
     userCurrency: PropTypes.string
@@ -70,7 +71,7 @@ class Moneys extends React.Component {
             </div>
           </div>
 
-          <p>{`Sist oppdatert: ${time}`}</p>
+          <p>{`${this.props.labels.lastUpdatedLabel}: ${time}`}</p>
         </div>
       </div>
     );

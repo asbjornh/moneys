@@ -1,0 +1,31 @@
+{
+  "name": "🇺🇸 English",
+  "id": "english",
+  "labels": {
+    "form": {
+      "addButton": "Add",
+      "cancelButton": "Cancel",
+      "invalidForm": "Complete all required fields",
+      "purchasePriceInput": "Total price",
+      "purchaseRateInput": "Rate at purchase",
+      "purchaseDateInput": "Date of purchase",
+      "qtyInput": "Quantity",
+      "rateOrDateHelpText":
+        "Add the stock rate at time of purchase if you know it or the date of purchase if you don't (less precise currency conversion)",
+      "tickerInput": "Ticker"
+    },
+    "moneys": {
+      "lastUpdatedLabel": "Last updated"
+    },
+    "main": {
+      "stockNotFound": "Stock not found"
+    },
+    "menu": {
+      "currencyConfirmationMessage": "This will delete all data. Continue?",
+      "deleteAllData": "Delete all data",
+      "downloadBackup": "Download backup",
+      "uploadBackup": "Upload backup",
+      "currencySelect": "Currency"
+    }
+  }
+}

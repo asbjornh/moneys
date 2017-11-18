@@ -10,7 +10,12 @@ class Select extends React.Component {
     label: PropTypes.string,
     onChange: PropTypes.func,
     requireConfirmation: PropTypes.bool,
-    values: PropTypes.arrayOf(PropTypes.string).isRequired
+    values: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.string
+      })
+    ).isRequired
   };
 
   static defaultProps = {
@@ -20,8 +25,21 @@ class Select extends React.Component {
   state = {};
 
   componentDidMount() {
-    this.setState({ selectedValue: this.select.value });
+    this.setState({
+      selectedValue: this.select.value,
+      selectedLabel: this.getLabel(this.select.value)
+    });
   }
+
+  getLabel = value => {
+    return this.props.values.reduce((accum, item) => {
+      if (item.value === value) {
+        return item.label;
+      } else {
+        return accum;
+      }
+    }, "");
+  };
 
   onChange = e => {
     if (
@@ -31,16 +49,19 @@ class Select extends React.Component {
       this.select.value = this.state.selectedValue;
     } else {
       const value = e.currentTarget.value;
-      this.setState({ selectedValue: value });
+      this.setState({
+        selectedValue: value,
+        selectedLabel: this.getLabel(value)
+      });
       this.props.onChange(value);
     }
   };
 
   render() {
+    const label = this.props.label ? `${this.props.label}:` : "";
     return (
       <div className={css.select}>
-        <label htmlFor="select">{`${this.props.label}: ${this.state
-          .selectedValue}`}</label>
+        <label htmlFor="select">{`${label} ${this.state.selectedLabel}`}</label>
         <select
           defaultValue={this.props.defaultValue}
           id="select"
@@ -48,8 +69,8 @@ class Select extends React.Component {
           ref={s => (this.select = s)}
         >
           {this.props.values.map(option => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>

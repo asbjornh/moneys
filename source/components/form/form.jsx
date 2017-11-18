@@ -8,6 +8,7 @@ import css from "./form.module.scss";
 
 class Form extends React.Component {
   static propTypes = {
+    labels: PropTypes.object,
     onCancelClick: PropTypes.func,
     onSubmit: PropTypes.func,
     userCurrency: PropTypes.string
@@ -40,34 +41,36 @@ class Form extends React.Component {
     if (formIsValid) {
       this.props.onSubmit(formData);
     } else {
-      alert("Fyll inn alle påkrevde felter");
+      alert(this.props.labels.invalidForm);
     }
   };
 
   render() {
+    const labels = this.props.labels;
     return (
       <form className={css.form} onSubmit={this.onSubmit} noValidate>
         <div className={css.formRow}>
           <div className={css.input}>
-            <label>Ticker:</label>
+            <label>{`${labels.tickerInput}:`}</label>
             <input name="symbol" placeholder="AAPL" />
           </div>
           <div className={css.input}>
-            <label>Antall:</label>
+            <label>{`${labels.qtyInput}:`}</label>
             <input name="qty" type="number" placeholder="1" />
           </div>
           <div className={css.input}>
-            <label>{`Totalpris (${this.props.userCurrency}):`}</label>
+            <label>{`${labels.purchasePriceInput} (${this.props
+              .userCurrency}):`}</label>
             <input name="purchasePrice" type="number" placeholder="1000" />
           </div>
         </div>
         <div className={css.formRow}>
           <div className={css.input}>
-            <label>Kurs ved kjøp:</label>
+            <label>{`${labels.purchaseRateInput}:`}</label>
             <input name="purchaseRate" type="number" placeholder="100" />
           </div>
           <div className={css.input}>
-            <label>Dato kjøpt:</label>
+            <label>{`${labels.purchaseDateInput}:`}</label>
             <input
               className={cn({
                 [css.hasContent]: this.state.dateInputHasContent
@@ -79,19 +82,16 @@ class Form extends React.Component {
             />
           </div>
         </div>
-        <p>
-          Fyll inn kjøpskurs hvis du vet den, dato hvis du ikke vet den (mindre
-          presis kurs-differanse).
-        </p>
+        <p>{labels.rateOrDateHelpText}</p>
         <button
           className={css.cancelButton}
           type="button"
           onClick={this.props.onCancelClick}
         >
-          Avbryt
+          {labels.cancelButton}
         </button>
         <button className={css.submitButton} type="submit">
-          Legg til
+          {labels.addButton}
         </button>
       </form>
     );

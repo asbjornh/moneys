@@ -5,7 +5,7 @@ import cryptoCurrencies from "../data/cryptocurrencies.json";
 import settings from "../settings.json";
 import utils from "./utils";
 
-const CORSBlaster = "https://cors-anywhere.herokuapp.com/";
+const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
 
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
@@ -23,6 +23,14 @@ function setUserCurrency(currency) {
   localStorage.clear();
   localStorage.setItem("userCurrency", currency);
   window.location.reload();
+}
+
+function getUserLanguage() {
+  return localStorage.getItem("userLanguage") || "english";
+}
+
+function setUserLanguage(language) {
+  localStorage.setItem("userLanguage", language);
 }
 
 function getBackupData() {
@@ -74,7 +82,7 @@ function getStoredData(key) {
   const data = JSON.parse(localStorage.getItem(key));
 
   if (data && new Date().getTime() - data.timeStamp < settings.storage.maxAge) {
-    console.log(`Bruker lagret data for '${key}'`);
+    console.log(`Using stored ${key} data`);
     return data;
   } else {
     return false;
@@ -94,7 +102,7 @@ function storeData(key, data) {
 function getCurrencyData() {
   return new Promise((resolve, reject) => {
     fetch(
-      `${CORSBlaster}https://openexchangerates.org/api/latest.json?app_id=${config.openExchangeRatesAppId}`
+      `${fuckYouCORS}https://openexchangerates.org/api/latest.json?app_id=${config.openExchangeRatesAppId}`
     )
       .then(response => response.json())
       .then(json => {
@@ -103,7 +111,7 @@ function getCurrencyData() {
       })
       .catch(e => {
         console.log(e);
-        reject("Klarte ikke å hente valuta");
+        reject("Failed to get currency data");
       });
   });
 }
@@ -111,7 +119,7 @@ function getCurrencyData() {
 function getHistoricalCurrencyData(date) {
   return new Promise((resolve, reject) => {
     fetch(
-      `${CORSBlaster}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
+      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
     )
       .then(response => response.json())
       .then(json => {
@@ -119,7 +127,7 @@ function getHistoricalCurrencyData(date) {
       })
       .catch(e => {
         console.log(e);
-        reject("Klarte ikke å hente historiske valutadata");
+        reject("Failed to get historical currency data");
       });
   });
 }
@@ -131,14 +139,14 @@ function getCurrencies() {
     if (currencies && currencies.data) {
       resolve(currencies.data);
     } else {
-      console.log("Henter nye valutadata");
+      console.log("Getting new currency data");
       getCurrencyData()
         .then(currencyData => {
           resolve(currencyData);
         })
         .catch(e => {
           console.log(e);
-          reject("Klarte ikke å hente ny valutadata.");
+          reject("Failed to get new currency data");
         });
     }
   });
@@ -147,7 +155,7 @@ function getCurrencies() {
 function getStockData(symbol) {
   console.log(`Henter data for ${symbol}`);
   return fetch(
-    `${CORSBlaster}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+    `${fuckYouCORS}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
     {
       headers: new Headers({
         "Content-Type": "application/json",
@@ -159,7 +167,7 @@ function getStockData(symbol) {
       if (response.ok) {
         return response.json();
       } else {
-        throw new Error("Fant ikke aksje");
+        throw new Error("Stock not found");
       }
     })
     .then(json => {
@@ -179,7 +187,7 @@ function getStockData(symbol) {
           price: get(data, "price.regularMarketPrice")
         };
       } else {
-        throw new Error("Uforventet svarformat");
+        throw new Error("Unexpected response");
       }
     });
 }
@@ -209,7 +217,7 @@ function getStocks() {
           sum
         });
       } else {
-        console.log("Henter nye aksjedata");
+        console.log("Getting new stock data");
         Promise.all(userStocks.map(stock => getStockData(stock.symbol)))
           .then(stockData => {
             // Merge userStocks data and stockData
@@ -232,7 +240,7 @@ function getStocks() {
           })
           .catch(e => {
             console.log(e);
-            reject("Klarte ikke å hente nye aksjedata");
+            reject("Failed to get new stock data");
           });
       }
     });
@@ -284,17 +292,17 @@ function addStock(formData) {
               })
               .catch(e => {
                 console.log(e);
-                reject("Klarte ikke å hente aksjedata");
+                reject("Failed to get new stock data");
               });
           })
           .catch(e => {
             console.log(e);
-            reject("Klarte ikke å finne valutakurs ved kjøp");
+            reject("Failed to get exchange rate at purchase date");
           });
       })
       .catch(e => {
         console.log(e);
-        reject("Fant ikke aksje");
+        reject("Stock not found");
       });
   });
 }
@@ -326,7 +334,9 @@ export default {
   getGraphPoints,
   getStocks,
   getUserCurrency,
+  getUserLanguage,
   hasStoredStocks,
   insertBackupData,
-  setUserCurrency
+  setUserCurrency,
+  setUserLanguage
 };
