@@ -26,6 +26,9 @@
       "downloadBackup": "Download backup",
       "uploadBackup": "Upload backup",
       "currencySelect": "Currency"
+    },
+    "stock": {
+      "qtyLabel": "Qty."
     }
   }
 }

@@ -11,6 +11,7 @@ class Stock extends React.Component {
   static propTypes = {
     currencySymbol: PropTypes.string,
     id: PropTypes.string.isRequired,
+    labels: PropTypes.object,
     longName: PropTypes.string,
     onDelete: PropTypes.func,
     price: PropTypes.number,
@@ -99,7 +100,7 @@ class Stock extends React.Component {
             <span>{`${currencySymbol} ${purchaseRate.toFixed(
               2
             )} → ${currencySymbol} ${price.toFixed(2)}`}</span>
-            <span>{`Ant.: ${qty}`}</span>
+            <span>{`${this.props.labels.qtyLabel}: ${qty}`}</span>
             <div
               className={css.hoverTarget}
               onMouseEnter={this.onMouseEnter}

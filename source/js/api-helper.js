@@ -153,7 +153,7 @@ function getCurrencies() {
 }
 
 function getStockData(symbol) {
-  console.log(`Henter data for ${symbol}`);
+  console.log(`Getting data for ${symbol}`);
   return fetch(
     `${fuckYouCORS}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
     {

@@ -45,9 +45,9 @@ class Graph extends React.Component {
       0,
       canvas.height - padding
     );
-    gradient.addColorStop(Math.max(0, mid - 0.1), colors.green);
+    gradient.addColorStop(Math.max(0, mid - 0.2), colors.green);
     gradient.addColorStop(Math.max(0, Math.min(1, mid)), colors.orange);
-    gradient.addColorStop(Math.min(1, mid + 0.1), colors.red);
+    gradient.addColorStop(Math.min(1, mid + 0.2), colors.red);
     return gradient;
   };
 

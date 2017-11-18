@@ -55,7 +55,7 @@ class Main extends React.Component {
 
   refreshData = () => {
     this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
-    console.log("Oppdaterer");
+    console.log("Updating");
     this.setState({ isLoading: true }, () => {
       api
         .getStocks()
@@ -126,7 +126,12 @@ class Main extends React.Component {
 
   render() {
     const stocksWithLoader = this.state.stocks.map(stock => (
-      <Stock key={stock.id} onDelete={this.deleteStock} {...stock} />
+      <Stock
+        key={stock.id}
+        labels={this.state.labels.stock}
+        onDelete={this.deleteStock}
+        {...stock}
+      />
     ));
 
     stocksWithLoader.push(

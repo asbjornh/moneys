@@ -27,6 +27,9 @@
       "downloadBackup": "Last ned backup",
       "uploadBackup": "Last opp backup",
       "currencySelect": "Valuta"
+    },
+    "stock": {
+      "qtyLabel": "Ant."
     }
   }
 }
