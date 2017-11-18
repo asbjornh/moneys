@@ -27,7 +27,7 @@ class Graph extends React.Component {
     });
   }
 
-  getGradient = (canvas, points) => {
+  getGradient = (canvas, points, padding) => {
     if (!points || !points.length) return "white";
 
     const i = Infinity;
@@ -39,7 +39,12 @@ class Graph extends React.Component {
     if (min > 0) return colors.green;
 
     const ctx = canvas.getContext("2d");
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    const gradient = ctx.createLinearGradient(
+      0,
+      padding,
+      0,
+      canvas.height - padding
+    );
     gradient.addColorStop(Math.max(0, mid - 0.1), colors.green);
     gradient.addColorStop(Math.max(0, Math.min(1, mid)), colors.orange);
     gradient.addColorStop(Math.min(1, mid + 0.1), colors.red);
@@ -47,6 +52,7 @@ class Graph extends React.Component {
   };
 
   render() {
+    const graphPadding = 30;
     return !this.state.showGraph || this.state.points.length < 2
       ? null
       : (() => {
@@ -55,7 +61,11 @@ class Graph extends React.Component {
               datasets: [
                 {
                   data: this.state.points,
-                  borderColor: this.getGradient(canvas, this.state.points)
+                  borderColor: this.getGradient(
+                    canvas,
+                    this.state.points,
+                    graphPadding
+                  )
                 }
               ],
               labels: this.state.points.map(p => {
@@ -65,17 +75,20 @@ class Graph extends React.Component {
             };
           };
 
+          const { width } = this.props;
+          const height = this.props.height;
+
           return (
-            <div
-              style={{
-                padding: "20px 0 0"
-              }}
-            >
+            <div>
               <Line
                 data={data}
-                width={this.props.width}
-                height={this.props.height - 40}
-                options={graphUtils.getOptions(this.state.points)}
+                width={width}
+                height={height}
+                options={graphUtils.getOptions(
+                  this.state.points,
+                  graphPadding,
+                  height
+                )}
                 ref={l => (this.chart = l)}
               />
             </div>

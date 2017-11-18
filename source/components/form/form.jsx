@@ -64,7 +64,7 @@ class Form extends React.Component {
         <div className={css.formRow}>
           <div className={css.input}>
             <label>Kurs ved kjøp:</label>
-            <input name="purchaseRate" type="text" placeholder="100" />
+            <input name="purchaseRate" type="number" placeholder="100" />
           </div>
           <div className={css.input}>
             <label>Dato kjøpt:</label>
