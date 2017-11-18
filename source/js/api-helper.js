@@ -1,5 +1,6 @@
 import get from "lodash/get";
 
+import config from "../../config.json";
 import cryptoCurrencies from "../data/cryptocurrencies.json";
 import settings from "../settings.json";
 import utils from "./utils";
@@ -93,7 +94,7 @@ function storeData(key, data) {
 function getCurrencyData() {
   return new Promise((resolve, reject) => {
     fetch(
-      `${CORSBlaster}https://openexchangerates.org/api/latest.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
+      `${CORSBlaster}https://openexchangerates.org/api/latest.json?app_id=${config.openExchangeRatesAppId}`
     )
       .then(response => response.json())
       .then(json => {
