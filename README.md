@@ -8,7 +8,7 @@ Serverless. Uses local storage. Draws pretty graph. iOS web app capable.
 
 _Note: Open Exchange Rates is used for currency conversion, which might differ from the rates offered by your bank._
 
-![screenshot](https://i.imgur.com/RSVlIeO.png)
+<img src="https://i.imgur.com/RSVlIeO.png" width="400">
 
 ### First:
 To make it work you need an openexchangerates API key from [https://openexchangerates.org](here). Make a copy of `config.example.json`, rename it to `config.json` and paste your API key in there.
