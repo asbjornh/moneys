@@ -7,6 +7,18 @@ import css from "./stock.module.scss";
 
 import Number from "../number";
 
+const formatRate = rate => {
+  if (rate < 1000) {
+    return rate.toFixed(2);
+  } else if (rate < 10000) {
+    return parseInt(rate);
+  } else if (rate < 100000) {
+    return (rate / 1000).toFixed(2) + "k";
+  } else if (rate < 1000000) {
+    return (rate / 1000).toFixed(1) + "k";
+  }
+};
+
 class Stock extends React.Component {
   static propTypes = {
     currencySymbol: PropTypes.string,
@@ -97,9 +109,9 @@ class Stock extends React.Component {
             <div className={css.longName}>{this.props.longName}</div>
           </td>
           <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currencySymbol} ${purchaseRate.toFixed(
-              2
-            )} → ${currencySymbol} ${price.toFixed(2)}`}</span>
+            <span>{`${currencySymbol} ${formatRate(
+              purchaseRate
+            )} → ${currencySymbol} ${formatRate(price)}`}</span>
             <span>{`${this.props.labels.qtyLabel}: ${qty}`}</span>
             <div
               className={css.hoverTarget}

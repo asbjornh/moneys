@@ -278,7 +278,7 @@ function addStock(formData) {
             const newStock = {
               id: String(new Date().getTime()),
               symbol: formData.symbol,
-              qty: parseInt(formData.qty),
+              qty: parseFloat(formData.qty),
               purchasePrice: parseFloat(formData.purchasePrice),
               purchaseRate: parseFloat(purchaseRate)
             };
