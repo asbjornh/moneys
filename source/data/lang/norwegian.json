@@ -15,7 +15,11 @@
       "tickerInput": "Ticker"
     },
     "moneys": {
-      "lastUpdatedLabel": "Sist oppdatert"
+      "lastUpdatedLabel": "Sist oppdatert",
+      "weekLabel": "1 uke",
+      "monthLabel": "1 mnd",
+      "yearLabel": "1 år",
+      "maxLabel": "Max"
     },
     "main": {
       "stockNotFound": "Fant ikke aksje"

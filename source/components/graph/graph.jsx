@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
 import { Line } from "react-chartjs-2";
 
 import api from "../../js/api-helper";
@@ -11,8 +10,11 @@ import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
 import utils from "../../js/utils";
 
+import GraphFilters from "./graph-filters";
+
 class Graph extends React.Component {
   static propTypes = {
+    labels: PropTypes.object,
     height: PropTypes.number,
     width: PropTypes.number
   };
@@ -22,10 +24,6 @@ class Graph extends React.Component {
     points: api.getGraphPoints(),
     showGraph: true
   };
-
-  componentDidMount() {
-    console.log(this.chart.chart_instance);
-  }
 
   componentWillReceiveProps() {
     // Unmount and mount graph again to force repaint
@@ -133,52 +131,11 @@ class Graph extends React.Component {
                 />
               );
             })())}
-        <ul className={css.filters}>
-          <li>
-            <button
-              type="button"
-              className={cn({
-                [css.isActive]: this.state.daysToShow === 7
-              })}
-              onClick={() => this.setDaysToShow(7)}
-            >
-              1 uke
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className={cn({
-                [css.isActive]: this.state.daysToShow === 31
-              })}
-              onClick={() => this.setDaysToShow(31)}
-            >
-              1 mnd
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className={cn({
-                [css.isActive]: this.state.daysToShow === 365
-              })}
-              onClick={() => this.setDaysToShow(365)}
-            >
-              1 år
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className={cn({
-                [css.isActive]: this.state.daysToShow === null
-              })}
-              onClick={() => this.setDaysToShow(null)}
-            >
-              Max
-            </button>
-          </li>
-        </ul>
+        <GraphFilters
+          daysToShow={this.state.daysToShow}
+          labels={this.props.labels}
+          onUpdate={this.setDaysToShow}
+        />
       </div>
     );
   }

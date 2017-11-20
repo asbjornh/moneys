@@ -15,7 +15,11 @@
       "tickerInput": "Ticker"
     },
     "moneys": {
-      "lastUpdatedLabel": "Last updated"
+      "lastUpdatedLabel": "Last updated",
+      "weekLabel": "1 wk",
+      "monthLabel": "1 mth",
+      "yearLabel": "1 yr",
+      "maxLabel": "Max"
     },
     "main": {
       "stockNotFound": "Stock not found"
