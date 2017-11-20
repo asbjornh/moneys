@@ -33,6 +33,7 @@
     border: 1px solid $medium-gray;
     width: 100%;
     padding: 2px 0;
+    border-radius: 5px;
 
     &.isActive {
       color: $dark-gray;

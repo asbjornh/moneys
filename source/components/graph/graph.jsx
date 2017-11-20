@@ -8,6 +8,7 @@ import colors from "../../data/colors.json";
 import css from "./graph.module.scss";
 import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
+import settings from "../../settings.json";
 import utils from "../../js/utils";
 
 import GraphFilters from "./graph-filters";
@@ -31,6 +32,20 @@ class Graph extends React.Component {
       this.setState({ showGraph: true });
     });
   }
+
+  componentDidMount() {
+    this.refreshData();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.updateLoop);
+  }
+
+  refreshData = () => {
+    console.log("Updating graph");
+    this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
+    this.setState({ points: api.getGraphPoints() });
+  };
 
   setDaysToShow = daysToShow => {
     this.setState({ daysToShow });
