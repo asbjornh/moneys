@@ -119,7 +119,13 @@ function getCurrencyData() {
 function getHistoricalCurrencyData(date) {
   return new Promise((resolve, reject) => {
     fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`
+      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`,
+      {
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Origin: window.location
+        })
+      }
     )
       .then(response => response.json())
       .then(json => {
@@ -159,7 +165,7 @@ function getStockData(symbol) {
     {
       headers: new Headers({
         "Content-Type": "application/json",
-        Origin: "asbjorn.org"
+        Origin: window.location
       })
     }
   )
