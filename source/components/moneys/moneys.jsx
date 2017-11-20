@@ -5,6 +5,7 @@ import currencySymbols from "world-currencies";
 import get from "lodash/get";
 
 import css from "./moneys.module.scss";
+import utils from "../../js/utils";
 
 import Graph from "../graph";
 import Number from "../number";
@@ -13,11 +14,18 @@ class Moneys extends React.Component {
   static propTypes = {
     labels: PropTypes.object,
     lastUpdated: PropTypes.number,
-    sum: PropTypes.number,
+    sum: PropTypes.shape({
+      total: PropTypes.number,
+      difference: PropTypes.number
+    }),
     userCurrency: PropTypes.string
   };
 
   static defaultProps = {
+    sum: {
+      difference: 0,
+      total: 0
+    },
     userCurrency: "NOK"
   };
 
@@ -66,14 +74,20 @@ class Moneys extends React.Component {
           <div className={css.number}>
             <div style={{ fontSize }}>
               <Number
-                number={sum}
+                number={sum.difference}
                 numberOfDecimals={0}
                 currencySymbol={symbol}
               />
             </div>
           </div>
+          <p>
+            {`${this.props.labels.totalValueLabel}: `}
+            <b>{`${utils.formatNumberWithSpaces(sum.total)} ${symbol}`}</b>
+          </p>
 
-          <p>{`${this.props.labels.lastUpdatedLabel}: ${time}`}</p>
+          <p>
+            {`${this.props.labels.lastUpdatedLabel}: `} <b>{time}</b>
+          </p>
         </div>
       </div>
     );

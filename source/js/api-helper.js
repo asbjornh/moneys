@@ -214,7 +214,7 @@ function getStocks() {
           currencies,
           getUserCurrency()
         );
-        addGraphPoint(sum);
+        addGraphPoint(sum.difference);
         resolve({
           lastUpdated: stocks.timeStamp,
           stocks: stocks.data.filter(({ id }) => {
@@ -237,7 +237,7 @@ function getStocks() {
               getUserCurrency()
             );
             storeData("stocks", stocks);
-            addGraphPoint(sum);
+            addGraphPoint(sum.difference);
             resolve({
               stocks,
               lastUpdated: new Date().getTime(),

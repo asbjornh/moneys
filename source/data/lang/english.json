@@ -16,6 +16,7 @@
     },
     "moneys": {
       "lastUpdatedLabel": "Last updated",
+      "totalValueLabel": "Total value",
       "weekLabel": "1 wk",
       "monthLabel": "1 mth",
       "yearLabel": "1 yr",

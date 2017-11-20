@@ -4,23 +4,41 @@ function convert(value, fromCurrency, toCurrency, currencies) {
 }
 
 function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
-  return stocks.reduce((accum, stock) => {
-    const currentPrice = stock.price * stock.qty;
-    const convertedCurrentPrice = convert(
-      currentPrice,
-      stock.currency,
-      outputCurrency,
-      currencies
-    );
-    const difference = convertedCurrentPrice - stock.purchasePrice;
+  return stocks.reduce(
+    (accum, stock) => {
+      const currentPrice = stock.price * stock.qty;
+      const convertedCurrentPrice = convert(
+        currentPrice,
+        stock.currency,
+        outputCurrency,
+        currencies
+      );
+      const difference = convertedCurrentPrice - stock.purchasePrice;
 
-    return accum + difference;
-  }, 0);
+      return {
+        difference: accum.difference + difference,
+        total: accum.total + convertedCurrentPrice
+      };
+    },
+    { total: 0, difference: 0 }
+  );
 }
 
-function formatNumber(number, numberOfDecimals) {
+function formatNumberWithSpaces(number) {
+  return number
+    .toFixed(0)
+    .split("")
+    .reverse()
+    .reduce((accum, number, index) => {
+      return accum.concat(index % 3 === 0 ? [" ", number] : number);
+    }, [])
+    .reverse()
+    .join("");
+}
+
+function formatNumber(number, numberOfDecimals = 0, displaySymbol = true) {
   if (isNaN(number)) return 0;
-  const symbol = number > 0 ? "+" : "";
+  const symbol = number > 0 && displaySymbol ? "+" : "";
 
   if (number < 10000) {
     return symbol + number.toFixed(numberOfDecimals);
@@ -40,6 +58,7 @@ function rangeMap(value, in_min, in_max, out_min, out_max) {
 export default {
   convert,
   formatNumber,
+  formatNumberWithSpaces,
   rangeMap,
   sumAndConvert
 };

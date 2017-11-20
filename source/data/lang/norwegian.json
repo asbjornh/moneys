@@ -16,6 +16,7 @@
     },
     "moneys": {
       "lastUpdatedLabel": "Sist oppdatert",
+      "totalValueLabel": "Totalverdi",
       "weekLabel": "1 uke",
       "monthLabel": "1 mnd",
       "yearLabel": "1 år",
