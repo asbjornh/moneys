@@ -23,11 +23,11 @@
 
   p {
     margin: 3px 0 0;
-    opacity: 0.4;
+    color: $medium-gray;
   }
 }
 
 .number {
-  @include fluid-type($breakpoint-sm, $breakpoint-lg, 50px, 90px);
+  @include fluid-type($breakpoint-sm, $breakpoint-lg, 50px, 80px);
   line-height: 1;
 }

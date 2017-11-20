@@ -1,10 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import cn from "classnames";
 import { Line } from "react-chartjs-2";
 
 import api from "../../js/api-helper";
 import colors from "../../data/colors.json";
+import css from "./graph.module.scss";
 import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
 import utils from "../../js/utils";
@@ -16,9 +18,14 @@ class Graph extends React.Component {
   };
 
   state = {
+    daysToShow: 7,
     points: api.getGraphPoints(),
     showGraph: true
   };
+
+  componentDidMount() {
+    console.log(this.chart.chart_instance);
+  }
 
   componentWillReceiveProps() {
     // Unmount and mount graph again to force repaint
@@ -26,6 +33,28 @@ class Graph extends React.Component {
       this.setState({ showGraph: true });
     });
   }
+
+  setDaysToShow = daysToShow => {
+    this.setState({ daysToShow });
+  };
+
+  getPointRadius = (points, canvas) => {
+    const visibleRadius = 3;
+    const maxPoints = Math.round(0.15 * canvas.width / visibleRadius);
+    const skipInterval = 1 + Math.floor(points.length / maxPoints);
+
+    return points.map((point, index) => {
+      if (index === 0 || index === points.length - 1) {
+        return visibleRadius;
+      } else if (index % skipInterval === 0) {
+        return index > skipInterval && index + skipInterval < points.length - 1
+          ? visibleRadius
+          : 0;
+      } else {
+        return 0;
+      }
+    });
+  };
 
   getGradient = (canvas, points, padding) => {
     if (!points || !points.length) return "white";
@@ -53,47 +82,105 @@ class Graph extends React.Component {
 
   render() {
     const graphPadding = 30;
-    return !this.state.showGraph || this.state.points.length < 2
-      ? null
-      : (() => {
-          const data = canvas => {
-            return {
-              datasets: [
-                {
-                  data: this.state.points,
-                  borderColor: this.getGradient(
-                    canvas,
-                    this.state.points,
-                    graphPadding
-                  )
-                }
-              ],
-              labels: this.state.points.map(p => {
-                const date = new Date(p.x);
-                return `${date.getDate()} ${months[date.getMonth()]}`;
-              })
-            };
-          };
 
-          const { width } = this.props;
-          const height = this.props.height;
+    // Filter points according to the selected filter
+    const points = this.state.points.filter(point => {
+      if (!this.state.daysToShow) {
+        return point;
+      } else {
+        return (
+          point.x >
+          new Date().getTime() - (this.state.daysToShow + 1) * 24 * 3600 * 1000
+        );
+      }
+    });
 
-          return (
-            <div>
-              <Line
-                data={data}
-                width={width}
-                height={height}
-                options={graphUtils.getOptions(
-                  this.state.points,
-                  graphPadding,
-                  height
-                )}
-                ref={l => (this.chart = l)}
-              />
-            </div>
-          );
-        })();
+    return (
+      <div className={css.graph}>
+        {!this.state.showGraph ||
+          (points.length >= 2 &&
+            (() => {
+              const data = canvas => {
+                return {
+                  datasets: [
+                    {
+                      data: points,
+                      borderColor: this.getGradient(
+                        canvas,
+                        points,
+                        graphPadding
+                      ),
+                      pointRadius: this.getPointRadius(points, canvas)
+                    }
+                  ],
+                  labels: points.map(p => {
+                    const date = new Date(p.x);
+                    return `${date.getDate()} ${months[date.getMonth()]}`;
+                  })
+                };
+              };
+
+              const { width } = this.props;
+              const height = this.props.height;
+
+              return (
+                <Line
+                  data={data}
+                  width={width}
+                  height={height}
+                  options={graphUtils.getOptions(points, graphPadding, height)}
+                  ref={l => (this.chart = l)}
+                />
+              );
+            })())}
+        <ul className={css.filters}>
+          <li>
+            <button
+              type="button"
+              className={cn({
+                [css.isActive]: this.state.daysToShow === 7
+              })}
+              onClick={() => this.setDaysToShow(7)}
+            >
+              1 uke
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={cn({
+                [css.isActive]: this.state.daysToShow === 31
+              })}
+              onClick={() => this.setDaysToShow(31)}
+            >
+              1 mnd
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={cn({
+                [css.isActive]: this.state.daysToShow === 365
+              })}
+              onClick={() => this.setDaysToShow(365)}
+            >
+              1 år
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={cn({
+                [css.isActive]: this.state.daysToShow === null
+              })}
+              onClick={() => this.setDaysToShow(null)}
+            >
+              Max
+            </button>
+          </li>
+        </ul>
+      </div>
+    );
   }
 }
 

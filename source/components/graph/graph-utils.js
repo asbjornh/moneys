@@ -3,10 +3,13 @@ import merge from "lodash/merge";
 
 function getOptions(points, padding, height) {
   const i = Infinity;
-  const max = points.reduce((accum, p) => (p.y > accum ? p.y : accum), -i);
-  const min = points.reduce((accum, p) => (p.y < accum ? p.y : accum), i);
+  const maxY = points.reduce((accum, p) => (p.y > accum ? p.y : accum), -i);
+  const minY = points.reduce((accum, p) => (p.y < accum ? p.y : accum), i);
+  const maxX = points.reduce((accum, p) => (p.x > accum ? p.x : accum), -i);
+  const minX = points.reduce((accum, p) => (p.x < accum ? p.x : accum), i);
   // Convert padding in pixels to padding in graph value:
-  const graphPadding = padding * window.devicePixelRatio * (max - min) / height;
+  const graphPadding =
+    padding * window.devicePixelRatio * (maxY - minY) / height;
 
   return merge(Chart.defaults.global, {
     animation: {
@@ -14,7 +17,8 @@ function getOptions(points, padding, height) {
     },
     elements: {
       point: {
-        backgroundColor: "white"
+        backgroundColor: "white",
+        hitRadius: 4
       },
       line: {
         borderColor: "white",
@@ -32,19 +36,30 @@ function getOptions(points, padding, height) {
     maintainAspectRatio: false,
     responsive: false,
     scales: {
-      xAxes: [{ display: false }],
+      xAxes: [
+        {
+          display: false,
+          type: "linear",
+          ticks: { min: minX, max: maxX }
+        }
+      ],
       yAxes: [
         {
           display: false,
           ticks: {
-            min: min - graphPadding,
-            max: max + graphPadding
+            min: minY - graphPadding,
+            max: maxY + graphPadding
           }
         }
       ]
     },
     tooltips: {
-      displayColors: false
+      displayColors: false,
+      callbacks: {
+        title: (tooltipItem, data) => {
+          return data.labels[tooltipItem[0].index];
+        }
+      }
     }
   });
 }

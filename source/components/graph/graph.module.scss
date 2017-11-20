@@ -1,0 +1,43 @@
+@import "../../scss/vars";
+
+.graph {
+  width: 100%;
+
+  &:hover {
+    .filters {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+.filters {
+  list-style: none;
+  padding: 0;
+  padding-right: 20px;
+  margin: 0;
+  display: flex;
+  opacity: 0;
+  transition: transform 0.3s $ease-out, opacity 0.4s;
+  transform: translateY(-5px);
+
+  li {
+    margin-right: 5px;
+    flex-grow: 1;
+  }
+
+  button {
+    appearance: none;
+    background-color: transparent;
+    color: $medium-gray;
+    border: 1px solid $medium-gray;
+    width: 100%;
+    padding: 2px 0;
+
+    &.isActive {
+      color: $dark-gray;
+      background-color: $medium-gray;
+      border-color: $medium-gray;
+    }
+  }
+}
