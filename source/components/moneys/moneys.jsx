@@ -12,6 +12,7 @@ import Number from "../number";
 
 class Moneys extends React.Component {
   static propTypes = {
+    graphData: PropTypes.array,
     labels: PropTypes.object,
     lastUpdated: PropTypes.number,
     sum: PropTypes.shape({
@@ -67,7 +68,11 @@ class Moneys extends React.Component {
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>
         {this.state.graphSize && (
-          <Graph labels={this.props.labels} {...this.state.graphSize} />
+          <Graph
+            data={this.props.graphData}
+            labels={this.props.labels}
+            {...this.state.graphSize}
+          />
         )}
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1>Moneys:</h1>

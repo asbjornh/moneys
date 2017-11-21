@@ -202,7 +202,7 @@ function hasStoredStocks() {
   return !!getUserStocks().length;
 }
 
-function getStocks() {
+function getData() {
   return new Promise((resolve, reject) => {
     const userStocks = getUserStocks();
     const stocks = getStoredData("stocks");
@@ -220,7 +220,8 @@ function getStocks() {
           stocks: stocks.data.filter(({ id }) => {
             return !!userStocks.find(stock => stock.id === id);
           }),
-          sum
+          sum,
+          graphData: getGraphPoints()
         });
       } else {
         console.log("Getting new stock data");
@@ -241,7 +242,8 @@ function getStocks() {
             resolve({
               stocks,
               lastUpdated: new Date().getTime(),
-              sum
+              sum,
+              graphData: getGraphPoints()
             });
           })
           .catch(e => {
@@ -292,9 +294,14 @@ function addStock(formData) {
             const userStocksList = getUserStocks();
             setUserStocks(userStocksList.concat(newStock));
 
-            getStocks()
-              .then(({ stocks, lastUpdated, sum }) => {
-                resolve({ stocks, lastUpdated, sum });
+            getData()
+              .then(({ stocks, lastUpdated, sum, graphData }) => {
+                resolve({
+                  stocks,
+                  lastUpdated,
+                  sum,
+                  graphData
+                });
               })
               .catch(e => {
                 console.log(e);
@@ -320,8 +327,8 @@ function deleteStock(id) {
     const stocks = getStoredData("stocks");
     storeData("stocks", stocks.data.filter(stock => stock.id !== id));
 
-    getStocks().then(({ stocks, sum }) => {
-      resolve({ stocks, sum });
+    getData().then(({ stocks, sum, lastUpdated, graphData }) => {
+      resolve({ stocks, sum, lastUpdated, graphData });
     });
   });
 }
@@ -338,7 +345,7 @@ export default {
   getBackupData,
   getCurrencies,
   getGraphPoints,
-  getStocks,
+  getData,
   getUserCurrency,
   getUserLanguage,
   hasStoredStocks,

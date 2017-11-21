@@ -58,9 +58,15 @@ class Main extends React.Component {
     console.log("Updating");
     this.setState({ isLoading: true }, () => {
       api
-        .getStocks()
-        .then(({ stocks, lastUpdated, sum }) => {
-          this.setState({ isLoading: false, stocks, lastUpdated, sum });
+        .getData()
+        .then(({ stocks, lastUpdated, sum, graphData }) => {
+          this.setState({
+            isLoading: false,
+            stocks,
+            lastUpdated,
+            sum,
+            graphData
+          });
         })
         .catch(e => {
           this.setState({ isLoading: false });
@@ -75,12 +81,13 @@ class Main extends React.Component {
       setTimeout(() => {
         api
           .addStock(formData)
-          .then(({ stocks, lastUpdated, sum }) => {
+          .then(({ stocks, lastUpdated, sum, graphData }) => {
             this.setState({
               isLoading: false,
               lastUpdated,
               stocks,
-              sum
+              sum,
+              graphData
             });
           })
           .catch(() => {
@@ -104,8 +111,8 @@ class Main extends React.Component {
   };
 
   deleteStock = id => {
-    api.deleteStock(id).then(({ stocks, sum }) => {
-      this.setState({ stocks, sum });
+    api.deleteStock(id).then(({ stocks, sum, lastUpdated, graphData }) => {
+      this.setState({ stocks, sum, lastUpdated, graphData });
     });
   };
 
@@ -175,6 +182,7 @@ class Main extends React.Component {
             />
 
             <Moneys
+              graphData={this.state.graphData}
               labels={this.state.labels.moneys}
               lastUpdated={this.state.lastUpdated}
               sum={this.state.sum}

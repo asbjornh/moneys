@@ -3,18 +3,17 @@ import PropTypes from "prop-types";
 
 import { Line } from "react-chartjs-2";
 
-import api from "../../js/api-helper";
 import colors from "../../data/colors.json";
 import css from "./graph.module.scss";
 import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
-import settings from "../../settings.json";
 import utils from "../../js/utils";
 
 import GraphFilters from "./graph-filters";
 
 class Graph extends React.Component {
   static propTypes = {
+    data: PropTypes.array,
     labels: PropTypes.object,
     height: PropTypes.number,
     width: PropTypes.number
@@ -22,7 +21,6 @@ class Graph extends React.Component {
 
   state = {
     daysToShow: 7,
-    points: api.getGraphPoints(),
     showGraph: true
   };
 
@@ -33,19 +31,9 @@ class Graph extends React.Component {
     });
   }
 
-  componentDidMount() {
-    this.refreshData();
-  }
-
   componentWillUnmount() {
     clearInterval(this.updateLoop);
   }
-
-  refreshData = () => {
-    console.log("Updating graph");
-    this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
-    this.setState({ points: api.getGraphPoints() });
-  };
 
   setDaysToShow = daysToShow => {
     this.setState({ daysToShow });
@@ -57,7 +45,11 @@ class Graph extends React.Component {
     const skipInterval = 1 + Math.floor(points.length / maxPoints);
 
     return points.map((point, index) => {
-      if (index === 0 || index === points.length - 1) {
+      if (
+        points.length < maxPoints ||
+        index === 0 ||
+        index === points.length - 1
+      ) {
         return visibleRadius;
       } else if (index % skipInterval === 0) {
         return index > skipInterval && index + skipInterval < points.length - 1
@@ -97,7 +89,7 @@ class Graph extends React.Component {
     const graphPadding = 30;
 
     // Filter points according to the selected filter
-    const points = this.state.points.filter(point => {
+    const points = this.props.data.filter(point => {
       if (!this.state.daysToShow) {
         return point;
       } else {
