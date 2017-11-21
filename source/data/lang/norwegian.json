@@ -23,7 +23,9 @@
       "maxLabel": "Max"
     },
     "main": {
-      "stockNotFound": "Fant ikke aksje"
+      "stockNotFound": "Fant ikke aksje",
+      "deleteAllConfirmation": "Er du sikker på at du vil slette alle data?",
+      "deleteConfirmation": "Er du sikker på at du vil slette denne?"
     },
     "menu": {
       "currencyConfirmationMessage":

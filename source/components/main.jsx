@@ -111,13 +111,17 @@ class Main extends React.Component {
   };
 
   deleteStock = id => {
-    api.deleteStock(id).then(({ stocks, sum, lastUpdated, graphData }) => {
-      this.setState({ stocks, sum, lastUpdated, graphData });
-    });
+    if (confirm(this.state.labels.main.deleteConfirmation)) {
+      api.deleteStock(id).then(({ stocks, sum, lastUpdated, graphData }) => {
+        this.setState({ stocks, sum, lastUpdated, graphData });
+      });
+    }
   };
 
   deleteAllData = () => {
-    api.deleteAllData();
+    if (confirm(this.state.labels.main.deleteAllConfirmation)) {
+      api.deleteAllData();
+    }
   };
 
   onCurrencySelect = currency => {
