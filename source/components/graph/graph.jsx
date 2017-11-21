@@ -19,6 +19,10 @@ class Graph extends React.Component {
     width: PropTypes.number
   };
 
+  static defaultProps = {
+    data: []
+  };
+
   state = {
     daysToShow: 7,
     showGraph: true
