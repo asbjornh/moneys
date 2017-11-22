@@ -1,0 +1,32 @@
+@import "../../scss/vars";
+
+.realizedStock {
+  td {
+    color: $medium-gray;
+  }
+}
+
+.firstRow {
+  td {
+    padding-top: 10px;
+  }
+}
+
+.lastRow {
+  td {
+    padding-bottom: 10px;
+  }
+}
+
+.sum {
+  text-align: right;
+}
+
+td.symbol {
+  font-weight: bold;
+  color: white;
+}
+
+.date {
+  text-align: right;
+}

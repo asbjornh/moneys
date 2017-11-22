@@ -23,11 +23,18 @@
     transform: translateX(90px);
   }
 
-  .deleteButton {
+  .deleteButton,
+  .realizeButton {
     transform: none;
     opacity: 1;
     visibility: visible;
     transition-delay: 0s;
+  }
+
+  .number div:not(.hoverTarget),
+  .percentage,
+  .ticker {
+    opacity: 0.4;
   }
 }
 
@@ -44,7 +51,21 @@
 }
 
 .deleteButton {
-  @include button($red);
+  @include button(transparent);
+  color: $red;
+  margin-left: 10px;
+}
+
+.realizeButton {
+  @include button(transparent);
+  color: $green;
+}
+
+.deleteButton,
+.realizeButton {
+  height: 24px;
+  width: 24px;
+  padding: 0;
   visibility: hidden;
   opacity: 0;
   transform: scale(0.7);
@@ -67,6 +88,7 @@
 .ticker {
   @include font-size-lg;
   font-weight: bold;
+  transition: opacity 0.3s;
 }
 
 .longName {
@@ -77,6 +99,10 @@
   @include font-size-lg;
   text-align: right;
   width: 20%;
+
+  div:not(.hoverTarget) {
+    transition: opacity 0.3s;
+  }
 }
 
 .isPositive {
@@ -91,6 +117,7 @@
   font-weight: normal;
   padding-right: 10px;
   text-align: right;
+  transition: opacity 0.3s;
 }
 
 .moreStuff {

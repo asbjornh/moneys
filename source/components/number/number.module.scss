@@ -5,9 +5,12 @@
   text-shadow: 0 0 0.5em rgba(white, 0.1);
 
   span {
-    font-size: 0.6em;
-    vertical-align: super;
     margin-left: 5px;
+
+    &.isSuperScript {
+      font-size: 0.6em;
+      vertical-align: super;
+    }
   }
 }
 

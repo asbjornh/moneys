@@ -124,7 +124,7 @@ class Graph extends React.Component {
                   ],
                   labels: points.map(p => {
                     const date = new Date(p.x);
-                    return `${date.getDate()} ${months[date.getMonth()]}`;
+                    return `${date.getDate()}. ${months[date.getMonth()]}`;
                   })
                 };
               };

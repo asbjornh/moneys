@@ -25,7 +25,10 @@
     "main": {
       "stockNotFound": "Fant ikke aksje",
       "deleteAllConfirmation": "Er du sikker på at du vil slette alle data?",
-      "deleteConfirmation": "Er du sikker på at du vil slette denne?"
+      "deleteConfirmation": "Er du sikker på at du vil slette denne?",
+      "realizeStockPrompt": "Utbetalt totalt",
+      "realizeStockFailedId": "Kunne ikke realisere. Id mangler.",
+      "realizeStockFailedPrice": "Kunne ikke realisere. Ugyldig utbetalt beløp."
     },
     "menu": {
       "currencyConfirmationMessage":
@@ -35,8 +38,13 @@
       "uploadBackup": "Last opp backup",
       "currencySelect": "Valuta"
     },
+    "realizedStock": {
+      "dateLabel": "Realisert"
+    },
     "stock": {
-      "qtyLabel": "Ant."
+      "deleteButton": "Slett",
+      "qtyLabel": "Ant.",
+      "realizeButton": "Realiser"
     }
   }
 }

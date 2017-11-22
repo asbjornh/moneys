@@ -12,6 +12,7 @@ import Form from "./form";
 import Header from "./header";
 import Menu from "./menu";
 import Moneys from "./moneys";
+import RealizedStock from "./realized-stock";
 import Spinner from "./spinner";
 import Stock from "./stock";
 
@@ -110,6 +111,21 @@ class Main extends React.Component {
     this.setState(state => ({ menuIsVisible: !state.menuIsVisible }));
   };
 
+  realizeStock = id => {
+    const sellPrice = prompt(
+      this.state.labels.main.realizeStockPrompt +
+        ` (${this.state.userCurrency})`
+    );
+
+    if (id && sellPrice && sellPrice.search(",") === -1) {
+      api.realizeStock(id, parseFloat(sellPrice));
+    } else if (!id) {
+      alert(this.state.labels.main.realizeStockFailedId);
+    } else {
+      alert(this.state.labels.main.realizeStockFailedPrice);
+    }
+  };
+
   deleteStock = id => {
     if (confirm(this.state.labels.main.deleteConfirmation)) {
       api.deleteStock(id).then(({ stocks, sum, lastUpdated, graphData }) => {
@@ -136,14 +152,29 @@ class Main extends React.Component {
   };
 
   render() {
-    const stocksWithLoader = this.state.stocks.map(stock => (
-      <Stock
-        key={stock.id}
-        labels={this.state.labels.stock}
-        onDelete={this.deleteStock}
-        {...stock}
-      />
-    ));
+    const stocksWithLoader = this.state.stocks
+      .filter(stock => !stock.isRealized)
+      .map(stock => (
+        <Stock
+          key={stock.id}
+          labels={this.state.labels.stock}
+          onDelete={this.deleteStock}
+          onRealize={this.realizeStock}
+          {...stock}
+        />
+      ))
+      .concat(
+        this.state.stocks
+          .filter(stock => stock.isRealized)
+          .map(stock => (
+            <RealizedStock
+              key={stock.id}
+              labels={this.state.labels.realizedStock}
+              userCurrency={this.state.userCurrency}
+              {...stock}
+            />
+          ))
+      );
 
     stocksWithLoader.push(
       this.state.isLoading && (

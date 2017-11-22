@@ -25,7 +25,10 @@
     "main": {
       "stockNotFound": "Stock not found",
       "deleteAllConfirmation": "Are you sure you want to delete all data?",
-      "deleteConfirmation": "Are you sure you want to delete this?"
+      "deleteConfirmation": "Are you sure you want to delete this?",
+      "realizeStockPrompt": "Payout, total",
+      "realizeStockFailedId": "Couldn't realize. Id missing.",
+      "realizeStockFailedPrice": "Couldn't realize. Invalid payout."
     },
     "menu": {
       "currencyConfirmationMessage": "This will delete all data. Continue?",
@@ -34,8 +37,13 @@
       "uploadBackup": "Upload backup",
       "currencySelect": "Currency"
     },
+    "realizedStock": {
+      "dateLabel": "Realized"
+    },
     "stock": {
-      "qtyLabel": "Qty."
+      "deleteButton": "Delete",
+      "qtyLabel": "Qty.",
+      "realizeButton": "Realize"
     }
   }
 }

@@ -4,23 +4,33 @@ function convert(value, fromCurrency, toCurrency, currencies) {
 }
 
 function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
+  const realizedSum = stocks.reduce((accum, stock) => {
+    return stock.isRealized
+      ? accum + stock.sellPrice - stock.purchasePrice
+      : accum;
+  }, 0);
+
   return stocks.reduce(
     (accum, stock) => {
-      const currentPrice = stock.price * stock.qty;
-      const convertedCurrentPrice = convert(
-        currentPrice,
-        stock.currency,
-        outputCurrency,
-        currencies
-      );
-      const difference = convertedCurrentPrice - stock.purchasePrice;
+      if (stock.isRealized) {
+        return accum;
+      } else {
+        const currentPrice = stock.price * stock.qty;
+        const convertedCurrentPrice = convert(
+          currentPrice,
+          stock.currency,
+          outputCurrency,
+          currencies
+        );
+        const difference = convertedCurrentPrice - stock.purchasePrice;
 
-      return {
-        difference: accum.difference + difference,
-        total: accum.total + convertedCurrentPrice
-      };
+        return {
+          difference: accum.difference + difference,
+          total: accum.total + convertedCurrentPrice
+        };
+      }
     },
-    { total: 0, difference: 0 }
+    { total: 0, difference: realizedSum }
   );
 }
 

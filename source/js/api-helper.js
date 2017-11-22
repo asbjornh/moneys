@@ -119,7 +119,7 @@ function getCurrencyData() {
 function getHistoricalCurrencyData(date) {
   return new Promise((resolve, reject) => {
     fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=4a4d89fbd62942c6ba24dbb60b7f67a0`,
+      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=${config.openExchangeRatesAppId}`,
       {
         headers: new Headers({
           "Content-Type": "application/json",
@@ -205,21 +205,27 @@ function hasStoredStocks() {
 function getData() {
   return new Promise((resolve, reject) => {
     const userStocks = getUserStocks();
-    const stocks = getStoredData("stocks");
+    const storedStocks = getStoredData("stocks");
 
     getCurrencies().then(currencies => {
-      if (stocks && stocks.data && stocks.data.length >= userStocks.length) {
-        const sum = utils.sumAndConvert(
-          stocks.data,
-          currencies,
-          getUserCurrency()
-        );
+      if (
+        storedStocks &&
+        storedStocks.data &&
+        storedStocks.data.length >= userStocks.length
+      ) {
+        const stocks = userStocks.map(stock => {
+          return Object.assign(
+            {},
+            stock,
+            storedStocks.data.find(ss => ss.id === stock.id)
+          );
+        });
+
+        const sum = utils.sumAndConvert(stocks, currencies, getUserCurrency());
         addGraphPoint(sum.difference);
         resolve({
-          lastUpdated: stocks.timeStamp,
-          stocks: stocks.data.filter(({ id }) => {
-            return !!userStocks.find(stock => stock.id === id);
-          }),
+          lastUpdated: storedStocks.timeStamp,
+          stocks,
           sum,
           graphData: getGraphPoints()
         });
@@ -291,8 +297,8 @@ function addStock(formData) {
               purchaseRate: parseFloat(purchaseRate)
             };
 
-            const userStocksList = getUserStocks();
-            setUserStocks(userStocksList.concat(newStock));
+            const userStocks = getUserStocks();
+            setUserStocks(userStocks.concat(newStock));
 
             getData()
               .then(({ stocks, lastUpdated, sum, graphData }) => {
@@ -322,10 +328,25 @@ function addStock(formData) {
 
 function deleteStock(id) {
   return new Promise(resolve => {
-    const userStocksList = getUserStocks();
-    setUserStocks(userStocksList.filter(stock => stock.id !== id));
+    const userStocks = getUserStocks();
+    setUserStocks(userStocks.filter(stock => stock.id !== id));
     const stocks = getStoredData("stocks");
     storeData("stocks", stocks.data.filter(stock => stock.id !== id));
+
+    getData().then(({ stocks, sum, lastUpdated, graphData }) => {
+      resolve({ stocks, sum, lastUpdated, graphData });
+    });
+  });
+}
+
+function realizeStock(id, sellPrice) {
+  return new Promise(resolve => {
+    const userStocks = getUserStocks();
+    const realizedStock = userStocks.find(stock => stock.id === id);
+    realizedStock.isRealized = true;
+    realizedStock.sellPrice = sellPrice;
+    realizedStock.sellDate = new Date().getTime();
+    setUserStocks(userStocks);
 
     getData().then(({ stocks, sum, lastUpdated, graphData }) => {
       resolve({ stocks, sum, lastUpdated, graphData });
@@ -350,6 +371,7 @@ export default {
   getUserLanguage,
   hasStoredStocks,
   insertBackupData,
+  realizeStock,
   setUserCurrency,
   setUserLanguage
 };

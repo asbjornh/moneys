@@ -6,7 +6,13 @@ import cn from "classnames";
 import css from "./number.module.scss";
 import utils from "../../js/utils";
 
-const Number = ({ className, currencySymbol, number, numberOfDecimals }) => {
+const Number = ({
+  className,
+  currencySymbol,
+  currencySymbolIsSuperScript,
+  number,
+  numberOfDecimals
+}) => {
   const parsedNumber = parseFloat(number);
 
   return (
@@ -18,7 +24,11 @@ const Number = ({ className, currencySymbol, number, numberOfDecimals }) => {
       })}
     >
       {utils.formatNumber(parsedNumber, numberOfDecimals)}
-      <span>{currencySymbol}</span>
+      <span
+        className={cn({ [css.isSuperScript]: currencySymbolIsSuperScript })}
+      >
+        {currencySymbol}
+      </span>
     </div>
   );
 };
@@ -26,13 +36,15 @@ const Number = ({ className, currencySymbol, number, numberOfDecimals }) => {
 Number.propTypes = {
   className: PropTypes.string,
   currencySymbol: PropTypes.string,
+  currencySymbolIsSuperScript: PropTypes.bool,
   number: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   numberOfDecimals: PropTypes.number
 };
 
 Number.defaultProps = {
   number: 0,
-  numberOfDecimals: 2
+  numberOfDecimals: 2,
+  currencySymbolIsSuperScript: true
 };
 
 export default Number;

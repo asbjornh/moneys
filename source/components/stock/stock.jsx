@@ -6,6 +6,8 @@ import cn from "classnames";
 import css from "./stock.module.scss";
 
 import Number from "../number";
+import CircleDollar from "../icons/circle-dollar";
+import CircleX from "../icons/circle-x";
 
 const formatRate = rate => {
   if (rate < 1000) {
@@ -26,6 +28,7 @@ class Stock extends React.Component {
     labels: PropTypes.object,
     longName: PropTypes.string,
     onDelete: PropTypes.func,
+    onRealize: PropTypes.func,
     price: PropTypes.number,
     purchaseRate: PropTypes.number,
     qty: PropTypes.number,
@@ -35,7 +38,9 @@ class Stock extends React.Component {
   static defaultProps = {
     price: 0,
     purchasePrice: 0,
-    qty: 0
+    qty: 0,
+    onDelete: () => {},
+    onRealize: () => {}
   };
 
   state = {
@@ -56,6 +61,10 @@ class Stock extends React.Component {
 
   delete = () => {
     this.props.onDelete(this.props.id);
+  };
+
+  realize = () => {
+    this.props.onRealize(this.props.id);
   };
 
   render() {
@@ -95,11 +104,20 @@ class Stock extends React.Component {
               onMouseLeave={this.onMouseLeave}
             >
               <button
+                className={css.realizeButton}
+                onClick={this.realize}
+                title={this.props.labels.realizeButton}
+                type="button"
+              >
+                <CircleDollar />
+              </button>
+              <button
                 className={css.deleteButton}
                 type="button"
+                title={this.props.labels.deleteButton}
                 onClick={this.delete}
               >
-                Slett
+                <CircleX />
               </button>
             </div>
           </td>
