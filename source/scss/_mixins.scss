@@ -12,6 +12,7 @@
   box-shadow: 0 0 15px 0 rgba($color, 0.2);
   color: darken($dark-gray, 0.2);
   transition: transform 0.15s $ease-out;
+  cursor: pointer;
 
   &:not(:disabled):hover {
     transform: scale(0.95, 0.9);
@@ -42,10 +43,9 @@
       }
       @media screen and (min-width: $min-vw) {
         font-size: calc(
-          #{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw -
-                    #{convert-to-rem(
-                      $min-vw
-                    )}) / #{strip-unit(convert-to-rem($max-vw - $min-vw))})
+          #{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((
+                  100vw - #{convert-to-rem($min-vw)}
+                ) / #{strip-unit(convert-to-rem($max-vw - $min-vw))})
         );
       }
 

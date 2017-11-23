@@ -60,14 +60,12 @@ class Main extends React.Component {
     this.setState({ isLoading: true }, () => {
       api
         .getData()
-        .then(({ stocks, lastUpdated, sum, graphData }) => {
-          this.setState({
-            isLoading: false,
-            stocks,
-            lastUpdated,
-            sum,
-            graphData
-          });
+        .then(newState => {
+          this.setState(
+            Object.assign({}, newState, {
+              isLoading: false
+            })
+          );
         })
         .catch(e => {
           this.setState({ isLoading: false });
@@ -82,14 +80,12 @@ class Main extends React.Component {
       setTimeout(() => {
         api
           .addStock(formData)
-          .then(({ stocks, lastUpdated, sum, graphData }) => {
-            this.setState({
-              isLoading: false,
-              lastUpdated,
-              stocks,
-              sum,
-              graphData
-            });
+          .then(newState => {
+            this.setState(
+              Object.assign({}, newState, {
+                isLoading: false
+              })
+            );
           })
           .catch(() => {
             this.setState({ isLoading: false });
@@ -118,7 +114,9 @@ class Main extends React.Component {
     );
 
     if (id && sellPrice && sellPrice.search(",") === -1) {
-      api.realizeStock(id, parseFloat(sellPrice));
+      api.realizeStock(id, parseFloat(sellPrice)).then(newState => {
+        this.setState(newState);
+      });
     } else if (!id) {
       alert(this.state.labels.main.realizeStockFailedId);
     } else {
@@ -128,8 +126,8 @@ class Main extends React.Component {
 
   deleteStock = id => {
     if (confirm(this.state.labels.main.deleteConfirmation)) {
-      api.deleteStock(id).then(({ stocks, sum, lastUpdated, graphData }) => {
-        this.setState({ stocks, sum, lastUpdated, graphData });
+      api.deleteStock(id).then(newState => {
+        this.setState(newState);
       });
     }
   };
@@ -170,6 +168,7 @@ class Main extends React.Component {
             <RealizedStock
               key={stock.id}
               labels={this.state.labels.realizedStock}
+              onDelete={this.deleteStock}
               userCurrency={this.state.userCurrency}
               {...stock}
             />

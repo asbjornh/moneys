@@ -38,7 +38,9 @@
       "currencySelect": "Currency"
     },
     "realizedStock": {
-      "dateLabel": "Realized"
+      "dateLabel": "Realized",
+      "deleteLabel": "Delete",
+      "qtyLabel": "Qty."
     },
     "stock": {
       "deleteButton": "Delete",

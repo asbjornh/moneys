@@ -102,7 +102,9 @@ function storeData(key, data) {
 function getCurrencyData() {
   return new Promise((resolve, reject) => {
     fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/latest.json?app_id=${config.openExchangeRatesAppId}`
+      `${fuckYouCORS}https://openexchangerates.org/api/latest.json?app_id=${
+        config.openExchangeRatesAppId
+      }`
     )
       .then(response => response.json())
       .then(json => {
@@ -119,7 +121,9 @@ function getCurrencyData() {
 function getHistoricalCurrencyData(date) {
   return new Promise((resolve, reject) => {
     fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/historical/${date}.json?app_id=${config.openExchangeRatesAppId}`,
+      `${fuckYouCORS}https://openexchangerates.org/api/historical/${
+        date
+      }.json?app_id=${config.openExchangeRatesAppId}`,
       {
         headers: new Headers({
           "Content-Type": "application/json",
@@ -161,7 +165,9 @@ function getCurrencies() {
 function getStockData(symbol) {
   console.log(`Getting data for ${symbol}`);
   return fetch(
-    `${fuckYouCORS}https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+    `${
+      fuckYouCORS
+    }https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
     {
       headers: new Headers({
         "Content-Type": "application/json",
@@ -231,7 +237,17 @@ function getData() {
         });
       } else {
         console.log("Getting new stock data");
-        Promise.all(userStocks.map(stock => getStockData(stock.symbol)))
+        Promise.all(
+          userStocks.map(stock => {
+            if (!stock.isRealized) {
+              return getStockData(stock.symbol);
+            } else {
+              return new Promise(resolve => {
+                resolve(stock);
+              });
+            }
+          })
+        )
           .then(stockData => {
             // Merge userStocks data and stockData
             const stocks = userStocks.map((stock, index) =>
@@ -266,18 +282,18 @@ function getPurchaseRate(stock, stockCurrency) {
     if (stock.purchaseRate) {
       resolve(stock.purchaseRate);
     } else {
-      getHistoricalCurrencyData(
-        stock.purchaseDate
-      ).then(historicalCurrencies => {
-        resolve(
-          utils.convert(
-            stock.purchasePrice / stock.qty,
-            getUserCurrency(),
-            stockCurrency,
-            historicalCurrencies
-          )
-        );
-      });
+      getHistoricalCurrencyData(stock.purchaseDate).then(
+        historicalCurrencies => {
+          resolve(
+            utils.convert(
+              stock.purchasePrice / stock.qty,
+              getUserCurrency(),
+              stockCurrency,
+              historicalCurrencies
+            )
+          );
+        }
+      );
     }
   });
 }

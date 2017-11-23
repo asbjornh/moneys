@@ -39,7 +39,9 @@
       "currencySelect": "Valuta"
     },
     "realizedStock": {
-      "dateLabel": "Realisert"
+      "dateLabel": "Realisert",
+      "deleteLabel": "Slett",
+      "qtyLabel": "Ant."
     },
     "stock": {
       "deleteButton": "Slett",
