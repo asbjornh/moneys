@@ -21,18 +21,11 @@
 }
 
 .textContent {
-  display: flex;
-  flex-wrap: wrap;
+  flex-grow: 1;
 
   p {
     margin: 0;
     padding: 5px 0 0;
-    min-width: 50%;
-    flex-grow: 1;
-
-    &:nth-child(odd) {
-      padding-right: 5px;
-    }
   }
 }
 
@@ -59,10 +52,6 @@
   .isExpanded &:after {
     transform: translateY(15%) rotate(-135deg);
   }
-}
-
-.date {
-  text-align: right;
 }
 
 .qty {

@@ -18,7 +18,6 @@ class RealizedStock extends React.Component {
     onDelete: PropTypes.func,
     id: PropTypes.string,
     labels: PropTypes.object,
-    longName: PropTypes.string,
     purchasePrice: PropTypes.number,
     sellDate: PropTypes.number,
     sellPrice: PropTypes.number,
@@ -73,9 +72,8 @@ class RealizedStock extends React.Component {
             <Collapse isOpened={this.state.isExpanded}>
               <div className={css.content}>
                 <div className={css.textContent}>
-                  <p>{this.props.longName}</p>
                   {sellDate && (
-                    <p className={css.date} colSpan={2}>
+                    <p>
                       {`${
                         this.props.labels.dateLabel
                       }: ${sellDate.getDate()}. ${
