@@ -22,8 +22,8 @@
     "eslint-loader": "^1.7.1",
     "eslint-plugin-react": "^6.10.3",
     "expose-loader": "^0.7.4",
-    "extract-text-webpack-plugin": "^2.1.0",
-    "file-loader": "^0.11.1",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
     "formdata-polyfill": "^2.0.4",
     "html-webpack-plugin": "^2.28.0",
     "lodash": "^4.17.4",
@@ -41,7 +41,7 @@
     "resolve-url-loader": "^2.0.2",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.19.0",
-    "webpack": "^2.4.1",
+    "webpack": "^3.8.1",
     "webpack-dev-server": "^2.4.5",
     "world-currencies": "^0.0.6"
   }
