@@ -12,6 +12,9 @@ class Spinner extends React.Component {
   static defaultProps = {
     type: "div"
   };
+
+  state = {};
+
   render() {
     return React.createElement(
       this.props.type,
