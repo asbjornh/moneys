@@ -10,7 +10,7 @@ module.exports = (env = {}) => {
 
   return {
     entry: {
-      app: "./source/app.js"
+      app: ["formdata-polyfill", "./source/app.js"]
     },
     output: {
       path: path.resolve(__dirname + "/build"),

@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import cn from "classnames";
-import FormData from "formdata-polyfill";
 
 import css from "./form.module.scss";
 
@@ -59,8 +58,9 @@ class Form extends React.Component {
             <input name="qty" type="number" placeholder="1" />
           </div>
           <div className={css.input}>
-            <label>{`${labels.purchasePriceInput} (${this.props
-              .userCurrency}):`}</label>
+            <label>{`${labels.purchasePriceInput} (${
+              this.props.userCurrency
+            }):`}</label>
             <input name="purchasePrice" type="number" placeholder="1000" />
           </div>
         </div>

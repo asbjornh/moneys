@@ -2449,9 +2449,9 @@ form-data@~2.3.1:
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
 
-formdata-polyfill@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/formdata-polyfill/-/formdata-polyfill-2.0.4.tgz#2f5eae8f34b697cdc6b107ace7d617ed5f1fb7c4"
+formdata-polyfill@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/formdata-polyfill/-/formdata-polyfill-3.0.1.tgz#3ba73d6ced4af6e124cb78eedcca38881b6abea1"
 
 forwarded@~0.1.2:
   version "0.1.2"
