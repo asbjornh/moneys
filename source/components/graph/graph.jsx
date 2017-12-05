@@ -81,7 +81,7 @@ class Graph extends React.Component {
       0,
       padding,
       0,
-      canvas.height - padding
+      canvas.offsetHeight - padding
     );
     gradient.addColorStop(Math.max(0, mid - 0.2), colors.green);
     gradient.addColorStop(Math.max(0, Math.min(1, mid)), colors.orange);

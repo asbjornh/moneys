@@ -22,7 +22,7 @@ function getOptions(points, padding, height) {
       },
       line: {
         borderColor: "white",
-        borderWidth: window.devicePixelRatio * 2,
+        borderWidth: 2,
         backgroundColor: "transparent"
       }
     },
