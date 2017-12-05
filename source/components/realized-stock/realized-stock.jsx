@@ -26,7 +26,7 @@ class RealizedStock extends React.Component {
     qty: PropTypes.number
   };
 
-  static propTypes = {
+  static defaultProps = {
     onDelete: () => {}
   };
 
