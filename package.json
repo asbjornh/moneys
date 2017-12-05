@@ -24,7 +24,7 @@
     "expose-loader": "^0.7.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
-    "formdata-polyfill": "^3.0.1",
+    "formdata-polyfill": "^3.0.8",
     "html-webpack-plugin": "^2.28.0",
     "lodash": "^4.17.4",
     "node-sass": "^4.7.2",
@@ -35,14 +35,14 @@
     "react-chartjs-2": "^2.6.4",
     "react-collapse": "^4.0.3",
     "react-dom": "^16.2.0",
-    "react-flip-move": "^2.9.15",
+    "react-flip-move": "^2.10.0",
     "react-motion": "^0.5.2",
     "rename-loader": "^1.0.0",
     "resolve-url-loader": "^2.0.2",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.19.0",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.4.5",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.5",
     "world-currencies": "^0.0.6"
   }
 }
