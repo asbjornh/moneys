@@ -34,6 +34,13 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
   );
 }
 
+function round(number = 0, numberOfDigits) {
+  return String(number)
+    .split("")
+    .slice(0, numberOfDigits + 1)
+    .join("");
+}
+
 function formatNumberWithSpaces(number) {
   return number
     .toFixed(0)
@@ -70,5 +77,6 @@ export default {
   formatNumber,
   formatNumberWithSpaces,
   rangeMap,
+  round,
   sumAndConvert
 };

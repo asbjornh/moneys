@@ -6,6 +6,7 @@ import currencySymbols from "world-currencies";
 import get from "lodash/get";
 
 import css from "./stock.module.scss";
+import utils from "../../js/utils";
 
 import Number from "../number";
 import CircleDollar from "../icons/circle-dollar";
@@ -139,7 +140,10 @@ class Stock extends React.Component {
             <span>{`${currencySymbol} ${formatRate(purchaseRate)} → ${
               currencySymbol
             } ${formatRate(price)}`}</span>
-            <span>{`${this.props.labels.qtyLabel}: ${qty}`}</span>
+            <span>{`${this.props.labels.qtyLabel}: ${utils.round(
+              qty,
+              4
+            )}`}</span>
             <div
               className={css.hoverTarget}
               onMouseEnter={this.onMouseEnter}
