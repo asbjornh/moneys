@@ -1,6 +1,6 @@
 function convert(value, fromCurrency, toCurrency, currencies) {
-  const baseValue = value / currencies.rates[fromCurrency]; // convert to base value
-  return baseValue * currencies.rates[toCurrency]; // convert to output currency
+  const baseValue = value / currencies[fromCurrency]; // convert to base value
+  return baseValue * currencies[toCurrency]; // convert to output currency
 }
 
 function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {

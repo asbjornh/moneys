@@ -5,6 +5,8 @@
     "form": {
       "addButton": "Add",
       "cancelButton": "Cancel",
+      "intermediateCurrencyInput": "Intermediate currency",
+      "intermediateCurrencyDefault": "None",
       "invalidForm": "Complete all required fields",
       "purchasePriceInput": "Total price",
       "purchaseRateInput": "Rate at purchase",
@@ -12,7 +14,10 @@
       "qtyInput": "Quantity",
       "rateOrDateHelpText":
         "Add the stock rate at time of purchase if you know it or the date of purchase if you don't (less precise currency conversion)",
-      "tickerInput": "Ticker"
+      "tickerInput": "Ticker",
+      "typeInput": "Type",
+      "typeInputStock": "Stock",
+      "typeInputCurrency": "Currency"
     },
     "moneys": {
       "lastUpdatedLabel": "Last updated",

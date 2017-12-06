@@ -5,6 +5,8 @@
     "form": {
       "addButton": "Legg til",
       "cancelButton": "Avbryt",
+      "intermediateCurrencyInput": "Mellomvaluta",
+      "intermediateCurrencyDefault": "Ingen",
       "invalidForm": "Fyll inn alle feltene",
       "purchasePriceInput": "Totalpris",
       "purchaseRateInput": "Kurs ved kjøp",
@@ -12,7 +14,10 @@
       "qtyInput": "Antall",
       "rateOrDateHelpText":
         "Fyll inn kjøpskurs hvis du vet den, dato hvis du ikke vet den (mindre presis kurs-differanse).",
-      "tickerInput": "Ticker"
+      "tickerInput": "Ticker",
+      "typeInput": "Type",
+      "typeInputStock": "Aksje",
+      "typeInputCurrency": "Valuta"
     },
     "moneys": {
       "lastUpdatedLabel": "Sist oppdatert",

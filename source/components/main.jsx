@@ -41,7 +41,7 @@ class Main extends React.Component {
     this.refreshData();
 
     api.getCurrencies().then(currencies => {
-      this.setState({ currencies: currencies.rates });
+      this.setState({ currencies });
     });
 
     this.setState({
@@ -238,6 +238,7 @@ class Main extends React.Component {
             <div className="form-container">
               <Collapse isOpened={this.state.formIsVisible}>
                 <Form
+                  currencies={this.state.currencies}
                   labels={this.state.labels.form}
                   onSubmit={this.addStock}
                   onCancelClick={this.hideForm}

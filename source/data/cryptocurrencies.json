@@ -1,5 +1,7 @@
 {
   "BTCUSD=X": "Bitcoin",
   "ETHUSD=X": "Ethereum",
-  "LTCUSD=X": "Litecoin"
+  "LTCUSD=X": "Litecoin",
+  "ETH": "Ethereum",
+  "LTC": "Litecoin"
 }

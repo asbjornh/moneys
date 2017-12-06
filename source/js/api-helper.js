@@ -7,6 +7,20 @@ import utils from "./utils";
 
 const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
 
+// function getFromApi(url) {
+//   return new Promise(resolve => {
+//     fetch(url)
+//       .then(response => response.json())
+//       .then(json => {
+//         if (json.success) {
+//           resolve(json.payload);
+//         } else {
+//           throw new Error("Bad response from API");
+//         }
+//       });
+//   });
+// }
+
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
 }
@@ -50,7 +64,7 @@ function insertBackupData(data) {
   window.location.reload();
 }
 
-function addGraphPoint(sum) {
+function addGraphPoint(sum = 0) {
   const points = JSON.parse(localStorage.getItem("graphData")) || [];
   const lastPoint = points[points.length - 1];
   const newPoint = {
@@ -99,21 +113,31 @@ function storeData(key, data) {
   );
 }
 
-function getCurrencyData() {
-  return new Promise((resolve, reject) => {
-    fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/latest.json?app_id=${
-        config.openExchangeRatesAppId
-      }`
-    )
+let currencyNames = [];
+function getCurrencyNames() {
+  return new Promise(resolve => {
+    if (currencyNames.length) {
+      resolve(currencyNames);
+    } else {
+      fetch(`${fuckYouCORS}https://api.coinbase.com/v2/currencies`)
+        .then(response => response.json())
+        .then(json => {
+          currencyNames = json.data;
+          resolve(currencyNames);
+        });
+    }
+  });
+}
+
+function getCurrencies() {
+  return new Promise(resolve => {
+    fetch("https://api.coinbase.com/v2/exchange-rates")
       .then(response => response.json())
-      .then(json => {
-        storeData("currencies", json);
-        resolve(json);
+      .then(currencies => {
+        resolve(currencies.data.rates);
       })
       .catch(e => {
         console.log(e);
-        reject("Failed to get currency data");
       });
   });
 }
@@ -133,7 +157,7 @@ function getHistoricalCurrencyData(date) {
     )
       .then(response => response.json())
       .then(json => {
-        resolve(json);
+        resolve(json.rates);
       })
       .catch(e => {
         console.log(e);
@@ -142,23 +166,50 @@ function getHistoricalCurrencyData(date) {
   });
 }
 
-function getCurrencies() {
-  return new Promise((resolve, reject) => {
-    const currencies = getStoredData("currencies");
+function getStock({ symbol, type, intermediateCurrency }) {
+  if (type && type.toLowerCase() === "currency") {
+    return getCurrencyPair(symbol, intermediateCurrency || getUserCurrency());
+  } else {
+    return getStockData(symbol);
+  }
+}
 
-    if (currencies && currencies.data) {
-      resolve(currencies.data);
-    } else {
-      console.log("Getting new currency data");
-      getCurrencyData()
-        .then(currencyData => {
-          resolve(currencyData);
+function getCurrencyPair(fromCurrency, toCurrency) {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `https://api.coinbase.com/v2/prices/${fromCurrency}-${toCurrency}/spot`,
+      {
+        headers: new Headers({
+          "CB-VERSION": "2017-12-01"
         })
-        .catch(e => {
-          console.log(e);
-          reject("Failed to get new currency data");
+      }
+    )
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Stock not found");
+        }
+      })
+      .then(json => {
+        getCurrencyNames().then(currencyNames => {
+          resolve({
+            currency: toCurrency,
+            longName: get(
+              currencyNames.find(
+                currencyName => currencyName.id === fromCurrency
+              ),
+              "name",
+              cryptoCurrencies[fromCurrency]
+            ),
+            price: parseFloat(get(json, "data.amount", 0))
+          });
         });
-    }
+      })
+      .catch(e => {
+        console.log(e);
+        reject("Stock not found");
+      });
   });
 }
 
@@ -240,7 +291,7 @@ function getData() {
         Promise.all(
           userStocks.map(stock => {
             if (!stock.isRealized) {
-              return getStockData(stock.symbol);
+              return getStock(stock);
             } else {
               return new Promise(resolve => {
                 resolve(stock);
@@ -286,7 +337,7 @@ function getPurchaseRate(stock, stockCurrency) {
         historicalCurrencies => {
           resolve(
             utils.convert(
-              stock.purchasePrice / stock.qty,
+              parseFloat(stock.purchasePrice) / parseFloat(stock.qty),
               getUserCurrency(),
               stockCurrency,
               historicalCurrencies
@@ -300,17 +351,19 @@ function getPurchaseRate(stock, stockCurrency) {
 
 function addStock(formData) {
   return new Promise((resolve, reject) => {
-    getStockData(formData.symbol)
+    getStock(formData)
       .then(stockData => {
         // Get exchange rate at time of purchase
         getPurchaseRate(formData, stockData.currency)
           .then(purchaseRate => {
             const newStock = {
               id: String(new Date().getTime()),
-              symbol: formData.symbol,
-              qty: parseFloat(formData.qty),
+              intermediateCurrency: formData.intermediateCurrency,
               purchasePrice: parseFloat(formData.purchasePrice),
-              purchaseRate: parseFloat(purchaseRate)
+              purchaseRate: parseFloat(purchaseRate),
+              qty: parseFloat(formData.qty),
+              symbol: formData.symbol,
+              type: formData.type.toLowerCase()
             };
 
             const userStocks = getUserStocks();

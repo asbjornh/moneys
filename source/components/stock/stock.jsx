@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import cn from "classnames";
+import currencySymbols from "world-currencies";
+import get from "lodash/get";
 
 import css from "./stock.module.scss";
 
@@ -10,7 +12,9 @@ import CircleDollar from "../icons/circle-dollar";
 import CircleX from "../icons/circle-x";
 
 const formatRate = rate => {
-  if (rate < 1000) {
+  if (!rate) {
+    return 0;
+  } else if (rate < 1000) {
     return rate.toFixed(2);
   } else if (rate < 10000) {
     return parseInt(rate);
@@ -23,7 +27,7 @@ const formatRate = rate => {
 
 class Stock extends React.Component {
   static propTypes = {
-    currencySymbol: PropTypes.string,
+    currency: PropTypes.string,
     id: PropTypes.string.isRequired,
     labels: PropTypes.object,
     longName: PropTypes.string,
@@ -68,10 +72,15 @@ class Stock extends React.Component {
   };
 
   render() {
-    const { currencySymbol, purchaseRate, price, qty } = this.props;
+    const { currency, purchaseRate, price, qty } = this.props;
     const absoluteDifference = ((price - purchaseRate) * qty).toFixed(2);
     const relativeDifference = (price / purchaseRate * 100 - 100).toFixed(2);
     const symbol = absoluteDifference >= 0 ? "+" : "";
+
+    const currencySymbol = get(
+      currencySymbols,
+      `${currency}.units.major.symbol`
+    );
 
     return (
       <tbody
@@ -127,9 +136,9 @@ class Stock extends React.Component {
             <div className={css.longName}>{this.props.longName}</div>
           </td>
           <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currencySymbol} ${formatRate(
-              purchaseRate
-            )} → ${currencySymbol} ${formatRate(price)}`}</span>
+            <span>{`${currencySymbol} ${formatRate(purchaseRate)} → ${
+              currencySymbol
+            } ${formatRate(price)}`}</span>
             <span>{`${this.props.labels.qtyLabel}: ${qty}`}</span>
             <div
               className={css.hoverTarget}

@@ -8,6 +8,7 @@ class Select extends React.Component {
     confirmationMessage: PropTypes.string,
     defaultValue: PropTypes.string,
     label: PropTypes.string,
+    name: PropTypes.string,
     onChange: PropTypes.func,
     requireConfirmation: PropTypes.bool,
     values: PropTypes.arrayOf(
@@ -65,6 +66,7 @@ class Select extends React.Component {
         <select
           defaultValue={this.props.defaultValue}
           id="select"
+          name={this.props.name}
           onChange={this.onChange}
           ref={s => (this.select = s)}
         >
