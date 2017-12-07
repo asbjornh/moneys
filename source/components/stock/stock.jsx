@@ -11,6 +11,7 @@ import utils from "../../js/utils";
 import Number from "../number";
 import CircleDollar from "../icons/circle-dollar";
 import CircleX from "../icons/circle-x";
+import Warning from "../icons/warning";
 
 const formatRate = rate => {
   if (!rate) {
@@ -30,6 +31,7 @@ class Stock extends React.Component {
   static propTypes = {
     currency: PropTypes.string,
     id: PropTypes.string.isRequired,
+    isOutdated: PropTypes.bool,
     labels: PropTypes.object,
     longName: PropTypes.string,
     onDelete: PropTypes.func,
@@ -92,7 +94,14 @@ class Stock extends React.Component {
         <tr className={css.firstRow}>
           <td>
             <div className={css.description}>
-              <div className={css.ticker}>{this.props.symbol}</div>{" "}
+              <div className={css.ticker}>
+                {this.props.symbol}
+                {this.props.isOutdated && (
+                  <span className={css.warning}>
+                    <Warning />
+                  </span>
+                )}
+              </div>{" "}
             </div>
           </td>
           <td

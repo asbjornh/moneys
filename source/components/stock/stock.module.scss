@@ -91,6 +91,17 @@
   transition: opacity 0.3s;
 }
 
+.warning {
+  color: $yellow;
+  margin-left: 10px;
+  vertical-align: middle;
+  line-height: 1;
+
+  svg {
+    width: 18px;
+  }
+}
+
 .longName {
   color: $medium-gray;
 }
