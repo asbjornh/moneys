@@ -7,5 +7,6 @@
 * update state from api continously (emittery)
 * move spinner out of list
 * show skeleton on load
+* clean up number formatting
 * cache yahoo data on server
 * increase refresh rate and removed "last updated" text
