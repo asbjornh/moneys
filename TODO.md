@@ -1,4 +1,3 @@
-* create storage-helper
 * revert to stored data when API calls fail
   * show warning banner with time of last response
   * show icon on affected stocks

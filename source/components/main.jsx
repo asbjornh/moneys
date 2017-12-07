@@ -7,6 +7,7 @@ import FlipMove from "react-flip-move";
 import api from "../js/api-helper";
 import languages from "../data/languages";
 import settings from "../settings.json";
+import storage from "../js/storage-helper";
 
 import Form from "./form";
 import Header from "./header";
@@ -30,11 +31,11 @@ class Main extends React.Component {
   state = {
     formIsVisible: false,
     isLoading: api.hasStoredStocks(),
-    labels: getLanguageLabels(api.getUserLanguage()),
+    labels: getLanguageLabels(storage.getUserLanguage()),
     languages: languages.map(({ id, name }) => ({ id, name })),
     stocks: [],
-    userCurrency: api.getUserCurrency(),
-    userLanguage: api.getUserLanguage()
+    userCurrency: storage.getUserCurrency(),
+    userLanguage: storage.getUserLanguage()
   };
 
   componentDidMount() {

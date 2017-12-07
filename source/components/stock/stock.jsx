@@ -80,7 +80,8 @@ class Stock extends React.Component {
 
     const currencySymbol = get(
       currencySymbols,
-      `${currency}.units.major.symbol`
+      `${currency}.units.major.symbol`,
+      ""
     );
 
     return (

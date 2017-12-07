@@ -2,7 +2,7 @@ import get from "lodash/get";
 
 import config from "../../config.json";
 import cryptoCurrencies from "../data/cryptocurrencies.json";
-import settings from "../settings.json";
+import storage from "./storage-helper";
 import utils from "./utils";
 
 const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
@@ -21,98 +21,6 @@ const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
 //   });
 // }
 
-function getUserStocks() {
-  return JSON.parse(localStorage.getItem("userStocks")) || [];
-}
-
-function setUserStocks(stocks) {
-  localStorage.setItem("userStocks", JSON.stringify(stocks));
-}
-
-function getUserCurrency() {
-  return localStorage.getItem("userCurrency") || "NOK";
-}
-
-function setUserCurrency(currency) {
-  localStorage.clear();
-  localStorage.setItem("userCurrency", currency);
-  window.location.reload();
-}
-
-function getUserLanguage() {
-  return localStorage.getItem("userLanguage") || "english";
-}
-
-function setUserLanguage(language) {
-  localStorage.setItem("userLanguage", language);
-}
-
-function getBackupData() {
-  return JSON.stringify({
-    userStocks: JSON.parse(localStorage.getItem("userStocks")),
-    graphData: JSON.parse(localStorage.getItem("graphData"))
-  });
-}
-
-function insertBackupData(data) {
-  const newData = JSON.parse(data);
-
-  Object.keys(newData).forEach(key => {
-    localStorage.setItem(key, JSON.stringify(newData[key]));
-  });
-
-  window.location.reload();
-}
-
-function addGraphPoint(sum = 0) {
-  const points = JSON.parse(localStorage.getItem("graphData")) || [];
-  const lastPoint = points[points.length - 1];
-  const newPoint = {
-    x: new Date(new Date().toDateString()).getTime(),
-    y: parseFloat(sum.toFixed(2))
-  };
-
-  if (
-    lastPoint &&
-    new Date().getTime() - lastPoint.x < settings.graph.updateInterval
-  ) {
-    // Last point is newer than 24 hours. Update point
-    points[points.length - 1] = Object.assign({}, newPoint);
-  } else {
-    // Last point is older than 24 hours or does not exist. Add new point
-    points.push(newPoint);
-  }
-
-  if (sum) {
-    localStorage.setItem("graphData", JSON.stringify(points));
-  }
-}
-
-function getGraphPoints() {
-  return JSON.parse(localStorage.getItem("graphData")) || [];
-}
-
-function getStoredData(key) {
-  const data = JSON.parse(localStorage.getItem(key));
-
-  if (data && new Date().getTime() - data.timeStamp < settings.storage.maxAge) {
-    console.log(`Using stored ${key} data`);
-    return data;
-  } else {
-    return false;
-  }
-}
-
-function storeData(key, data) {
-  localStorage.setItem(
-    key,
-    JSON.stringify({
-      data,
-      timeStamp: new Date().getTime()
-    })
-  );
-}
-
 let currencyNames = [];
 function getCurrencyNames() {
   return new Promise(resolve => {
@@ -130,14 +38,26 @@ function getCurrencyNames() {
 }
 
 function getCurrencies() {
+  const storedCurrencies = storage.getStoredData("currencies");
+
   return new Promise(resolve => {
     fetch("https://api.coinbase.com/v2/exchange-rates")
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          resolve(storedCurrencies.data);
+        }
+      })
       .then(currencies => {
-        resolve(currencies.data.rates);
+        if (currencies) {
+          storage.storeData("currencies", currencies.data.rates);
+          resolve(currencies.data.rates);
+        }
       })
       .catch(e => {
         console.log(e);
+        resolve(storedCurrencies.data);
       });
   });
 }
@@ -166,16 +86,32 @@ function getHistoricalCurrencyData(date) {
   });
 }
 
-function getStock({ symbol, type, intermediateCurrency }) {
+function getStock({ symbol, type, intermediateCurrency }, storedStock) {
   if (type && type.toLowerCase() === "currency") {
-    return getCurrencyPair(symbol, intermediateCurrency || getUserCurrency());
+    return getCurrencyPair(
+      symbol,
+      intermediateCurrency || storage.getUserCurrency(),
+      storedStock
+    );
   } else {
-    return getStockData(symbol);
+    return getStockData(symbol, storedStock);
   }
 }
 
-function getCurrencyPair(fromCurrency, toCurrency) {
-  return new Promise((resolve, reject) => {
+function getCurrencyPair(fromCurrency, toCurrency, storedStock) {
+  return new Promise(resolve => {
+    function resolveWithBackup() {
+      if (storedStock) {
+        return resolve(
+          Object.assign({}, storedStock, {
+            isOutdated: true
+          })
+        );
+      } else {
+        throw new Error("Failed to get stock data");
+      }
+    }
+
     fetch(
       `https://api.coinbase.com/v2/prices/${fromCurrency}-${toCurrency}/spot`,
       {
@@ -188,7 +124,7 @@ function getCurrencyPair(fromCurrency, toCurrency) {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error("Stock not found");
+          resolveWithBackup();
         }
       })
       .then(json => {
@@ -208,90 +144,110 @@ function getCurrencyPair(fromCurrency, toCurrency) {
       })
       .catch(e => {
         console.log(e);
-        reject("Stock not found");
+        resolveWithBackup();
       });
   });
 }
 
-function getStockData(symbol) {
+function getStockData(symbol, storedStock) {
   console.log(`Getting data for ${symbol}`);
-  return fetch(
-    `${
-      fuckYouCORS
-    }https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
-    {
-      headers: new Headers({
-        "Content-Type": "application/json",
-        Origin: window.location
-      })
+  return new Promise(resolve => {
+    function resolveWithBackup() {
+      if (storedStock) {
+        return resolve(
+          Object.assign({}, storedStock, {
+            isOutdated: true
+          })
+        );
+      } else {
+        throw new Error("Failed to get stock data");
+      }
     }
-  )
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error("Stock not found");
-      }
-    })
-    .then(json => {
-      const data = get(json, "quoteSummary.result[0]");
 
-      if (data) {
-        const longName =
-          cryptoCurrencies[symbol] ||
-          get(data, "price.longName") ||
-          get(data, "price.shortName") ||
-          get(data, "price.symbol");
-
-        return {
-          currency: get(data, "price.currency"),
-          currencySymbol: get(data, "price.currencySymbol"),
-          longName: longName.replace(/&amp;/g, "&"),
-          price: get(data, "price.regularMarketPrice")
-        };
-      } else {
-        throw new Error("Unexpected response");
+    fetch(
+      `${
+        fuckYouCORS
+      }https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
+      {
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Origin: window.location
+        })
       }
-    });
+    )
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          resolveWithBackup();
+        }
+      })
+      .then(json => {
+        const data = get(json, "quoteSummary.result[0]");
+
+        if (data) {
+          const longName =
+            cryptoCurrencies[symbol] ||
+            get(data, "price.longName") ||
+            get(data, "price.shortName") ||
+            get(data, "price.symbol");
+
+          resolve({
+            currency: get(data, "price.currency"),
+            currencySymbol: get(data, "price.currencySymbol"),
+            longName: longName.replace(/&amp;/g, "&"),
+            price: get(data, "price.regularMarketPrice")
+          });
+        } else {
+          resolveWithBackup();
+        }
+      })
+      .catch(e => {
+        console.log(e);
+        resolveWithBackup();
+      });
+  });
 }
 
 function hasStoredStocks() {
-  return !!getUserStocks().length;
+  return !!storage.getUserStocks().length;
 }
 
 function getData() {
   return new Promise((resolve, reject) => {
-    const userStocks = getUserStocks();
-    const storedStocks = getStoredData("stocks");
+    const userStocks = storage.getUserStocks();
+    const storedStocks = storage.getStoredData("stocks");
 
     getCurrencies().then(currencies => {
       if (
         storedStocks &&
+        !storedStocks.isOutdated &&
         storedStocks.data &&
         storedStocks.data.length >= userStocks.length
       ) {
-        const stocks = userStocks.map(stock => {
-          return Object.assign(
-            {},
-            stock,
-            storedStocks.data.find(ss => ss.id === stock.id)
-          );
-        });
-
-        const sum = utils.sumAndConvert(stocks, currencies, getUserCurrency());
-        addGraphPoint(sum.difference);
+        const sum = utils.sumAndConvert(
+          storedStocks.data,
+          currencies,
+          storage.getUserCurrency()
+        );
+        storage.addGraphPoint(sum.difference);
         resolve({
           lastUpdated: storedStocks.timeStamp,
-          stocks,
+          stocks: storedStocks.data,
           sum,
-          graphData: getGraphPoints()
+          graphData: storage.getGraphPoints()
         });
       } else {
         console.log("Getting new stock data");
         Promise.all(
           userStocks.map(stock => {
             if (!stock.isRealized) {
-              return getStock(stock);
+              return getStock(
+                stock,
+                get(storedStocks, "data", []).find(
+                  storedStock => storedStock.id === stock.id
+                )
+              );
             } else {
               return new Promise(resolve => {
                 resolve(stock);
@@ -308,15 +264,15 @@ function getData() {
             const sum = utils.sumAndConvert(
               stocks,
               currencies,
-              getUserCurrency()
+              storage.getUserCurrency()
             );
-            storeData("stocks", stocks);
-            addGraphPoint(sum.difference);
+            storage.storeData("stocks", stocks);
+            storage.addGraphPoint(sum.difference);
             resolve({
               stocks,
               lastUpdated: new Date().getTime(),
               sum,
-              graphData: getGraphPoints()
+              graphData: storage.getGraphPoints()
             });
           })
           .catch(e => {
@@ -338,7 +294,7 @@ function getPurchaseRate(stock, stockCurrency) {
           resolve(
             utils.convert(
               parseFloat(stock.purchasePrice) / parseFloat(stock.qty),
-              getUserCurrency(),
+              storage.getUserCurrency(),
               stockCurrency,
               historicalCurrencies
             )
@@ -366,8 +322,8 @@ function addStock(formData) {
               type: formData.type.toLowerCase()
             };
 
-            const userStocks = getUserStocks();
-            setUserStocks(userStocks.concat(newStock));
+            const userStocks = storage.getUserStocks();
+            storage.setUserStocks(userStocks.concat(newStock));
 
             getData()
               .then(({ stocks, lastUpdated, sum, graphData }) => {
@@ -397,10 +353,10 @@ function addStock(formData) {
 
 function deleteStock(id) {
   return new Promise(resolve => {
-    const userStocks = getUserStocks();
-    setUserStocks(userStocks.filter(stock => stock.id !== id));
-    const stocks = getStoredData("stocks");
-    storeData("stocks", stocks.data.filter(stock => stock.id !== id));
+    const userStocks = storage.getUserStocks();
+    storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
+    const stocks = storage.getStoredData("stocks");
+    storage.storeData("stocks", stocks.data.filter(stock => stock.id !== id));
 
     getData().then(({ stocks, sum, lastUpdated, graphData }) => {
       resolve({ stocks, sum, lastUpdated, graphData });
@@ -410,12 +366,12 @@ function deleteStock(id) {
 
 function realizeStock(id, sellPrice) {
   return new Promise(resolve => {
-    const userStocks = getUserStocks();
+    const userStocks = storage.getUserStocks();
     const realizedStock = userStocks.find(stock => stock.id === id);
     realizedStock.isRealized = true;
     realizedStock.sellPrice = sellPrice;
     realizedStock.sellDate = new Date().getTime();
-    setUserStocks(userStocks);
+    storage.setUserStocks(userStocks);
 
     getData().then(({ stocks, sum, lastUpdated, graphData }) => {
       resolve({ stocks, sum, lastUpdated, graphData });
@@ -432,15 +388,8 @@ export default {
   addStock,
   deleteAllData,
   deleteStock,
-  getBackupData,
   getCurrencies,
-  getGraphPoints,
   getData,
-  getUserCurrency,
-  getUserLanguage,
   hasStoredStocks,
-  insertBackupData,
-  realizeStock,
-  setUserCurrency,
-  setUserLanguage
+  realizeStock
 };

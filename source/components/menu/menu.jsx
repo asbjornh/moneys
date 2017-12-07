@@ -3,8 +3,10 @@ import PropTypes from "prop-types";
 
 import cn from "classnames";
 
-import api from "../../js/api-helper";
+import storage from "../../js/storage-helper";
+
 import css from "./menu.module.scss";
+
 import FileUpload from "../file-upload";
 import Select from "../select";
 
@@ -14,7 +16,7 @@ const createDownloadLink = content => {
 };
 
 const onFileUpload = content => {
-  api.insertBackupData(content);
+  storage.insertBackupData(content);
 };
 
 const Menu = ({
@@ -37,7 +39,7 @@ const Menu = ({
       </li>
       <li>
         <a
-          href={createDownloadLink(api.getBackupData())}
+          href={createDownloadLink(storage.getBackupData())}
           download="moneys.json"
         >
           {labels.downloadBackup}
