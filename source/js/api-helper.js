@@ -23,15 +23,32 @@ const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
 
 let currencyNames = [];
 function getCurrencyNames() {
+  const storedCurrencyNames = get(
+    storage.getStoredData("currencyNames"),
+    "data",
+    []
+  );
+
   return new Promise(resolve => {
     if (currencyNames.length) {
       resolve(currencyNames);
     } else {
       fetch(`${fuckYouCORS}https://api.coinbase.com/v2/currencies`)
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Couldn't get currency names");
+          }
+        })
         .then(json => {
           currencyNames = json.data;
+          storage.storeData("currencyNames", currencyNames);
           resolve(currencyNames);
+        })
+        .catch(e => {
+          console.log(e);
+          resolve(storedCurrencyNames);
         });
     }
   });

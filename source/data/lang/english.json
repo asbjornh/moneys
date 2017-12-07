@@ -49,6 +49,7 @@
     },
     "stock": {
       "deleteButton": "Delete",
+      "isOutdated": "Couldn't get latest data",
       "qtyLabel": "Qty.",
       "realizeButton": "Realize"
     }

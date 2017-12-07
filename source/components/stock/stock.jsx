@@ -97,7 +97,10 @@ class Stock extends React.Component {
               <div className={css.ticker}>
                 {this.props.symbol}
                 {this.props.isOutdated && (
-                  <span className={css.warning}>
+                  <span
+                    className={css.warning}
+                    title={this.props.labels.isOutdated}
+                  >
                     <Warning />
                   </span>
                 )}

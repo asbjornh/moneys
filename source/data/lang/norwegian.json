@@ -50,6 +50,7 @@
     },
     "stock": {
       "deleteButton": "Slett",
+      "isOutdated": "Klarte ikke å hente nye data",
       "qtyLabel": "Ant.",
       "realizeButton": "Realiser"
     }
