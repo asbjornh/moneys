@@ -6,7 +6,7 @@
     "dev": "webpack-dev-server --content-base dist/ --inline"
   },
   "devDependencies": {
-    "autoprefixer": "^7.2.1",
+    "autoprefixer": "^7.2.2",
     "babel-core": "^6.24.1",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^7.0.0",
@@ -18,13 +18,13 @@
     "classnames": "^2.2.5",
     "copy-webpack-plugin": "^4.2.3",
     "css-loader": "^0.28.0",
-    "eslint": "^4.12.1",
+    "eslint": "^4.13.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-react": "^7.5.1",
     "expose-loader": "^0.7.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
-    "formdata-polyfill": "^3.0.8",
+    "formdata-polyfill": "^3.0.9",
     "html-webpack-plugin": "^2.28.0",
     "lodash": "^4.17.4",
     "node-sass": "^4.7.2",
@@ -42,7 +42,7 @@
     "sass-loader": "^6.0.3",
     "style-loader": "^0.19.0",
     "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.9.5",
+    "webpack-dev-server": "^2.9.7",
     "world-currencies": "^0.0.6"
   }
 }
