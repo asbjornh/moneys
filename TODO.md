@@ -1,10 +1,10 @@
-* revert to stored data when API calls fail
-  * show warning banner with time of last response
 * create proxy endpoint
 * switch from spot endpoint to sell endpoint
 * update state from api continously (emittery)
+  * show warning banner when an API call failed
 * move spinner out of list
 * show skeleton on load
-* clean up number formatting
 * cache yahoo data on server
 * increase refresh rate and removed "last updated" text
+* use full width cell for the second row in the stock component
+* add browsercache
