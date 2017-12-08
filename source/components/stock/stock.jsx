@@ -13,20 +13,6 @@ import CircleDollar from "../icons/circle-dollar";
 import CircleX from "../icons/circle-x";
 import Warning from "../icons/warning";
 
-const formatRate = rate => {
-  if (!rate) {
-    return 0;
-  } else if (rate < 1000) {
-    return rate.toFixed(2);
-  } else if (rate < 10000) {
-    return parseInt(rate);
-  } else if (rate < 100000) {
-    return (rate / 1000).toFixed(2) + "k";
-  } else if (rate < 1000000) {
-    return (rate / 1000).toFixed(1) + "k";
-  }
-};
-
 class Stock extends React.Component {
   static propTypes = {
     currency: PropTypes.string,
@@ -78,7 +64,6 @@ class Stock extends React.Component {
     const { currency, purchaseRate, price, qty } = this.props;
     const absoluteDifference = ((price - purchaseRate) * qty).toFixed(2);
     const relativeDifference = (price / purchaseRate * 100 - 100).toFixed(2);
-    const symbol = absoluteDifference >= 0 ? "+" : "";
 
     const currencySymbol = get(
       currencySymbols,
@@ -113,7 +98,11 @@ class Stock extends React.Component {
               [css.isNegative]: absoluteDifference < 0
             })}
           >
-            {`${symbol}${relativeDifference}%`}
+            <Number
+              number={relativeDifference}
+              currencySymbol="%"
+              currencySymbolIsSuperScript={false}
+            />
           </td>
           <td className={css.number}>
             <Number
@@ -150,12 +139,11 @@ class Stock extends React.Component {
             <div className={css.longName}>{this.props.longName}</div>
           </td>
           <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currencySymbol} ${formatRate(purchaseRate)} → ${
+            <span>{`${currencySymbol} ${utils.formatNumber(purchaseRate)} → ${
               currencySymbol
-            } ${formatRate(price)}`}</span>
-            <span>{`${this.props.labels.qtyLabel}: ${utils.round(
-              qty,
-              4
+            } ${utils.formatNumber(price)}`}</span>
+            <span>{`${this.props.labels.qtyLabel}: ${utils.formatNumber(
+              qty
             )}`}</span>
             <div
               className={css.hoverTarget}

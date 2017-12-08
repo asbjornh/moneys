@@ -63,7 +63,8 @@ class Moneys extends React.Component {
     let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
     time = time ? time.substr(0, 5) : "";
 
-    const fontSize = `${1 - (String(parseInt(sum)).length - 2) * 0.05}em`;
+    const formattedSum = utils.formatNumber(sum.difference, true, 0);
+    const fontSize = `${1 - (String(formattedSum).length - 4) * 0.1}em`;
 
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>
@@ -87,7 +88,7 @@ class Moneys extends React.Component {
           </div>
           <p>
             {`${this.props.labels.totalValueLabel}: `}
-            <b>{`${utils.formatNumberWithSpaces(sum.total)} ${symbol}`}</b>
+            <b>{`${utils.formatNumber(sum.total)} ${symbol}`}</b>
           </p>
 
           <p>

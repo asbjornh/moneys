@@ -82,13 +82,13 @@ class RealizedStock extends React.Component {
                     </p>
                   )}
                   <p>
-                    {`${utils.formatNumberWithSpaces(purchasePrice)} ${
+                    {`${utils.formatNumber(purchasePrice)} ${
                       currencySymbol
-                    } → ${utils.formatNumberWithSpaces(sellPrice)} ${
-                      currencySymbol
-                    }`}
+                    } → ${utils.formatNumber(sellPrice)} ${currencySymbol}`}
                     <span className={css.qty}>
-                      {`${this.props.labels.qtyLabel}: ${this.props.qty}`}
+                      {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
+                        this.props.qty
+                      )}`}
                     </span>
                   </p>
                 </div>

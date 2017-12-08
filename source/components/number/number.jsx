@@ -23,7 +23,7 @@ const Number = ({
         [css.isNegative]: parsedNumber < 0
       })}
     >
-      {utils.formatNumber(parsedNumber, numberOfDecimals)}
+      {utils.formatNumber(parsedNumber, true, numberOfDecimals)}
       <span
         className={cn({ [css.isSuperScript]: currencySymbolIsSuperScript })}
       >

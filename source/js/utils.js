@@ -34,13 +34,6 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
   );
 }
 
-function round(number = 0, numberOfDigits) {
-  return String(number)
-    .split("")
-    .slice(0, numberOfDigits + 1)
-    .join("");
-}
-
 function formatNumberWithSpaces(number) {
   return number
     .toFixed(0)
@@ -53,19 +46,34 @@ function formatNumberWithSpaces(number) {
     .join("");
 }
 
-function formatNumber(number, numberOfDecimals = 0, displaySymbol = true) {
+function formatNumber(number, displaySymbol, numberOfDecimals) {
   if (isNaN(number)) return 0;
-  const symbol = number > 0 && displaySymbol ? "+" : "";
+  const hasNumberOfDecimals = typeof numberOfDecimals !== "undefined";
+  const symbol = number > 0 ? "+" : "-";
+  const absolute = Math.abs(number);
+  let formattedNumber = "";
 
-  if (number < 10000) {
-    return symbol + number.toFixed(numberOfDecimals);
-  } else if (number < 100000) {
-    return `${symbol}${(number / 1000).toFixed(2)}k`;
-  } else if (number < 1000000) {
-    return `${symbol}${(number / 1000).toFixed(1)}k`;
+  if (absolute < 1000) {
+    if (parseInt(absolute) === absolute) {
+      formattedNumber = absolute;
+    } else if (absolute < 100) {
+      formattedNumber = absolute.toFixed(
+        hasNumberOfDecimals ? numberOfDecimals : 2
+      );
+    } else {
+      formattedNumber = absolute.toFixed(
+        hasNumberOfDecimals ? numberOfDecimals : 1
+      );
+    }
+  } else if (absolute < 100000) {
+    formattedNumber = formatNumberWithSpaces(absolute);
+  } else if (absolute < 1000000) {
+    formattedNumber = (absolute / 1000).toFixed(1) + "k";
   } else {
-    return `${symbol}${(number / 1000000).toFixed(3)}M`;
+    formattedNumber = (absolute / 1000000).toFixed(3) + "M";
   }
+
+  return (displaySymbol ? symbol : "") + formattedNumber;
 }
 
 function rangeMap(value, in_min, in_max, out_min, out_max) {
@@ -75,8 +83,6 @@ function rangeMap(value, in_min, in_max, out_min, out_max) {
 export default {
   convert,
   formatNumber,
-  formatNumberWithSpaces,
   rangeMap,
-  round,
   sumAndConvert
 };
