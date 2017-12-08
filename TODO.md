@@ -1,5 +1,6 @@
 * create proxy endpoint
 * switch from spot endpoint to sell endpoint
+* add possibility to toggle between currency shown per stock
 * update state from api continously (emittery)
   * show warning banner when an API call failed
 * move spinner out of list
