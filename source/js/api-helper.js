@@ -5,21 +5,13 @@ import cryptoCurrencies from "../data/cryptocurrencies.json";
 import storage from "./storage-helper";
 import utils from "./utils";
 
-const fuckYouCORS = "https://cors-anywhere.herokuapp.com/";
-
-// function getFromApi(url) {
-//   return new Promise(resolve => {
-//     fetch(url)
-//       .then(response => response.json())
-//       .then(json => {
-//         if (json.success) {
-//           resolve(json.payload);
-//         } else {
-//           throw new Error("Bad response from API");
-//         }
-//       });
-//   });
-// }
+const headers = new Headers(
+  !config.proxy
+    ? {}
+    : {
+        Origin: window.location
+      }
+);
 
 let currencyNames = [];
 function getCurrencyNames() {
@@ -33,7 +25,7 @@ function getCurrencyNames() {
     if (currencyNames.length) {
       resolve(currencyNames);
     } else {
-      fetch(`${fuckYouCORS}https://api.coinbase.com/v2/currencies`)
+      fetch(`${config.proxy}${config.currencyNamesEndpoint}`)
         .then(response => {
           if (response.ok) {
             return response.json();
@@ -58,7 +50,7 @@ function getCurrencies() {
   const storedCurrencies = storage.getStoredData("currencies");
 
   return new Promise(resolve => {
-    fetch("https://api.coinbase.com/v2/exchange-rates")
+    fetch(config.exchangeRatesEndpoint)
       .then(response => {
         if (response.ok) {
           return response.json();
@@ -82,15 +74,10 @@ function getCurrencies() {
 function getHistoricalCurrencyData(date) {
   return new Promise((resolve, reject) => {
     fetch(
-      `${fuckYouCORS}https://openexchangerates.org/api/historical/${
-        date
-      }.json?app_id=${config.openExchangeRatesAppId}`,
-      {
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Origin: window.location
-        })
-      }
+      `${config.proxy}${config.historicalExchangeRatesEndpoint
+        .replace("{0}", date)
+        .replace("{1}", config.openExchangeRatesAppId)}`,
+      { headers }
     )
       .then(response => response.json())
       .then(json => {
@@ -105,7 +92,7 @@ function getHistoricalCurrencyData(date) {
 
 function getStock({ symbol, type, intermediateCurrency }, storedStock) {
   if (type && type.toLowerCase() === "currency") {
-    return getCurrencyPair(
+    return getCurrencySellPrice(
       symbol,
       intermediateCurrency || storage.getUserCurrency(),
       storedStock
@@ -115,8 +102,8 @@ function getStock({ symbol, type, intermediateCurrency }, storedStock) {
   }
 }
 
-function getCurrencyPair(fromCurrency, toCurrency, storedStock) {
-  return new Promise(resolve => {
+function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
+  return new Promise((resolve, reject) => {
     function resolveWithBackup() {
       if (storedStock) {
         return resolve(
@@ -125,17 +112,16 @@ function getCurrencyPair(fromCurrency, toCurrency, storedStock) {
           })
         );
       } else {
+        reject("Failed to get stock data");
         throw new Error("Failed to get stock data");
       }
     }
 
     fetch(
-      `https://api.coinbase.com/v2/prices/${fromCurrency}-${toCurrency}/spot`,
-      {
-        headers: new Headers({
-          "CB-VERSION": "2017-12-01"
-        })
-      }
+      config.currencySellPriceEndpoint.replace(
+        "{0}",
+        `${fromCurrency}-${toCurrency}`
+      )
     )
       .then(response => {
         if (response.ok) {
@@ -182,15 +168,11 @@ function getStockData(symbol, storedStock) {
     }
 
     fetch(
-      `${
-        fuckYouCORS
-      }https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol.toUpperCase()}?formatted=false&modules=price`,
-      {
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Origin: window.location
-        })
-      }
+      `${config.proxy}${config.stockEndpoint.replace(
+        "{0}",
+        symbol.toUpperCase()
+      )}`,
+      { headers }
     )
       .then(response => {
         if (response.ok) {
