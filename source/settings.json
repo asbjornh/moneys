@@ -1,9 +1,0 @@
-{
-  "updateInterval": 600000,
-  "graph": {
-    "updateInterval": 86400000
-  },
-  "storage": {
-    "maxAge": 3600000
-  }
-}

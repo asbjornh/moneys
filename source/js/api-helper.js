@@ -4,6 +4,7 @@ import config from "../../config.json";
 import cryptoCurrencies from "../data/cryptocurrencies.json";
 import storage from "./storage-helper";
 import utils from "./utils";
+import yahooHelper from "../js/yahoo-helper";
 
 const headers = new Headers(
   !config.proxy
@@ -153,7 +154,6 @@ function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
 }
 
 function getStockData(symbol, storedStock) {
-  console.log(`Getting data for ${symbol}`);
   return new Promise(resolve => {
     function resolveWithBackup() {
       if (storedStock) {
@@ -182,21 +182,15 @@ function getStockData(symbol, storedStock) {
         }
       })
       .then(json => {
-        const data = get(json, "quoteSummary.result[0]");
+        const data = config.isUsingServer
+          ? Object.assign({}, json, {
+              price: parseFloat(json.price),
+              longName: json.longName.replace(/&amp;/g, "&")
+            })
+          : yahooHelper.getStockData(json);
 
         if (data) {
-          const longName =
-            cryptoCurrencies[symbol] ||
-            get(data, "price.longName") ||
-            get(data, "price.shortName") ||
-            get(data, "price.symbol");
-
-          resolve({
-            currency: get(data, "price.currency"),
-            currencySymbol: get(data, "price.currencySymbol"),
-            longName: longName.replace(/&amp;/g, "&"),
-            price: get(data, "price.regularMarketPrice")
-          });
+          resolve(data);
         } else {
           resolveWithBackup();
         }
@@ -237,7 +231,6 @@ function getData() {
           graphData: storage.getGraphPoints()
         });
       } else {
-        console.log("Getting new stock data");
         Promise.all(
           userStocks.map(stock => {
             if (!stock.isRealized) {

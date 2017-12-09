@@ -1,4 +1,4 @@
-import settings from "../settings.json";
+import settings from "../settings";
 
 function getGraphPoints() {
   return JSON.parse(localStorage.getItem("graphData")) || [];
@@ -32,7 +32,7 @@ function addGraphPoint(sum = 0) {
 
   if (
     lastPoint &&
-    new Date().getTime() - lastPoint.x < settings.graph.updateInterval
+    new Date().getTime() - lastPoint.x < settings.graph.pointInterval
   ) {
     // Last point is newer than 24 hours. Update point
     points[points.length - 1] = Object.assign({}, newPoint);
