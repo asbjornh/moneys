@@ -85,6 +85,10 @@
   }
 }
 
+.lastRowContent {
+  display: flex;
+}
+
 .ticker {
   @include font-size-lg;
   font-weight: bold;
@@ -133,9 +137,9 @@
 
 .moreStuff {
   color: $medium-gray;
-  text-align: right;
+  margin-left: auto;
 
-  span {
+  span:not(:first-child) {
     padding-left: 20px;
     white-space: nowrap;
   }

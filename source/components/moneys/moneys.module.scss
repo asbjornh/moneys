@@ -5,8 +5,20 @@
   display: flex;
 }
 
-.graph {
-  flex-grow: 0;
+.graphBeforeEnter,
+.graphLeaving {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.graphEntering,
+.graphBeforeLeave {
+  transition: transform 1s $ease-out, opacity 1s $ease-out;
+}
+
+.graphEntering {
+  transform: none;
+  opacity: 1;
 }
 
 .text {
@@ -29,6 +41,18 @@
 }
 
 .number {
+  position: relative;
   @include fluid-type($breakpoint-sm, $breakpoint-lg, 50px, 80px);
   line-height: 1;
+}
+
+.numberSpacer {
+  opacity: 0;
+}
+
+.visibleNumber {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-feature-settings: "tnum";
 }

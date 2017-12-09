@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import { Motion, spring } from "react-motion";
+import TinyTransition from "react-tiny-transition";
+
 import currencySymbols from "world-currencies";
 import get from "lodash/get";
 
@@ -64,26 +67,61 @@ class Moneys extends React.Component {
     time = time ? time.substr(0, 5) : "";
 
     const formattedSum = utils.formatNumber(sum.difference, true, 0);
-    const fontSize = `${1 - (String(formattedSum).length - 4) * 0.1}em`;
+    const fontSize = Math.min(1, 1 - (String(formattedSum).length - 4) * 0.1);
 
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>
-        {this.state.graphSize && (
-          <Graph
-            data={this.props.graphData}
-            labels={this.props.labels}
-            {...this.state.graphSize}
-          />
-        )}
+        <TinyTransition
+          duration={1000}
+          classNames={{
+            beforeEnter: css.graphBeforeEnter,
+            entering: css.graphEntering,
+            beforeLeave: css.graphBeforeLeave,
+            leaving: css.graphBeforeLeave
+          }}
+        >
+          {this.state.graphSize && (
+            <Graph
+              data={this.props.graphData}
+              labels={this.props.labels}
+              {...this.state.graphSize}
+            />
+          )}
+        </TinyTransition>
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1>Moneys:</h1>
           <div className={css.number}>
-            <div style={{ fontSize }}>
+            <div
+              className={css.numberSpacer}
+              style={{ fontSize: `${fontSize}em` }}
+            >
               <Number
                 number={sum.difference}
                 numberOfDecimals={0}
                 currencySymbol={symbol}
               />
+            </div>
+            <div className={css.visibleNumber}>
+              <Motion
+                defaultStyle={{ number: 0, fontSize: 1 }}
+                style={{
+                  number: spring(sum.difference, {
+                    stiffness: 50,
+                    damping: 15
+                  }),
+                  fontSize: spring(fontSize)
+                }}
+              >
+                {({ number }) => (
+                  <div style={{ fontSize: `${fontSize}em` }}>
+                    <Number
+                      number={number}
+                      numberOfDecimals={0}
+                      currencySymbol={symbol}
+                    />
+                  </div>
+                )}
+              </Motion>
             </div>
           </div>
           <p>

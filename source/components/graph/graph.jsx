@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import cn from "classnames";
 import { Line } from "react-chartjs-2";
 
 import colors from "../../data/colors.json";
@@ -13,6 +14,7 @@ import GraphFilters from "./graph-filters";
 
 class Graph extends React.Component {
   static propTypes = {
+    className: PropTypes.string,
     data: PropTypes.array,
     labels: PropTypes.object,
     height: PropTypes.number,
@@ -105,7 +107,7 @@ class Graph extends React.Component {
     });
 
     return (
-      <div className={css.graph}>
+      <div className={cn(css.graph, this.props.className)}>
         {!this.state.showGraph ||
           (points.length >= 2 &&
             (() => {

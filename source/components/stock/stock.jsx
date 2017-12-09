@@ -135,16 +135,18 @@ class Stock extends React.Component {
           </td>
         </tr>
         <tr className={css.lastRow}>
-          <td>
-            <div className={css.longName}>{this.props.longName}</div>
-          </td>
-          <td colSpan={2} className={css.moreStuff}>
-            <span>{`${currencySymbol} ${utils.formatNumber(purchaseRate)} → ${
-              currencySymbol
-            } ${utils.formatNumber(price)}`}</span>
-            <span>{`${this.props.labels.qtyLabel}: ${utils.formatNumber(
-              qty
-            )}`}</span>
+          <td colSpan={3}>
+            <div className={css.lastRowContent}>
+              <div className={css.longName}>{this.props.longName}</div>
+              <div className={css.moreStuff}>
+                <span>{`${currencySymbol} ${utils.formatNumber(
+                  purchaseRate
+                )} → ${currencySymbol} ${utils.formatNumber(price)}`}</span>
+                <span>{`${this.props.labels.qtyLabel}: ${utils.formatNumber(
+                  qty
+                )}`}</span>
+              </div>
+            </div>
             <div
               className={css.hoverTarget}
               onMouseEnter={this.onMouseEnter}

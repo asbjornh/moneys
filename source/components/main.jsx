@@ -3,10 +3,11 @@ import React from "react";
 import cn from "classnames";
 import { UnmountClosed as Collapse } from "react-collapse";
 import FlipMove from "react-flip-move";
+import get from "lodash/get";
 
 import api from "../js/api-helper";
 import languages from "../data/languages";
-import settings from "../settings.json";
+import settings from "../settings";
 import storage from "../js/storage-helper";
 
 import Form from "./form";
@@ -14,7 +15,6 @@ import Header from "./header";
 import Menu from "./menu";
 import Moneys from "./moneys";
 import RealizedStock from "./realized-stock";
-import Spinner from "./spinner";
 import Stock from "./stock";
 
 const getLanguageLabels = langId => {
@@ -29,7 +29,9 @@ const getLanguageLabels = langId => {
 
 class Main extends React.Component {
   state = {
+    currencies: get(storage.getStoredData("currencies"), "data", {}),
     formIsVisible: false,
+    graphData: storage.getGraphPoints(),
     isLoading: api.hasStoredStocks(),
     labels: getLanguageLabels(storage.getUserLanguage()),
     languages: languages.map(({ id, name }) => ({ id, name })),
@@ -39,7 +41,14 @@ class Main extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshData();
+    this.setState(
+      { stocks: get(storage.getStoredData("stocks"), "data", []) },
+      () => {
+        setTimeout(() => {
+          this.refreshData();
+        }, 1000);
+      }
+    );
 
     api.getCurrencies().then(currencies => {
       this.setState({ currencies });
@@ -151,7 +160,7 @@ class Main extends React.Component {
   };
 
   render() {
-    const stocksWithLoader = this.state.stocks
+    const stocks = this.state.stocks
       .filter(stock => !stock.isRealized)
       .map(stock => (
         <Stock
@@ -175,18 +184,6 @@ class Main extends React.Component {
             />
           ))
       );
-
-    stocksWithLoader.push(
-      this.state.isLoading && (
-        <Spinner type="tbody" key="spinner">
-          {spinnerEl => (
-            <tr>
-              <td colSpan={3}>{spinnerEl}</td>
-            </tr>
-          )}
-        </Spinner>
-      )
-    );
 
     return (
       <div className="scroll-wrapper-outer">
@@ -212,6 +209,7 @@ class Main extends React.Component {
             })}
           >
             <Header
+              isLoading={this.state.isLoading}
               menuIsVisible={this.state.menuIsVisible}
               toggleMenu={this.toggleMenu}
             />
@@ -232,7 +230,7 @@ class Main extends React.Component {
                 staggerDurationBy={50}
                 typeName="table"
               >
-                {stocksWithLoader.map(element => element)}
+                {stocks.map(element => element)}
               </FlipMove>
             </Collapse>
 

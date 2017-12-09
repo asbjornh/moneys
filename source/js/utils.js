@@ -49,7 +49,7 @@ function formatNumberWithSpaces(number) {
 function formatNumber(number, displaySymbol, numberOfDecimals) {
   if (isNaN(number)) return 0;
   const hasNumberOfDecimals = typeof numberOfDecimals !== "undefined";
-  const symbol = number > 0 ? "+" : "-";
+  const symbol = number > 0 ? "+" : number < 0 ? "-" : "";
   const absolute = Math.abs(number);
   let formattedNumber = "";
 

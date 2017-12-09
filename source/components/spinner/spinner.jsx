@@ -3,30 +3,28 @@ import PropTypes from "prop-types";
 
 import css from "./spinner.module.scss";
 
-class Spinner extends React.Component {
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-    type: PropTypes.string
-  };
+import TinyTransition from "react-tiny-transition";
 
-  static defaultProps = {
-    type: "div"
-  };
+const Spinner = ({ isLoading }) => (
+  <TinyTransition
+    duration={500}
+    classNames={{
+      beforeEnter: css.beforeEnter,
+      entering: css.entering,
+      beforeLeave: css.beforeLeave,
+      leaving: css.leaving
+    }}
+  >
+    {isLoading && (
+      <div className={css.spinner} key="spinner">
+        <div key="spinner" className={css.spinnerInner} />
+      </div>
+    )}
+  </TinyTransition>
+);
 
-  state = {};
-
-  render() {
-    return React.createElement(
-      this.props.type,
-      {},
-      this.props.children([
-        <div className={css.spinner} key="spinner">
-          <div key="spinner" className={css.spinnerInner} />
-        </div>,
-        <div className={css.spacer} key="spacer" />
-      ])
-    );
-  }
-}
+Spinner.propTypes = {
+  isLoading: PropTypes.bool
+};
 
 export default Spinner;

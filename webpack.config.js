@@ -22,6 +22,7 @@ module.exports = (env = {}) => {
     node: {
       fs: "empty"
     },
+    stats: !isProduction ? {} : "minimal",
     module: {
       rules: [
         {
