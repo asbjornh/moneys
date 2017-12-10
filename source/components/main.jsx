@@ -228,7 +228,6 @@ class Main extends React.Component {
             <Moneys
               graphData={this.state.graphData}
               labels={this.state.labels.moneys}
-              lastUpdated={this.state.lastUpdated}
               sum={this.state.sum}
               userCurrency={this.state.userCurrency}
             />

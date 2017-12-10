@@ -225,7 +225,6 @@ function getData() {
         );
         storage.addGraphPoint(sum.difference);
         resolve({
-          lastUpdated: storedStocks.timeStamp,
           stocks: storedStocks.data,
           sum,
           graphData: storage.getGraphPoints()
@@ -249,9 +248,19 @@ function getData() {
         )
           .then(stockData => {
             // Merge userStocks data and stockData
-            const stocks = userStocks.map((stock, index) =>
-              Object.assign({}, stock, stockData[index])
-            );
+            const stocks = userStocks.map((stock, index) => {
+              const isOutdated = get(stockData, `[${index}].isOutdated`, false);
+              return Object.assign(
+                {},
+                stock,
+                stockData[index],
+                isOutdated
+                  ? {}
+                  : {
+                      lastUpdated: new Date().getTime()
+                    }
+              );
+            });
 
             const sum = utils.sumAndConvert(
               stocks,
@@ -262,7 +271,6 @@ function getData() {
             storage.addGraphPoint(sum.difference);
             resolve({
               stocks,
-              lastUpdated: new Date().getTime(),
               sum,
               graphData: storage.getGraphPoints()
             });
@@ -318,10 +326,9 @@ function addStock(formData) {
             storage.setUserStocks(userStocks.concat(newStock));
 
             getData()
-              .then(({ stocks, lastUpdated, sum, graphData }) => {
+              .then(({ stocks, sum, graphData }) => {
                 resolve({
                   stocks,
-                  lastUpdated,
                   sum,
                   graphData
                 });
@@ -350,8 +357,8 @@ function deleteStock(id) {
     const stocks = storage.getStoredData("stocks");
     storage.storeData("stocks", stocks.data.filter(stock => stock.id !== id));
 
-    getData().then(({ stocks, sum, lastUpdated, graphData }) => {
-      resolve({ stocks, sum, lastUpdated, graphData });
+    getData().then(({ stocks, sum, graphData }) => {
+      resolve({ stocks, sum, graphData });
     });
   });
 }
@@ -365,8 +372,8 @@ function realizeStock(id, sellPrice) {
     realizedStock.sellDate = new Date().getTime();
     storage.setUserStocks(userStocks);
 
-    getData().then(({ stocks, sum, lastUpdated, graphData }) => {
-      resolve({ stocks, sum, lastUpdated, graphData });
+    getData().then(({ stocks, sum, graphData }) => {
+      resolve({ stocks, sum, graphData });
     });
   });
 }

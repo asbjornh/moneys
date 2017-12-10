@@ -94,7 +94,11 @@ class Form extends React.Component {
         </div>
         <div className={css.formRow}>
           <div className={css.input}>
-            <label>{`${labels.tickerInput} *`}</label>
+            <label>{`${
+              this.state.investmentType === "currency"
+                ? labels.currencyInput
+                : labels.tickerInput
+            } *`}</label>
             <input name="symbol" placeholder="AAPL" />
           </div>
           <div className={css.input}>

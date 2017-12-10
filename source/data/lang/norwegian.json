@@ -5,6 +5,7 @@
     "form": {
       "addButton": "Legg til",
       "cancelButton": "Avbryt",
+      "currencyInput": "Valuta",
       "intermediateCurrencyInput": "Mellomvaluta",
       "intermediateCurrencyDefault": "Ingen",
       "invalidForm": "Fyll inn alle feltene",
@@ -51,7 +52,7 @@
     },
     "stock": {
       "deleteButton": "Slett",
-      "isOutdated": "Klarte ikke å hente nye data",
+      "isOutdated": "Utdatert data",
       "qtyLabel": "Ant.",
       "realizeButton": "Realiser"
     }

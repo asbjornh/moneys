@@ -17,7 +17,6 @@ class Moneys extends React.Component {
   static propTypes = {
     graphData: PropTypes.array,
     labels: PropTypes.object,
-    lastUpdated: PropTypes.number,
     sum: PropTypes.shape({
       total: PropTypes.number,
       difference: PropTypes.number
@@ -59,12 +58,9 @@ class Moneys extends React.Component {
   };
 
   render() {
-    const { userCurrency, lastUpdated, sum } = this.props;
+    const { userCurrency, sum } = this.props;
 
     const symbol = get(currencySymbols, `${userCurrency}.units.major.symbol`);
-
-    let time = lastUpdated && new Date(lastUpdated).toLocaleTimeString();
-    time = time ? time.substr(0, 5) : "";
 
     const formattedSum = utils.formatNumber(sum.difference, true, 0);
     const fontSize = Math.min(1, 1 - (String(formattedSum).length - 4) * 0.1);
@@ -127,10 +123,6 @@ class Moneys extends React.Component {
           <p>
             {`${this.props.labels.totalValueLabel}: `}
             <b>{`${utils.formatNumber(sum.total)} ${symbol}`}</b>
-          </p>
-
-          <p>
-            {`${this.props.labels.lastUpdatedLabel}: `} <b>{time}</b>
           </p>
         </div>
       </div>

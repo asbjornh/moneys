@@ -5,6 +5,7 @@
     "form": {
       "addButton": "Add",
       "cancelButton": "Cancel",
+      "currencyInput": "Currency",
       "intermediateCurrencyInput": "Intermediate currency",
       "intermediateCurrencyDefault": "None",
       "invalidForm": "Complete all required fields",
@@ -50,7 +51,7 @@
     },
     "stock": {
       "deleteButton": "Delete",
-      "isOutdated": "Couldn't get latest data",
+      "isOutdated": "Outdated data",
       "qtyLabel": "Qty.",
       "realizeButton": "Realize"
     }

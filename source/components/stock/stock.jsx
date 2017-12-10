@@ -22,6 +22,7 @@ class Stock extends React.Component {
     id: PropTypes.string.isRequired,
     isOutdated: PropTypes.bool,
     labels: PropTypes.object,
+    lastUpdated: PropTypes.number,
     longName: PropTypes.string,
     onDelete: PropTypes.func,
     onRealize: PropTypes.func,
@@ -115,6 +116,7 @@ class Stock extends React.Component {
     const {
       currencies,
       currency,
+      lastUpdated,
       purchaseRate,
       purchasePrice,
       price,
@@ -149,6 +151,10 @@ class Stock extends React.Component {
       ""
     );
 
+    const lastUpdatedText = lastUpdated
+      ? new Date(lastUpdated).toLocaleString()
+      : "";
+
     return (
       <Motion
         defaultStyle={{ x: 0, opacity: 0, scale: 0.4 }}
@@ -181,7 +187,9 @@ class Stock extends React.Component {
                     {this.props.isOutdated && (
                       <span
                         className={css.warning}
-                        title={this.props.labels.isOutdated}
+                        title={`${
+                          this.props.labels.isOutdated
+                        } (${lastUpdatedText})`}
                       >
                         <Warning />
                       </span>

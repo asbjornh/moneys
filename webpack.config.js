@@ -1,5 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
+
+const AppCachePlugin = require("appcache-webpack-plugin");
 const autoprefixer = require("autoprefixer");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -98,7 +100,11 @@ module.exports = (env = {}) => {
           allChunks: true
         }),
         new HtmlWebpackPlugin({
-          template: "source/index.html"
+          template: isProduction ? "source/index.html" : "source/index.dev.html"
+        }),
+        new AppCachePlugin({
+          output: "cache.manifest",
+          exclude: [/\.htaccess$/, /\.php$/]
         })
       ];
 
