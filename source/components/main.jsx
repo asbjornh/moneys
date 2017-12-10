@@ -72,6 +72,7 @@ class Main extends React.Component {
       api
         .getData()
         .then(newState => {
+          console.log("Updated");
           this.setState(
             Object.assign({}, newState, {
               isLoading: false

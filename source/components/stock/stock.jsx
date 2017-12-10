@@ -43,6 +43,7 @@ class Stock extends React.Component {
   };
 
   state = {
+    isAnimating: false,
     isSliding: false,
     slideProgress: 0,
     shouldConvertCurrency: this.props.shouldConvertCurrency
@@ -92,7 +93,7 @@ class Stock extends React.Component {
 
   onTouchEnd = () => {
     this.setState(state => ({
-      isAnimating: true,
+      isAnimating: state.slideProgress !== 0 && state.slideProgress !== 1,
       isSliding: state.slideProgress > 0.5,
       slideProgress: state.slideProgress > 0.5 ? 1 : 0
     }));
