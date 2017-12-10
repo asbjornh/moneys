@@ -9,6 +9,7 @@ import css from "./menu.module.scss";
 
 import FileUpload from "../file-upload";
 import Select from "../select";
+import Switch from "../switch";
 
 const createDownloadLink = content => {
   var file = new Blob([content], { type: "application/json" });
@@ -27,6 +28,7 @@ const Menu = ({
   languages,
   onCurrencySelect,
   onLanguageSelect,
+  onShouldConvertStocksSelect,
   userCurrency,
   userLanguage
 }) => (
@@ -77,6 +79,13 @@ const Menu = ({
           }))}
         />
       </li>
+      <li>
+        <Switch
+          label={labels.convertStocksSwitch}
+          defaultValue={storage.getShouldConvertStocks()}
+          onChange={onShouldConvertStocksSelect}
+        />
+      </li>
     </ul>
   </div>
 );
@@ -89,6 +98,7 @@ Menu.propTypes = {
   languages: PropTypes.array,
   onCurrencySelect: PropTypes.func,
   onLanguageSelect: PropTypes.func,
+  onShouldConvertStocksSelect: PropTypes.func,
   userCurrency: PropTypes.string,
   userLanguage: PropTypes.string
 };

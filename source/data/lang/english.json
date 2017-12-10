@@ -36,6 +36,7 @@
       "realizeStockFailedPrice": "Couldn't realize. Invalid payout."
     },
     "menu": {
+      "convertStocksSwitch": "Currency convert stocks",
       "currencyConfirmationMessage": "This will delete all data. Continue?",
       "deleteAllData": "Delete all data",
       "downloadBackup": "Download backup",

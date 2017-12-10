@@ -43,7 +43,6 @@ Number.propTypes = {
 
 Number.defaultProps = {
   number: 0,
-  numberOfDecimals: 2,
   currencySymbolIsSuperScript: true
 };
 

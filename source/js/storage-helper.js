@@ -46,6 +46,14 @@ function addGraphPoint(sum = 0) {
   }
 }
 
+function getShouldConvertStocks() {
+  return JSON.parse(localStorage.getItem("shouldConvertStocks"));
+}
+
+function setShouldConvertStocks(shouldConvert) {
+  localStorage.setItem("shouldConvertStocks", shouldConvert);
+}
+
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
 }
@@ -93,11 +101,13 @@ export default {
   addGraphPoint,
   getBackupData,
   getGraphPoints,
+  getShouldConvertStocks,
   getStoredData,
   getUserCurrency,
   getUserLanguage,
   getUserStocks,
   insertBackupData,
+  setShouldConvertStocks,
   setUserCurrency,
   setUserLanguage,
   setUserStocks,

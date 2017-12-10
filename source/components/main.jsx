@@ -35,6 +35,7 @@ class Main extends React.Component {
     isLoading: api.hasStoredStocks(),
     labels: getLanguageLabels(storage.getUserLanguage()),
     languages: languages.map(({ id, name }) => ({ id, name })),
+    shouldConvertStocks: storage.getShouldConvertStocks(),
     stocks: [],
     userCurrency: storage.getUserCurrency(),
     userLanguage: storage.getUserLanguage()
@@ -149,14 +150,19 @@ class Main extends React.Component {
   };
 
   onCurrencySelect = currency => {
-    api.setUserCurrency(currency);
+    storage.setUserCurrency(currency);
   };
 
   onLanguageSelect = language => {
-    api.setUserLanguage(language);
+    storage.setUserLanguage(language);
     this.setState({
       labels: getLanguageLabels(language)
     });
+  };
+
+  onShouldConvertStocksSelect = shouldConvertStocks => {
+    storage.setShouldConvertStocks(shouldConvertStocks);
+    this.setState({ shouldConvertStocks });
   };
 
   render() {
@@ -164,10 +170,13 @@ class Main extends React.Component {
       .filter(stock => !stock.isRealized)
       .map(stock => (
         <Stock
+          currencies={this.state.currencies}
           key={stock.id}
           labels={this.state.labels.stock}
           onDelete={this.deleteStock}
           onRealize={this.realizeStock}
+          shouldConvertCurrency={this.state.shouldConvertStocks}
+          userCurrency={this.state.userCurrency}
           {...stock}
         />
       ))
@@ -200,6 +209,7 @@ class Main extends React.Component {
             languages={this.state.languages}
             onCurrencySelect={this.onCurrencySelect}
             onLanguageSelect={this.onLanguageSelect}
+            onShouldConvertStocksSelect={this.onShouldConvertStocksSelect}
             userCurrency={this.state.userCurrency}
             userLanguage={this.state.userLanguage}
           />

@@ -36,6 +36,7 @@
       "realizeStockFailedPrice": "Kunne ikke realisere. Ugyldig utbetalt beløp."
     },
     "menu": {
+      "convertStocksSwitch": "Konverter valuta per aksje",
       "currencyConfirmationMessage":
         "Dette vil slette alle data. Vil du fortsette?",
       "deleteAllData": "Slett alle data",

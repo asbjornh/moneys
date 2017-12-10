@@ -80,7 +80,12 @@ function rangeMap(value, in_min, in_max, out_min, out_max) {
   return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 export default {
+  clamp,
   convert,
   formatNumber,
   rangeMap,

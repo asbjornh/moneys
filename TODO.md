@@ -1,4 +1,3 @@
-* add possibility to toggle between currency shown per stock
 * show warning banner when an API call fails
 * add browsercache
 * clean up terms (symbol, exchange rate / currency)

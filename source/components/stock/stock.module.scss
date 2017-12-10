@@ -4,29 +4,17 @@
 .stock {
   user-select: none;
   cursor: default;
-
-  tr {
-    transition: transform 0.3s $ease-out;
-  }
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 
   td {
     position: relative;
   }
 }
 
-.hasHover {
-  tr {
-    transform: translateX(-90px);
-  }
-
-  .hoverTarget {
-    transform: translateX(90px);
-  }
-
+.isSliding {
   .deleteButton,
   .realizeButton {
-    transform: none;
-    opacity: 1;
     visibility: visible;
     transition-delay: 0s;
   }
@@ -45,9 +33,10 @@
   top: 0;
   right: 0;
   width: 80px;
-  transition: transform 0.3s $ease-out;
+  // transition: transform 0.3s $ease-out;
   padding-top: 15px;
   box-sizing: border-box;
+  will-change: transform;
 }
 
 .deleteButton {
@@ -68,8 +57,8 @@
   padding: 0;
   visibility: hidden;
   opacity: 0;
-  transform: scale(0.7);
-  transition: transform 0.3s $ease-out, opacity 0.3s, visibility 0s 0.3s;
+  transition: visibility 0s 0.3s;
+  will-change: transform;
 }
 
 .firstRow {
@@ -81,7 +70,7 @@
 .lastRow {
   td {
     padding-bottom: 20px;
-    border-bottom: 1px solid $border-color;
+    box-shadow: inset 0 -1px 0 0 $border-color;
   }
 }
 
