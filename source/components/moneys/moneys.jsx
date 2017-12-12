@@ -63,7 +63,7 @@ class Moneys extends React.Component {
     const symbol = get(currencySymbols, `${userCurrency}.units.major.symbol`);
 
     const formattedSum = utils.formatNumber(sum.difference, true, 0);
-    const fontSize = Math.min(1, 1 - (String(formattedSum).length - 4) * 0.1);
+    const fontSize = Math.min(1, 1 - (String(formattedSum).length - 4) * 0.15);
 
     return (
       <div className={css.moneys} ref={div => (this.container = div)}>

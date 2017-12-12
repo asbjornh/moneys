@@ -28,7 +28,7 @@ function getOptions(points, padding, height) {
     layout: {
       padding: {
         left: 5,
-        right: 30,
+        right: 25,
         top: padding,
         bottom: padding
       }
