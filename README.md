@@ -1,18 +1,18 @@
 # moneys
 
 This simple investment tracking dashboard tries to answer one question: "How
-many moneys?". Or, in grown up-talk, what is the current value of your
-portfolio? 🎩
+many moneys?" (What is the current value of your
+portfolio?) 🎩
 
 Your bank / investment platform can tell you this but then you'd have to log in
 all the time... Probably two factor authentication even 😩.
 
 Server optional. Uses local storage. Draws pretty graph. iOS web app capable.
 
-_Note: Open Exchange Rates is used for currency conversion, which might differ
+_Note: Open Exchange Rates and Coinbase are used for currency conversion, which might differ
 from the rates offered by your bank._
 
-<img src="https://i.imgur.com/RSVlIeO.png" width="400">
+<img src="https://user-images.githubusercontent.com/13281350/33908951-4fb5061a-df8a-11e7-8957-759d2d45821e.png" width="409">
 
 ### First:
 
