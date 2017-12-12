@@ -45,22 +45,12 @@ class Graph extends React.Component {
     this.setState({ daysToShow });
   };
 
-  getPointRadius = (points, canvas) => {
+  getPointRadius = points => {
     const visibleRadius = 3;
-    const maxPoints = Math.round(0.15 * canvas.width / visibleRadius);
-    const skipInterval = 1 + Math.floor(points.length / maxPoints);
 
     return points.map((point, index) => {
-      if (
-        points.length < maxPoints ||
-        index === 0 ||
-        index === points.length - 1
-      ) {
+      if (index === 0 || index === points.length - 1) {
         return visibleRadius;
-      } else if (index % skipInterval === 0) {
-        return index > skipInterval && index + skipInterval < points.length - 1
-          ? visibleRadius
-          : 0;
       } else {
         return 0;
       }
@@ -70,10 +60,10 @@ class Graph extends React.Component {
   getGradient = (canvas, points, padding) => {
     if (!points || !points.length) return "white";
 
-    const i = Infinity;
-    const max = points.reduce((accum, p) => (p.y > accum ? p.y : accum), -i);
-    const min = points.reduce((accum, p) => (p.y < accum ? p.y : accum), i);
+    const max = Math.max(...points.map(p => p.y));
+    const min = Math.min(...points.map(p => p.y));
     const mid = utils.rangeMap(0, min, max, 1, 0);
+    const pxr = window.devicePixelRatio;
 
     if (max < 0) return colors.red;
     if (min > 0) return colors.green;
@@ -85,14 +75,14 @@ class Graph extends React.Component {
       0,
       canvas.offsetHeight - padding
     );
-    gradient.addColorStop(Math.max(0, mid - 0.2), colors.green);
-    gradient.addColorStop(Math.max(0, Math.min(1, mid)), colors.orange);
-    gradient.addColorStop(Math.min(1, mid + 0.2), colors.red);
+    gradient.addColorStop(Math.max(0, mid - 0.2 * pxr), colors.green);
+    gradient.addColorStop(utils.clamp(mid, 0, 1), colors.orange);
+    gradient.addColorStop(Math.min(1, mid + 0.2 * pxr), colors.red);
     return gradient;
   };
 
   render() {
-    const graphPadding = 30;
+    const graphPadding = 10;
 
     // Filter points according to the selected filter
     const points = this.props.data.filter(point => {

@@ -2,14 +2,13 @@ import Chart from "chart.js";
 import merge from "lodash/merge";
 
 function getOptions(points, padding, height) {
-  const i = Infinity;
-  const maxY = points.reduce((accum, p) => (p.y > accum ? p.y : accum), -i);
-  const minY = points.reduce((accum, p) => (p.y < accum ? p.y : accum), i);
-  const maxX = points.reduce((accum, p) => (p.x > accum ? p.x : accum), -i);
-  const minX = points.reduce((accum, p) => (p.x < accum ? p.x : accum), i);
+  const maxY = Math.max(...points.map(p => p.y));
+  const minY = Math.min(...points.map(p => p.y));
+  const maxX = Math.max(...points.map(p => p.x));
+  const minX = Math.min(...points.map(p => p.x));
+
   // Convert padding in pixels to padding in graph value:
-  const graphPadding =
-    padding * window.devicePixelRatio * (maxY - minY) / height;
+  const valuePadding = 1 * (maxY - minY) / height;
 
   return merge(Chart.defaults.global, {
     animation: {
@@ -29,7 +28,9 @@ function getOptions(points, padding, height) {
     layout: {
       padding: {
         left: 5,
-        right: 30
+        right: 30,
+        top: padding,
+        bottom: padding
       }
     },
     legend: { display: false },
@@ -47,8 +48,8 @@ function getOptions(points, padding, height) {
         {
           display: false,
           ticks: {
-            min: minY - graphPadding,
-            max: maxY + graphPadding
+            min: minY - valuePadding,
+            max: maxY + valuePadding
           }
         }
       ]

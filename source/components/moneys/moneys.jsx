@@ -99,13 +99,12 @@ class Moneys extends React.Component {
             </div>
             <div className={css.visibleNumber}>
               <Motion
-                defaultStyle={{ number: 0, fontSize: 1 }}
+                defaultStyle={{ number: 0 }}
                 style={{
                   number: spring(sum.difference, {
                     stiffness: 50,
                     damping: 15
-                  }),
-                  fontSize: spring(fontSize)
+                  })
                 }}
               >
                 {({ number }) => (
