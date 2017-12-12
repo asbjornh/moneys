@@ -40,7 +40,9 @@ function formatNumberWithSpaces(number) {
     .split("")
     .reverse()
     .reduce((accum, number, index) => {
-      return accum.concat(index % 3 === 0 ? [" ", number] : number);
+      return accum.concat(
+        index !== 0 && index % 3 === 0 ? [" ", number] : number
+      );
     }, [])
     .reverse()
     .join("");
