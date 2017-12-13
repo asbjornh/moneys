@@ -169,7 +169,7 @@ class Main extends React.Component {
   };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex !== newIndex) {
+    if (oldIndex !== newIndex && !this.state.isLoading) {
       storage.sortUserStocks({ oldIndex, newIndex });
       this.setState(state => {
         return {
@@ -252,8 +252,9 @@ class Main extends React.Component {
                   element="table"
                   helperClass="stock-is-sorting"
                   lockAxis="y"
-                  pressDelay={200}
                   onSortEnd={this.onSortEnd}
+                  pressDelay={200}
+                  shouldCancelStart={() => this.state.isLoading}
                 >
                   {stocks}
                 </SortableList>
