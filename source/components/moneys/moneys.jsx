@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import { Collapse } from "react-collapse";
+import cn from "classnames";
 import { Motion, spring } from "react-motion";
 import TinyTransition from "react-tiny-transition";
 
@@ -15,6 +17,7 @@ import Number from "../number";
 
 class Moneys extends React.Component {
   static propTypes = {
+    className: PropTypes.string,
     graphData: PropTypes.array,
     labels: PropTypes.object,
     sum: PropTypes.shape({
@@ -66,16 +69,11 @@ class Moneys extends React.Component {
     const fontSize = Math.min(1, 1 - (String(formattedSum).length - 4) * 0.15);
 
     return (
-      <div className={css.moneys} ref={div => (this.container = div)}>
-        <TinyTransition
-          duration={1000}
-          classNames={{
-            beforeEnter: css.graphBeforeEnter,
-            entering: css.graphEntering,
-            beforeLeave: css.graphBeforeLeave,
-            leaving: css.graphBeforeLeave
-          }}
-        >
+      <div
+        className={cn(css.moneys, this.props.className)}
+        ref={div => (this.container = div)}
+      >
+        <TinyTransition duration={1000}>
           {this.state.graphSize && (
             <Graph
               data={this.props.graphData}
@@ -84,41 +82,45 @@ class Moneys extends React.Component {
             />
           )}
         </TinyTransition>
+
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1>Moneys:</h1>
-          <div className={css.number}>
-            <div
-              className={css.numberSpacer}
-              style={{ fontSize: `${fontSize}em` }}
-            >
-              <Number
-                number={sum.difference}
-                numberOfDecimals={0}
-                currencySymbol={symbol}
-              />
-            </div>
-            <div className={css.visibleNumber}>
-              <Motion
-                defaultStyle={{ number: 0 }}
-                style={{
-                  number: spring(sum.difference, {
-                    stiffness: 50,
-                    damping: 15
-                  })
-                }}
+          <Collapse isOpened={true}>
+            <div className={css.number}>
+              <div
+                className={css.numberSpacer}
+                style={{ fontSize: `${fontSize}em` }}
               >
-                {({ number }) => (
-                  <div style={{ fontSize: `${fontSize}em` }}>
-                    <Number
-                      number={number}
-                      numberOfDecimals={0}
-                      currencySymbol={symbol}
-                    />
-                  </div>
-                )}
-              </Motion>
+                <Number
+                  number={sum.difference}
+                  numberOfDecimals={0}
+                  currencySymbol={symbol}
+                />
+              </div>
+              <div className={css.visibleNumber}>
+                <Motion
+                  defaultStyle={{ number: 0, scale: 1 }}
+                  style={{
+                    number: spring(sum.difference, {
+                      stiffness: 50,
+                      damping: 15
+                    }),
+                    scale: spring(fontSize)
+                  }}
+                >
+                  {({ scale, number }) => (
+                    <div style={{ transform: `scale(${scale})` }}>
+                      <Number
+                        number={number}
+                        numberOfDecimals={0}
+                        currencySymbol={symbol}
+                      />
+                    </div>
+                  )}
+                </Motion>
+              </div>
             </div>
-          </div>
+          </Collapse>
           <p>
             {`${this.props.labels.totalValueLabel}: `}
             <b>{`${utils.formatNumber(sum.total)} ${symbol}`}</b>

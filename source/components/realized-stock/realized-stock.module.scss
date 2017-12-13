@@ -2,10 +2,18 @@
 @import "../../scss/mixins";
 
 .realizedStock {
+  width: 100%;
+  background-color: $dark-gray;
+
+  tr {
+    width: 100%;
+  }
+
   td {
     color: $medium-gray;
     padding: 10px 0;
-    border-bottom: 1px solid $border-color;
+    box-shadow: inset 0 -1px 0 0 $border-color;
+    width: 100%;
   }
 }
 

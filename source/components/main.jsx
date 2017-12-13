@@ -1,8 +1,8 @@
 import React from "react";
 
+import { arrayMove } from "react-sortable-hoc";
 import cn from "classnames";
 import { UnmountClosed as Collapse } from "react-collapse";
-import FlipMove from "react-flip-move";
 import get from "lodash/get";
 
 import api from "../js/api-helper";
@@ -16,6 +16,8 @@ import Menu from "./menu";
 import Moneys from "./moneys";
 import RealizedStock from "./realized-stock";
 import Stock from "./stock";
+import SortableList from "./sortable-list/";
+import TinyTransition from "react-tiny-transition";
 
 const getLanguageLabels = langId => {
   return languages.reduce((accum, lang) => {
@@ -166,34 +168,41 @@ class Main extends React.Component {
     this.setState({ shouldConvertStocks });
   };
 
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex !== newIndex) {
+      storage.sortUserStocks({ oldIndex, newIndex });
+      this.setState(state => {
+        return {
+          stocks: arrayMove(state.stocks, oldIndex, newIndex)
+        };
+      });
+    }
+  };
+
   render() {
-    const stocks = this.state.stocks
-      .filter(stock => !stock.isRealized)
-      .map(stock => (
-        <Stock
-          currencies={this.state.currencies}
-          key={stock.id}
-          labels={this.state.labels.stock}
-          onDelete={this.deleteStock}
-          onRealize={this.realizeStock}
-          shouldConvertCurrency={this.state.shouldConvertStocks}
-          userCurrency={this.state.userCurrency}
-          {...stock}
-        />
-      ))
-      .concat(
-        this.state.stocks
-          .filter(stock => stock.isRealized)
-          .map(stock => (
-            <RealizedStock
-              key={stock.id}
-              labels={this.state.labels.realizedStock}
-              onDelete={this.deleteStock}
-              userCurrency={this.state.userCurrency}
-              {...stock}
-            />
-          ))
-      );
+    const stocks = this.state.stocks.map(
+      stock =>
+        !stock.isRealized ? (
+          <Stock
+            currencies={this.state.currencies}
+            key={stock.id}
+            labels={this.state.labels.stock}
+            onDelete={this.deleteStock}
+            onRealize={this.realizeStock}
+            shouldConvertCurrency={this.state.shouldConvertStocks}
+            userCurrency={this.state.userCurrency}
+            {...stock}
+          />
+        ) : (
+          <RealizedStock
+            key={stock.id}
+            labels={this.state.labels.realizedStock}
+            onDelete={this.deleteStock}
+            userCurrency={this.state.userCurrency}
+            {...stock}
+          />
+        )
+    );
 
     return (
       <div className="scroll-wrapper-outer">
@@ -225,24 +234,31 @@ class Main extends React.Component {
               toggleMenu={this.toggleMenu}
             />
 
-            <Moneys
-              graphData={this.state.graphData}
-              labels={this.state.labels.moneys}
-              sum={this.state.sum}
-              userCurrency={this.state.userCurrency}
-            />
+            <TinyTransition duration={1000}>
+              {!!stocks.length && (
+                <Moneys
+                  graphData={this.state.graphData}
+                  labels={this.state.labels.moneys}
+                  sum={this.state.sum}
+                  userCurrency={this.state.userCurrency}
+                />
+              )}
+            </TinyTransition>
 
-            <Collapse isOpened={true}>
-              <FlipMove
-                className="stocks"
-                duration={700}
-                easing="cubic-bezier(0.25, 0.12, 0.22, 1)"
-                staggerDurationBy={50}
-                typeName="table"
-              >
-                {stocks.map(element => element)}
-              </FlipMove>
-            </Collapse>
+            <TinyTransition duration={1000}>
+              {!!stocks.length && (
+                <SortableList
+                  className="stocks"
+                  element="table"
+                  helperClass="stock-is-sorting"
+                  lockAxis="y"
+                  pressDelay={200}
+                  onSortEnd={this.onSortEnd}
+                >
+                  {stocks}
+                </SortableList>
+              )}
+            </TinyTransition>
 
             <div className="form-container">
               <Collapse isOpened={this.state.formIsVisible}>

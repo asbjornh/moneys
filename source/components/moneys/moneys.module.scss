@@ -5,22 +5,6 @@
   display: flex;
 }
 
-.graphBeforeEnter,
-.graphLeaving {
-  transform: scale(0.9);
-  opacity: 0;
-}
-
-.graphEntering,
-.graphBeforeLeave {
-  transition: transform 1s $ease-out, opacity 1s $ease-out;
-}
-
-.graphEntering {
-  transform: none;
-  opacity: 1;
-}
-
 .text {
   text-align: right;
   margin-bottom: 40px;
@@ -56,4 +40,8 @@
   top: 0;
   right: 0;
   font-feature-settings: "tnum";
+
+  > div {
+    transform-origin: 100% 0;
+  }
 }

@@ -6,9 +6,15 @@
   cursor: default;
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
+  background-color: $dark-gray;
 
   td {
     position: relative;
+    padding: 0;
+  }
+
+  tr {
+    vertical-align: baseline;
   }
 }
 
@@ -116,7 +122,7 @@
   color: $red;
 }
 
-.percentage {
+td.percentage {
   font-weight: normal;
   padding-right: 10px;
   text-align: right;

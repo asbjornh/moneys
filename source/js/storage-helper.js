@@ -1,3 +1,6 @@
+import { arrayMove } from "react-sortable-hoc";
+import get from "lodash/get";
+
 import settings from "../settings";
 
 function getGraphPoints() {
@@ -62,6 +65,21 @@ function setUserStocks(stocks) {
   localStorage.setItem("userStocks", JSON.stringify(stocks));
 }
 
+function sortUserStocks({ oldIndex, newIndex }) {
+  const userStocks = getUserStocks();
+  const stocks = get(getStoredData("stocks"), "data", []);
+  const sortedUserStocks = arrayMove(userStocks, oldIndex, newIndex);
+  const sortedStocks = arrayMove(stocks, oldIndex, newIndex);
+
+  if (sortedUserStocks.length) {
+    setUserStocks(sortedUserStocks);
+  }
+
+  if (sortedStocks.length) {
+    storeData("stocks", sortedStocks);
+  }
+}
+
 function getUserCurrency() {
   return localStorage.getItem("userCurrency") || "NOK";
 }
@@ -111,5 +129,6 @@ export default {
   setUserCurrency,
   setUserLanguage,
   setUserStocks,
+  sortUserStocks,
   storeData
 };
