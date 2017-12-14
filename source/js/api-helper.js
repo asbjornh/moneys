@@ -95,7 +95,7 @@ function getStock({ symbol, type, intermediateCurrency }, storedStock) {
   if (type && type.toLowerCase() === "currency") {
     return getCurrencySellPrice(
       symbol,
-      intermediateCurrency || storage.getUserCurrency(),
+      intermediateCurrency || storage.getUserSetting("currency"),
       storedStock
     );
   } else {
@@ -221,7 +221,7 @@ function getData() {
         const sum = utils.sumAndConvert(
           storedStocks.data,
           currencies,
-          storage.getUserCurrency()
+          storage.getUserSetting("currency")
         );
         storage.addGraphPoint(sum.difference);
         resolve({
@@ -265,7 +265,7 @@ function getData() {
             const sum = utils.sumAndConvert(
               stocks,
               currencies,
-              storage.getUserCurrency()
+              storage.getUserSetting("currency")
             );
             storage.storeData("stocks", stocks);
             storage.addGraphPoint(sum.difference);
@@ -294,7 +294,7 @@ function getPurchaseRate(stock, stockCurrency) {
           resolve(
             utils.convert(
               parseFloat(stock.purchasePrice) / parseFloat(stock.qty),
-              storage.getUserCurrency(),
+              storage.getUserSetting("currency"),
               stockCurrency,
               historicalCurrencies
             )

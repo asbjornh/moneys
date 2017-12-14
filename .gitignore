@@ -3,6 +3,7 @@
 config.json
 config.php
 .htaccess
+.vscode
 
 
 # Logs

@@ -35,12 +35,13 @@ class Main extends React.Component {
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
     isLoading: api.hasStoredStocks(),
-    labels: getLanguageLabels(storage.getUserLanguage()),
+    isSorting: false,
+    labels: getLanguageLabels(storage.getUserSetting("language")),
     languages: languages.map(({ id, name }) => ({ id, name })),
-    shouldConvertStocks: storage.getShouldConvertStocks(),
+    shouldConvertStocks: storage.getUserSetting("shouldConvertStocks"),
     stocks: [],
-    userCurrency: storage.getUserCurrency(),
-    userLanguage: storage.getUserLanguage()
+    userCurrency: storage.getUserSetting("currency"),
+    userLanguage: storage.getUserSetting("language")
   };
 
   componentDidMount() {
@@ -157,15 +158,19 @@ class Main extends React.Component {
   };
 
   onLanguageSelect = language => {
-    storage.setUserLanguage(language);
+    storage.setUserSetting("language", language);
     this.setState({
       labels: getLanguageLabels(language)
     });
   };
 
   onShouldConvertStocksSelect = shouldConvertStocks => {
-    storage.setShouldConvertStocks(shouldConvertStocks);
+    storage.setUserSetting("shouldConvertStocks", shouldConvertStocks);
     this.setState({ shouldConvertStocks });
+  };
+
+  onSortStart = () => {
+    this.setState({ isSorting: true });
   };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
@@ -173,6 +178,7 @@ class Main extends React.Component {
       storage.sortUserStocks({ oldIndex, newIndex });
       this.setState(state => {
         return {
+          isSorting: false,
           stocks: arrayMove(state.stocks, oldIndex, newIndex)
         };
       });
@@ -186,6 +192,7 @@ class Main extends React.Component {
           <Stock
             currencies={this.state.currencies}
             key={stock.id}
+            isSorting={this.state.isSorting}
             labels={this.state.labels.stock}
             onDelete={this.deleteStock}
             onRealize={this.realizeStock}
@@ -253,6 +260,7 @@ class Main extends React.Component {
                   helperClass="stock-is-sorting"
                   lockAxis="y"
                   onSortEnd={this.onSortEnd}
+                  onSortStart={this.onSortStart}
                   pressDelay={200}
                   shouldCancelStart={() => this.state.isLoading}
                 >

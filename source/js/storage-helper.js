@@ -2,6 +2,7 @@ import { arrayMove } from "react-sortable-hoc";
 import get from "lodash/get";
 
 import settings from "../settings";
+import { userDefaults } from "../../config.json";
 
 function getGraphPoints() {
   return JSON.parse(localStorage.getItem("graphData")) || [];
@@ -49,14 +50,6 @@ function addGraphPoint(sum = 0) {
   }
 }
 
-function getShouldConvertStocks() {
-  return JSON.parse(localStorage.getItem("shouldConvertStocks"));
-}
-
-function setShouldConvertStocks(shouldConvert) {
-  localStorage.setItem("shouldConvertStocks", shouldConvert);
-}
-
 function getUserStocks() {
   return JSON.parse(localStorage.getItem("userStocks")) || [];
 }
@@ -80,22 +73,15 @@ function sortUserStocks({ oldIndex, newIndex }) {
   }
 }
 
-function getUserCurrency() {
-  return localStorage.getItem("userCurrency") || "NOK";
+function getUserSetting(setting) {
+  const userSettings = JSON.parse(localStorage.getItem("userSettings"));
+  return get(userSettings, setting, userDefaults[setting]);
 }
 
-function setUserCurrency(currency) {
-  localStorage.clear();
-  localStorage.setItem("userCurrency", currency);
-  window.location.reload();
-}
-
-function getUserLanguage() {
-  return localStorage.getItem("userLanguage") || "english";
-}
-
-function setUserLanguage(language) {
-  localStorage.setItem("userLanguage", language);
+function setUserSetting(setting, value) {
+  const userSettings = JSON.parse(localStorage.getItem("userSettings")) || {};
+  userSettings[setting] = value;
+  localStorage.setItem("userSettings", JSON.stringify(userSettings));
 }
 
 function getBackupData() {
@@ -119,16 +105,12 @@ export default {
   addGraphPoint,
   getBackupData,
   getGraphPoints,
-  getShouldConvertStocks,
   getStoredData,
-  getUserCurrency,
-  getUserLanguage,
   getUserStocks,
+  getUserSetting,
   insertBackupData,
-  setShouldConvertStocks,
-  setUserCurrency,
-  setUserLanguage,
   setUserStocks,
+  setUserSetting,
   sortUserStocks,
   storeData
 };

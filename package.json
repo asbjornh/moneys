@@ -1,6 +1,6 @@
 {
   "name": "moneys",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "build": "rm -rf build && webpack --env.production",
     "dev": "webpack-dev-server --content-base dist/ --inline"

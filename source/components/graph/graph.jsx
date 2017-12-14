@@ -9,6 +9,7 @@ import css from "./graph.module.scss";
 import graphUtils from "./graph-utils";
 import months from "../../data/months.json";
 import utils from "../../js/utils";
+import storage from "../../js/storage-helper";
 
 import GraphFilters from "./graph-filters";
 
@@ -26,7 +27,7 @@ class Graph extends React.Component {
   };
 
   state = {
-    daysToShow: 7,
+    daysToShow: storage.getUserSetting("graphInitialDaysToShow"),
     showGraph: true
   };
 
@@ -42,6 +43,7 @@ class Graph extends React.Component {
   }
 
   setDaysToShow = daysToShow => {
+    storage.setUserSetting("graphInitialDaysToShow", daysToShow);
     this.setState({ daysToShow });
   };
 

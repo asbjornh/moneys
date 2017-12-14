@@ -21,6 +21,7 @@ class Stock extends React.Component {
     currency: PropTypes.string,
     id: PropTypes.string.isRequired,
     isOutdated: PropTypes.bool,
+    isSorting: PropTypes.bool,
     labels: PropTypes.object,
     lastUpdated: PropTypes.number,
     longName: PropTypes.string,
@@ -70,34 +71,42 @@ class Stock extends React.Component {
   };
 
   onClick = () => {
-    this.setState(state => ({
-      shouldConvertCurrency: !state.shouldConvertCurrency
-    }));
+    if (!this.props.isSorting) {
+      this.setState(state => ({
+        shouldConvertCurrency: !state.shouldConvertCurrency
+      }));
+    }
   };
 
   onTouchStart = e => {
-    this.touchStartX = e.touches[0].clientX;
-    this.lastTouchX = e.touches[0].clientX;
-    this.setState({ springConfig: { stiffness: 300, damping: 20 } });
+    if (!this.props.isSorting) {
+      this.touchStartX = e.touches[0].clientX;
+      this.lastTouchX = e.touches[0].clientX;
+      this.setState({ springConfig: { stiffness: 300, damping: 20 } });
+    }
   };
 
   onTouchMove = e => {
-    const delta = (this.lastTouchX - e.touches[0].clientX) / 90;
+    if (!this.props.isSorting) {
+      const delta = (this.lastTouchX - e.touches[0].clientX) / 90;
 
-    this.lastTouchX = e.touches[0].clientX;
-    this.setState(state => ({
-      isAnimating: true,
-      isSliding: true,
-      slideProgress: utils.clamp(state.slideProgress + delta, 0, 1)
-    }));
+      this.lastTouchX = e.touches[0].clientX;
+      this.setState(state => ({
+        isAnimating: true,
+        isSliding: true,
+        slideProgress: utils.clamp(state.slideProgress + delta, 0, 1)
+      }));
+    }
   };
 
   onTouchEnd = () => {
-    this.setState(state => ({
-      isAnimating: state.slideProgress !== 0 && state.slideProgress !== 1,
-      isSliding: state.slideProgress > 0.5,
-      slideProgress: state.slideProgress > 0.5 ? 1 : 0
-    }));
+    if (!this.props.isSorting) {
+      this.setState(state => ({
+        isAnimating: state.slideProgress !== 0 && state.slideProgress !== 1,
+        isSliding: state.slideProgress > 0.5,
+        slideProgress: state.slideProgress > 0.5 ? 1 : 0
+      }));
+    }
   };
 
   onMotionRest = () => {

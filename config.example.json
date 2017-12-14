@@ -9,5 +9,12 @@
     "https://openexchangerates.org/api/historical/{0}.json?app_id={1}",
   "proxy": "https://cors-anywhere.herokuapp.com/",
   "stockEndpoint":
-    "https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?formatted=false&modules=price"
+    "https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?formatted=false&modules=price",
+
+  "userDefaults": {
+    "currency": "USD",
+    "language": "english",
+    "shouldConvertStocks": false,
+    "graphInitialDaysToShow": 7
+  }
 }

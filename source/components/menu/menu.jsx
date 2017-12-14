@@ -82,7 +82,7 @@ const Menu = ({
       <li>
         <Switch
           label={labels.convertStocksSwitch}
-          defaultValue={storage.getShouldConvertStocks()}
+          defaultValue={storage.getUserSetting("shouldConvertStocks")}
           onChange={onShouldConvertStocksSelect}
         />
       </li>
