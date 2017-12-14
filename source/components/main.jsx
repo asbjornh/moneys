@@ -34,6 +34,7 @@ class Main extends React.Component {
     currencies: get(storage.getStoredData("currencies"), "data", {}),
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
+    hasAvailableUpdate: false,
     isLoading: api.hasStoredStocks(),
     isSorting: false,
     labels: getLanguageLabels(storage.getUserSetting("language")),
@@ -45,6 +46,12 @@ class Main extends React.Component {
   };
 
   componentDidMount() {
+    if (window.applicationCache) {
+      applicationCache.addEventListener("updateready", () => {
+        this.setState({ hasAvailableUpdate: true });
+      });
+    }
+
     this.setState(
       { stocks: get(storage.getStoredData("stocks"), "data", []) },
       () => {
@@ -186,6 +193,8 @@ class Main extends React.Component {
   };
 
   render() {
+    const labels = this.state.labels;
+
     const stocks = this.state.stocks.map(
       stock =>
         !stock.isRealized ? (
@@ -193,7 +202,7 @@ class Main extends React.Component {
             currencies={this.state.currencies}
             key={stock.id}
             isSorting={this.state.isSorting}
-            labels={this.state.labels.stock}
+            labels={labels.stock}
             onDelete={this.deleteStock}
             onRealize={this.realizeStock}
             shouldConvertCurrency={this.state.shouldConvertStocks}
@@ -203,7 +212,7 @@ class Main extends React.Component {
         ) : (
           <RealizedStock
             key={stock.id}
-            labels={this.state.labels.realizedStock}
+            labels={labels.realizedStock}
             onDelete={this.deleteStock}
             userCurrency={this.state.userCurrency}
             {...stock}
@@ -222,7 +231,7 @@ class Main extends React.Component {
             currencies={this.state.currencies}
             deleteAllData={this.deleteAllData}
             isVisible={this.state.menuIsVisible}
-            labels={this.state.labels.menu}
+            labels={labels.menu}
             languages={this.state.languages}
             onCurrencySelect={this.onCurrencySelect}
             onLanguageSelect={this.onLanguageSelect}
@@ -236,7 +245,9 @@ class Main extends React.Component {
             })}
           >
             <Header
+              hasAvailableUpdate={this.state.hasAvailableUpdate}
               isLoading={this.state.isLoading}
+              labels={labels.header}
               menuIsVisible={this.state.menuIsVisible}
               toggleMenu={this.toggleMenu}
             />
@@ -245,7 +256,7 @@ class Main extends React.Component {
               {!!stocks.length && (
                 <Moneys
                   graphData={this.state.graphData}
-                  labels={this.state.labels.moneys}
+                  labels={labels.moneys}
                   sum={this.state.sum}
                   userCurrency={this.state.userCurrency}
                 />
@@ -273,7 +284,7 @@ class Main extends React.Component {
               <Collapse isOpened={this.state.formIsVisible}>
                 <Form
                   currencies={this.state.currencies}
-                  labels={this.state.labels.form}
+                  labels={labels.form}
                   onSubmit={this.addStock}
                   onCancelClick={this.hideForm}
                   userCurrency={this.state.userCurrency}

@@ -20,6 +20,9 @@
       "typeInputStock": "Aksje",
       "typeInputCurrency": "Valuta"
     },
+    "header": {
+      "updateAvailable": "Ny versjon!"
+    },
     "moneys": {
       "lastUpdatedLabel": "Sist oppdatert",
       "totalValueLabel": "Totalverdi",

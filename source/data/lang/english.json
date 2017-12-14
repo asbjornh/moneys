@@ -20,6 +20,9 @@
       "typeInputStock": "Stock",
       "typeInputCurrency": "Currency"
     },
+    "header": {
+      "updateAvailable": "New version!"
+    },
     "moneys": {
       "lastUpdatedLabel": "Last updated",
       "totalValueLabel": "Total value",

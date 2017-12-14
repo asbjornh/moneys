@@ -13,13 +13,31 @@ const refreshWindow = () => {
   window.location.reload();
 };
 
-const Header = ({ isLoading, menuIsVisible, toggleMenu }) => (
+const Header = ({
+  hasAvailableUpdate,
+  isLoading,
+  labels,
+  menuIsVisible,
+  toggleMenu
+}) => (
   <div className={css.header}>
-    <button type="button" className={css.refreshButton} onClick={refreshWindow}>
-      <span className={css.icon}>
-        <Refresh />
-      </span>
-    </button>
+    <div className={css.refreshContainer}>
+      <button
+        type="button"
+        className={cn(css.refreshButton, {
+          [css.updateAvailable]: hasAvailableUpdate
+        })}
+        onClick={refreshWindow}
+      >
+        <span className={css.icon}>
+          <Refresh />
+        </span>
+      </button>
+
+      {hasAvailableUpdate && (
+        <div className={css.updateBanner}>{labels.updateAvailable}</div>
+      )}
+    </div>
 
     <div className={css.spinner}>
       <Spinner isLoading={isLoading} />
@@ -37,7 +55,9 @@ const Header = ({ isLoading, menuIsVisible, toggleMenu }) => (
 );
 
 Header.propTypes = {
+  hasAvailableUpdate: PropTypes.bool,
   isLoading: PropTypes.bool,
+  labels: PropTypes.object,
   menuIsVisible: PropTypes.bool,
   toggleMenu: PropTypes.func
 };

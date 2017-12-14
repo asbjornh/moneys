@@ -41,13 +41,75 @@
   }
 }
 
+.refreshContainer {
+  display: flex;
+}
+
 .refreshButton {
+  &.updateAvailable {
+    background-color: $green;
+    border-color: $green;
+    color: $dark-gray;
+  }
+
   .icon {
     left: 3px;
 
     svg {
       width: 21px;
     }
+  }
+}
+
+.updateBanner {
+  position: relative;
+  align-self: center;
+  background: $green;
+  padding: 7px 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+  color: $dark-gray;
+  animation: update-banner-in 0.7s 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+      both,
+    update-banner-out 0.5s 5s forwards;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 8px;
+    width: 8px;
+    background-color: $green;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    border-right: none;
+    border-bottom: none;
+  }
+}
+
+@keyframes update-banner-in {
+  from {
+    transform: translateX(-50px) scale(0.85);
+    transform-origin: -100% 50%;
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    transform-origin: 900px 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes update-banner-out {
+  from {
+    transform: translateX(0) scale(1);
+    transform-origin: 50% 50%;
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-20px) scale(0.8);
+    transform-origin: 50% 50%;
+    opacity: 0;
   }
 }
 
