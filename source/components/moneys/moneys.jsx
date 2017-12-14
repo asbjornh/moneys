@@ -38,24 +38,44 @@ class Moneys extends React.Component {
   state = {};
 
   componentDidMount() {
-    window.addEventListener("resize", this.getGraphSize);
+    window.addEventListener("resize", this.setGraphSize);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.getGraphSize);
+    window.removeEventListener("resize", this.setGraphSize);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.sum !== this.props.sum && this.props.sum) {
-      this.getGraphSize();
+      this.setGraphSize();
     }
   }
 
-  getGraphSize = () => {
+  setGraphSize = () => {
     this.setState({
       graphSize: {
         width: this.container.offsetWidth - this.textContainer.offsetWidth,
         height: this.textContainer.offsetHeight
+      }
+    });
+  };
+
+  onCollapseMeasure = ({ height }) => {
+    // Hacky, but seems to work :P
+    this.setState({}, () => {
+      const title = this.titleEl;
+      const description = this.descriptionEl;
+      const newHeight =
+        title &&
+        description &&
+        title.offsetHeight + description.offsetHeight + height;
+
+      if (newHeight) {
+        this.setState(state => ({
+          graphSize: Object.assign({}, state.graphSize, {
+            height: newHeight
+          })
+        }));
       }
     });
   };
@@ -84,8 +104,8 @@ class Moneys extends React.Component {
         </TinyTransition>
 
         <div className={css.text} ref={div => (this.textContainer = div)}>
-          <h1>Moneys:</h1>
-          <Collapse isOpened={true}>
+          <h1 ref={h1 => (this.titleEl = h1)}>Moneys:</h1>
+          <Collapse isOpened={true} onMeasure={this.onCollapseMeasure}>
             <div className={css.number}>
               <div
                 className={css.numberSpacer}
@@ -97,34 +117,37 @@ class Moneys extends React.Component {
                   currencySymbol={symbol}
                 />
               </div>
-              <div className={css.visibleNumber}>
-                <Motion
-                  defaultStyle={{ number: 0, scale: 1 }}
-                  style={{
-                    number: spring(sum.difference, {
-                      stiffness: 50,
-                      damping: 15
-                    }),
-                    scale: spring(fontSize)
-                  }}
-                >
-                  {({ scale, number }) => (
-                    <div style={{ transform: `scale(${scale})` }}>
-                      <Number
-                        number={number}
-                        numberOfDecimals={0}
-                        currencySymbol={symbol}
-                      />
-                    </div>
-                  )}
-                </Motion>
-              </div>
+              <Motion
+                defaultStyle={{ number: 0, scale: 1 }}
+                style={{
+                  number: spring(sum.difference, {
+                    stiffness: 50,
+                    damping: 15
+                  }),
+                  scale: spring(fontSize)
+                }}
+              >
+                {({ scale, number }) => (
+                  <div
+                    className={css.visibleNumber}
+                    style={{ transform: `scale(${scale})` }}
+                  >
+                    <Number
+                      number={number}
+                      numberOfDecimals={0}
+                      currencySymbol={symbol}
+                    />
+                  </div>
+                )}
+              </Motion>
             </div>
           </Collapse>
-          <p>
-            {`${this.props.labels.totalValueLabel}: `}
-            <b>{`${utils.formatNumber(sum.total)} ${symbol}`}</b>
-          </p>
+          <div ref={div => (this.descriptionEl = div)}>
+            <p>
+              {`${this.props.labels.totalValueLabel}: `}
+              <b>{`${utils.formatNumber(sum.total)} ${symbol}`}</b>
+            </p>
+          </div>
         </div>
       </div>
     );
