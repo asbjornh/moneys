@@ -80,20 +80,32 @@ class Stock extends React.Component {
     if (!this.props.isSorting) {
       this.touchStartX = e.touches[0].clientX;
       this.lastTouchX = e.touches[0].clientX;
+      this.lastTouchY = e.touches[0].clientY;
       this.setState({ springConfig: { stiffness: 300, damping: 20 } });
     }
   };
 
   onTouchMove = e => {
     if (!this.props.isSorting) {
-      const delta = (this.lastTouchX - e.touches[0].clientX) / 90;
+      const { clientX, clientY } = e.touches[0];
 
-      this.lastTouchX = e.touches[0].clientX;
-      this.setState(state => ({
-        isAnimating: true,
-        isSliding: true,
-        slideProgress: utils.clamp(state.slideProgress + delta, 0, 1)
-      }));
+      if (
+        Math.abs(clientX - this.lastTouchX) >
+        Math.abs(clientY - this.lastTouchY)
+      ) {
+        e.preventDefault();
+
+        const deltaX = (this.lastTouchX - clientX) / 90;
+
+        this.setState(state => ({
+          isAnimating: true,
+          isSliding: true,
+          slideProgress: utils.clamp(state.slideProgress + deltaX, 0, 1)
+        }));
+      }
+
+      this.lastTouchX = clientX;
+      this.lastTouchY = clientY;
     }
   };
 

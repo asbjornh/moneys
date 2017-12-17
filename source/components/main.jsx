@@ -14,6 +14,7 @@ import Form from "./form";
 import Header from "./header";
 import Menu from "./menu";
 import Moneys from "./moneys";
+import NoScrollbar from "./no-scrollbar";
 import RealizedStock from "./realized-stock";
 import Stock from "./stock";
 import SortableList from "./sortable-list/";
@@ -35,6 +36,7 @@ class Main extends React.Component {
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
     hasAvailableUpdate: false,
+    hasMouseScroll: true,
     isLoading: api.hasStoredStocks(),
     isSorting: false,
     labels: getLanguageLabels(storage.getUserSetting("language")),
@@ -65,15 +67,19 @@ class Main extends React.Component {
       this.setState({ currencies });
     });
 
-    this.setState({
-      scrollWrapperWidth: `calc(100% + ${this.scrollWrapper.offsetWidth -
-        this.scrollWrapper.clientWidth}px)`
-    });
+    window.addEventListener("touchstart", this.onMouseWheel);
   }
 
   componentWillUnmount() {
     clearInterval(this.updateLoop);
+    window.removeEventListener("touchstart", this.onMouseWheel);
   }
+
+  onMouseWheel = () => {
+    if (this.state.hasMouseScroll) {
+      this.setState({ hasMouseScroll: false });
+    }
+  };
 
   refreshData = () => {
     this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
@@ -198,118 +204,111 @@ class Main extends React.Component {
     const labels = this.state.labels;
 
     return (
-      <div className="scroll-wrapper-outer">
+      <NoScrollbar>
+        <Menu
+          currencies={this.state.currencies}
+          deleteAllData={this.deleteAllData}
+          isVisible={this.state.menuIsVisible}
+          labels={labels.menu}
+          languages={this.state.languages}
+          onCurrencySelect={this.onCurrencySelect}
+          onLanguageSelect={this.onLanguageSelect}
+          onShouldConvertStocksSelect={this.onShouldConvertStocksSelect}
+          userCurrency={this.state.userCurrency}
+          userLanguage={this.state.userLanguage}
+        />
         <div
-          className="scroll-wrapper-inner"
-          ref={div => (this.scrollWrapper = div)}
-          style={{ width: this.state.scrollWrapperWidth }}
+          className={cn("content", {
+            menuIsVisible: this.state.menuIsVisible
+          })}
         >
-          <Menu
-            currencies={this.state.currencies}
-            deleteAllData={this.deleteAllData}
-            isVisible={this.state.menuIsVisible}
-            labels={labels.menu}
-            languages={this.state.languages}
-            onCurrencySelect={this.onCurrencySelect}
-            onLanguageSelect={this.onLanguageSelect}
-            onShouldConvertStocksSelect={this.onShouldConvertStocksSelect}
-            userCurrency={this.state.userCurrency}
-            userLanguage={this.state.userLanguage}
+          <Header
+            hasAvailableUpdate={this.state.hasAvailableUpdate}
+            isLoading={this.state.isLoading}
+            isSorting={this.state.isSorting}
+            labels={labels.header}
+            menuIsVisible={this.state.menuIsVisible}
+            onSortingButtonClick={this.toggleSorting}
+            toggleMenu={this.toggleMenu}
           />
-          <div
-            className={cn("content", {
-              menuIsVisible: this.state.menuIsVisible
-            })}
-          >
-            <Header
-              hasAvailableUpdate={this.state.hasAvailableUpdate}
-              isLoading={this.state.isLoading}
-              isSorting={this.state.isSorting}
-              labels={labels.header}
-              menuIsVisible={this.state.menuIsVisible}
-              onSortingButtonClick={this.toggleSorting}
-              toggleMenu={this.toggleMenu}
-            />
 
-            <TinyTransition duration={1000}>
-              {!!this.state.stocks.length && (
-                <Moneys
-                  graphData={this.state.graphData}
-                  labels={labels.moneys}
-                  sum={this.state.sum}
-                  userCurrency={this.state.userCurrency}
-                />
-              )}
-            </TinyTransition>
+          <TinyTransition duration={1000}>
+            {!!this.state.stocks.length && (
+              <Moneys
+                graphData={this.state.graphData}
+                labels={labels.moneys}
+                sum={this.state.sum}
+                userCurrency={this.state.userCurrency}
+              />
+            )}
+          </TinyTransition>
 
-            <TinyTransition duration={1000}>
-              {!!this.state.stocks.length && (
-                <Collapse isOpened={true}>
-                  <SortableList
-                    className="stocks"
-                    element="table"
-                    helperClass="stock-is-sorting"
-                    lockAxis="y"
-                    onSortEnd={this.onSortEnd}
-                    shouldCancelStart={() =>
-                      this.state.isLoading || !this.state.isSorting
-                    }
-                  >
-                    {this.state.stocks.map(
-                      stock =>
-                        !stock.isRealized ? (
-                          <Stock
-                            currencies={this.state.currencies}
-                            isSorting={this.state.isSorting}
-                            key={stock.id}
-                            labels={labels.stock}
-                            onDelete={this.deleteStock}
-                            onRealize={this.realizeStock}
-                            shouldConvertCurrency={
-                              this.state.shouldConvertStocks
-                            }
-                            userCurrency={this.state.userCurrency}
-                            {...stock}
-                          />
-                        ) : (
-                          <RealizedStock
-                            isSorting={this.state.isSorting}
-                            key={stock.id}
-                            labels={labels.realizedStock}
-                            onDelete={this.deleteStock}
-                            userCurrency={this.state.userCurrency}
-                            {...stock}
-                          />
-                        )
-                    )}
-                  </SortableList>
-                </Collapse>
-              )}
-            </TinyTransition>
-
-            <div className="form-container">
-              <Collapse isOpened={this.state.formIsVisible}>
-                <Form
-                  currencies={this.state.currencies}
-                  labels={labels.form}
-                  onSubmit={this.addStock}
-                  onCancelClick={this.hideForm}
-                  userCurrency={this.state.userCurrency}
-                />
+          <TinyTransition duration={1000}>
+            {!!this.state.stocks.length && (
+              <Collapse isOpened={true}>
+                <SortableList
+                  className="stocks"
+                  element="table"
+                  helperClass="stock-is-sorting"
+                  lockAxis="y"
+                  onSortEnd={this.onSortEnd}
+                  pressDelay={this.state.hasMouseScroll ? 0 : 300}
+                  shouldCancelStart={() =>
+                    this.state.isLoading || !this.state.isSorting
+                  }
+                >
+                  {this.state.stocks.map(
+                    stock =>
+                      !stock.isRealized ? (
+                        <Stock
+                          currencies={this.state.currencies}
+                          isSorting={this.state.isSorting}
+                          key={stock.id}
+                          labels={labels.stock}
+                          onDelete={this.deleteStock}
+                          onRealize={this.realizeStock}
+                          shouldConvertCurrency={this.state.shouldConvertStocks}
+                          userCurrency={this.state.userCurrency}
+                          {...stock}
+                        />
+                      ) : (
+                        <RealizedStock
+                          isSorting={this.state.isSorting}
+                          key={stock.id}
+                          labels={labels.realizedStock}
+                          onDelete={this.deleteStock}
+                          userCurrency={this.state.userCurrency}
+                          {...stock}
+                        />
+                      )
+                  )}
+                </SortableList>
               </Collapse>
+            )}
+          </TinyTransition>
 
-              <button
-                className="form-button"
-                onClick={this.showForm}
-                type="button"
-                disabled={this.state.formIsVisible}
-              >
-                +
-              </button>
-            </div>
+          <div className="form-container">
+            <Collapse isOpened={this.state.formIsVisible}>
+              <Form
+                currencies={this.state.currencies}
+                labels={labels.form}
+                onSubmit={this.addStock}
+                onCancelClick={this.hideForm}
+                userCurrency={this.state.userCurrency}
+              />
+            </Collapse>
+
+            <button
+              className="form-button"
+              onClick={this.showForm}
+              type="button"
+              disabled={this.state.formIsVisible}
+            >
+              +
+            </button>
           </div>
         </div>
-      </div>
+      </NoScrollbar>
     );
   }
 }
