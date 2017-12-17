@@ -197,32 +197,6 @@ class Main extends React.Component {
   render() {
     const labels = this.state.labels;
 
-    const stocks = this.state.stocks.map(
-      stock =>
-        !stock.isRealized ? (
-          <Stock
-            currencies={this.state.currencies}
-            isSorting={this.state.isSorting}
-            key={stock.id}
-            labels={labels.stock}
-            onDelete={this.deleteStock}
-            onRealize={this.realizeStock}
-            shouldConvertCurrency={this.state.shouldConvertStocks}
-            userCurrency={this.state.userCurrency}
-            {...stock}
-          />
-        ) : (
-          <RealizedStock
-            isSorting={this.state.isSorting}
-            key={stock.id}
-            labels={labels.realizedStock}
-            onDelete={this.deleteStock}
-            userCurrency={this.state.userCurrency}
-            {...stock}
-          />
-        )
-    );
-
     return (
       <div className="scroll-wrapper-outer">
         <div
@@ -258,7 +232,7 @@ class Main extends React.Component {
             />
 
             <TinyTransition duration={1000}>
-              {!!stocks.length && (
+              {!!this.state.stocks.length && (
                 <Moneys
                   graphData={this.state.graphData}
                   labels={labels.moneys}
@@ -269,19 +243,42 @@ class Main extends React.Component {
             </TinyTransition>
 
             <TinyTransition duration={1000}>
-              {!!stocks.length && (
+              {!!this.state.stocks.length && (
                 <SortableList
                   className="stocks"
                   element="table"
                   helperClass="stock-is-sorting"
                   lockAxis="y"
                   onSortEnd={this.onSortEnd}
-                  pressDelay={200}
                   shouldCancelStart={() =>
                     this.state.isLoading || !this.state.isSorting
                   }
                 >
-                  {stocks}
+                  {this.state.stocks.map(
+                    stock =>
+                      !stock.isRealized ? (
+                        <Stock
+                          currencies={this.state.currencies}
+                          isSorting={this.state.isSorting}
+                          key={stock.id}
+                          labels={labels.stock}
+                          onDelete={this.deleteStock}
+                          onRealize={this.realizeStock}
+                          shouldConvertCurrency={this.state.shouldConvertStocks}
+                          userCurrency={this.state.userCurrency}
+                          {...stock}
+                        />
+                      ) : (
+                        <RealizedStock
+                          isSorting={this.state.isSorting}
+                          key={stock.id}
+                          labels={labels.realizedStock}
+                          onDelete={this.deleteStock}
+                          userCurrency={this.state.userCurrency}
+                          {...stock}
+                        />
+                      )
+                  )}
                 </SortableList>
               )}
             </TinyTransition>
