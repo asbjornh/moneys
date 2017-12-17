@@ -40,6 +40,7 @@
   $conn = mysqli_connect($servername, $username, $password, $dbName);
 
   if ($conn) {
+    $ticker = mysqli_real_escape_string($conn, $ticker);
     $storedData = getStoredData($conn, $stocksTable, $ticker);
     $data = $storedData["data"];
     $id = $storedData["id"];
