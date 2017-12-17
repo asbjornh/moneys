@@ -10,13 +10,14 @@ import months from "../../data/months.json";
 import utils from "../../js/utils";
 
 import { UnmountClosed as Collapse } from "react-collapse";
-import CircleX from "../icons/circle-x";
+import Icons from "../icons";
 import Number from "../number";
 
 class RealizedStock extends React.Component {
   static propTypes = {
     onDelete: PropTypes.func,
     id: PropTypes.string,
+    isSorting: PropTypes.bool,
     labels: PropTypes.object,
     purchasePrice: PropTypes.number,
     sellDate: PropTypes.number,
@@ -54,11 +55,15 @@ class RealizedStock extends React.Component {
     return (
       <tbody
         className={cn(css.realizedStock, {
-          [css.isExpanded]: this.state.isExpanded
+          [css.isExpanded]: this.state.isExpanded,
+          [css.isSorting]: this.props.isSorting
         })}
       >
         <tr>
           <td colSpan={3}>
+            <div className={css.sortingHandle}>
+              <Icons.DragHandle />
+            </div>
             <div className={css.header} onClick={this.toggleContent}>
               <div className={css.symbol}>{this.props.symbol}</div>
               <div className={css.sum}>
@@ -82,9 +87,11 @@ class RealizedStock extends React.Component {
                     </p>
                   )}
                   <p>
-                    {`${utils.formatNumber(purchasePrice)} ${
-                      currencySymbol
-                    } → ${utils.formatNumber(sellPrice)} ${currencySymbol}`}
+                    {`${utils.formatNumber(
+                      purchasePrice
+                    )} ${currencySymbol} → ${utils.formatNumber(
+                      sellPrice
+                    )} ${currencySymbol}`}
                     <span className={css.qty}>
                       {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
                         this.props.qty
@@ -99,7 +106,7 @@ class RealizedStock extends React.Component {
                     onClick={this.delete}
                     title={this.props.labels.deleteLabel}
                   >
-                    <CircleX />
+                    <Icons.CircleX />
                   </button>
                 </div>
               </div>

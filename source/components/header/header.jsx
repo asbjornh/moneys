@@ -4,10 +4,8 @@ import PropTypes from "prop-types";
 import cn from "classnames";
 
 import css from "./header.module.scss";
-import Gear from "../icons/gear";
-import Refresh from "../icons/refresh";
+import Icons from "../icons";
 import Spinner from "../spinner";
-import X from "../icons/x";
 
 const refreshWindow = () => {
   window.location.reload();
@@ -16,8 +14,10 @@ const refreshWindow = () => {
 const Header = ({
   hasAvailableUpdate,
   isLoading,
+  isSorting,
   labels,
   menuIsVisible,
+  onSortingButtonClick,
   toggleMenu
 }) => (
   <div className={css.header}>
@@ -30,7 +30,7 @@ const Header = ({
         onClick={refreshWindow}
       >
         <span className={css.icon}>
-          <Refresh />
+          <Icons.Refresh />
         </span>
       </button>
 
@@ -43,12 +43,22 @@ const Header = ({
       <Spinner isLoading={isLoading} />
     </div>
 
+    <button
+      type="button"
+      className={cn(css.sortingButton, { [css.isActive]: isSorting })}
+      onClick={onSortingButtonClick}
+    >
+      <span className={css.icon}>
+        <Icons.Sort />
+      </span>
+    </button>
+
     <button type="button" className={css.menuButton} onClick={toggleMenu}>
       <span className={cn(css.icon, { [css.isActive]: !menuIsVisible })}>
-        <Gear />
+        <Icons.Gear />
       </span>
       <span className={cn(css.icon, { [css.isActive]: menuIsVisible })}>
-        <X />
+        <Icons.X />
       </span>
     </button>
   </div>
@@ -57,8 +67,10 @@ const Header = ({
 Header.propTypes = {
   hasAvailableUpdate: PropTypes.bool,
   isLoading: PropTypes.bool,
+  isSorting: PropTypes.bool,
   labels: PropTypes.object,
   menuIsVisible: PropTypes.bool,
+  onSortingButtonClick: PropTypes.func,
   toggleMenu: PropTypes.func
 };
 

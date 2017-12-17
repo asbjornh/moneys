@@ -176,20 +176,22 @@ class Main extends React.Component {
     this.setState({ shouldConvertStocks });
   };
 
-  onSortStart = () => {
-    this.setState({ isSorting: true });
+  toggleSorting = () => {
+    this.setState(state => ({ isSorting: !state.isSorting }));
   };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex !== newIndex && !this.state.isLoading) {
       storage.sortUserStocks({ oldIndex, newIndex });
-      this.setState(state => {
-        return {
-          isSorting: false,
-          stocks: arrayMove(state.stocks, oldIndex, newIndex)
-        };
-      });
     }
+
+    this.setState(state => {
+      return {
+        stocks: this.state.isLoading
+          ? state.stocks
+          : arrayMove(state.stocks, oldIndex, newIndex)
+      };
+    });
   };
 
   render() {
@@ -200,8 +202,8 @@ class Main extends React.Component {
         !stock.isRealized ? (
           <Stock
             currencies={this.state.currencies}
-            key={stock.id}
             isSorting={this.state.isSorting}
+            key={stock.id}
             labels={labels.stock}
             onDelete={this.deleteStock}
             onRealize={this.realizeStock}
@@ -211,6 +213,7 @@ class Main extends React.Component {
           />
         ) : (
           <RealizedStock
+            isSorting={this.state.isSorting}
             key={stock.id}
             labels={labels.realizedStock}
             onDelete={this.deleteStock}
@@ -247,8 +250,10 @@ class Main extends React.Component {
             <Header
               hasAvailableUpdate={this.state.hasAvailableUpdate}
               isLoading={this.state.isLoading}
+              isSorting={this.state.isSorting}
               labels={labels.header}
               menuIsVisible={this.state.menuIsVisible}
+              onSortingButtonClick={this.toggleSorting}
               toggleMenu={this.toggleMenu}
             />
 
@@ -271,9 +276,10 @@ class Main extends React.Component {
                   helperClass="stock-is-sorting"
                   lockAxis="y"
                   onSortEnd={this.onSortEnd}
-                  onSortStart={this.onSortStart}
                   pressDelay={200}
-                  shouldCancelStart={() => this.state.isLoading}
+                  shouldCancelStart={() =>
+                    this.state.isLoading || !this.state.isSorting
+                  }
                 >
                   {stocks}
                 </SortableList>

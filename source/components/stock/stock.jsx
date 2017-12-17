@@ -10,10 +10,8 @@ import css from "./stock.module.scss";
 import utils from "../../js/utils";
 
 import Number from "../number";
-import CircleDollar from "../icons/circle-dollar";
-import CircleX from "../icons/circle-x";
+import Icons from "../icons";
 import StaticContainer from "../static-container";
-import Warning from "../icons/warning";
 
 class Stock extends React.Component {
   static propTypes = {
@@ -180,7 +178,8 @@ class Stock extends React.Component {
         {motion => (
           <tbody
             className={cn(css.stock, {
-              [css.isSliding]: this.state.isSliding
+              [css.isSliding]: this.state.isSliding,
+              [css.isSorting]: this.props.isSorting
             })}
             onClick={this.onClick}
             onTouchStart={this.onTouchStart}
@@ -190,20 +189,21 @@ class Stock extends React.Component {
           >
             <tr className={css.firstRow}>
               <td>
-                <div className={css.description}>
-                  <div className={css.ticker}>
-                    {this.props.symbol}
-                    {this.props.isOutdated && (
-                      <span
-                        className={css.warning}
-                        title={`${
-                          this.props.labels.isOutdated
-                        } (${lastUpdatedText})`}
-                      >
-                        <Warning />
-                      </span>
-                    )}
-                  </div>
+                <div className={css.sortingHandle}>
+                  <Icons.DragHandle />
+                </div>
+                <div className={css.ticker}>
+                  {this.props.symbol}
+                  {this.props.isOutdated && (
+                    <span
+                      className={css.warning}
+                      title={`${
+                        this.props.labels.isOutdated
+                      } (${lastUpdatedText})`}
+                    >
+                      <Icons.Warning />
+                    </span>
+                  )}
                 </div>
               </td>
               <td
@@ -244,7 +244,7 @@ class Stock extends React.Component {
                       transform: `scale(${motion.scale})`
                     }}
                   >
-                    <CircleDollar />
+                    <Icons.CircleDollar />
                   </button>
                   <button
                     className={css.deleteButton}
@@ -256,7 +256,7 @@ class Stock extends React.Component {
                       transform: `scale(${motion.scale})`
                     }}
                   >
-                    <CircleX />
+                    <Icons.CircleX />
                   </button>
                 </div>
               </td>

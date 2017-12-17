@@ -5,11 +5,20 @@
   width: 100%;
   background-color: $dark-gray;
 
+  &.isSorting {
+    tr {
+      transform: translateX(40px) scale(0.85);
+    }
+  }
+
   tr {
     width: 100%;
+    transition: transform 0.3s $ease-out;
+    transform-origin: 0 50%;
   }
 
   td {
+    position: relative;
     color: $medium-gray;
     padding: 10px 0;
     box-shadow: inset 0 -1px 0 0 $border-color;
@@ -76,4 +85,23 @@
   height: 24px;
   width: 24px;
   padding: 0;
+}
+
+.sortingHandle {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $medium-gray;
+  opacity: 0;
+  transition: transform 0.3s $ease-out, opacity 0.3s;
+  transform: scale(0.1);
+  transform-origin: 100% 50%;
+
+  .isSorting & {
+    opacity: 1;
+    transform: translateX(-40px) scale((1/0.85));
+  }
 }
