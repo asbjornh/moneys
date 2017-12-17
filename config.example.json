@@ -5,8 +5,6 @@
   "currencyNamesEndpoint": "https://api.coinbase.com/v2/currencies",
   "currencySellPriceEndpoint": "https://api.coinbase.com/v2/prices/{0}/sell",
   "exchangeRatesEndpoint": "https://api.coinbase.com/v2/exchange-rates",
-  "historicalExchangeRatesEndpoint":
-    "https://openexchangerates.org/api/historical/{0}.json?app_id={1}",
   "proxy": "https://cors-anywhere.herokuapp.com/",
   "stockEndpoint":
     "https://query2.finance.yahoo.com/v10/finance/quoteSummary/{0}?formatted=false&modules=price",
