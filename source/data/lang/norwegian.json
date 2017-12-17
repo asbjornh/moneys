@@ -11,10 +11,7 @@
       "invalidForm": "Fyll inn alle feltene",
       "purchasePriceInput": "Totalpris",
       "purchaseRateInput": "Kurs ved kjøp",
-      "purchaseDateInput": "Dato kjøpt",
       "qtyInput": "Antall",
-      "rateOrDateHelpText":
-        "Fyll inn kjøpskurs hvis du vet den, dato hvis du ikke vet den (mindre presis kurs-differanse).",
       "tickerInput": "Ticker",
       "typeInput": "Type",
       "typeInputStock": "Aksje",
@@ -32,7 +29,7 @@
       "maxLabel": "Max"
     },
     "main": {
-      "stockNotFound": "Fant ikke aksje",
+      "stockNotFound": "Fant ikke",
       "deleteAllConfirmation": "Er du sikker på at du vil slette alle data?",
       "deleteConfirmation": "Er du sikker på at du vil slette denne?",
       "realizeStockPrompt": "Utbetalt totalt",

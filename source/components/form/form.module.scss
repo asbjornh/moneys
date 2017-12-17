@@ -19,14 +19,10 @@
   width: 100%;
   display: flex;
   padding-bottom: 20px;
-
-  &:last-of-type {
-    padding-bottom: 10px;
-  }
 }
 
 .input {
-  width: 33.3%;
+  width: 50%;
   padding-right: 3%;
   display: flex;
   flex-direction: column;

@@ -72,25 +72,6 @@ function getCurrencies() {
   });
 }
 
-function getHistoricalCurrencyData(date) {
-  return new Promise((resolve, reject) => {
-    fetch(
-      `${config.proxy}${config.historicalExchangeRatesEndpoint
-        .replace("{0}", date)
-        .replace("{1}", config.openExchangeRatesAppId)}`,
-      { headers }
-    )
-      .then(response => response.json())
-      .then(json => {
-        resolve(json.rates);
-      })
-      .catch(e => {
-        console.log(e);
-        reject("Failed to get historical currency data");
-      });
-  });
-}
-
 function getStock({ symbol, type, intermediateCurrency }, storedStock) {
   if (type && type.toLowerCase() === "currency") {
     return getCurrencySellPrice(
@@ -114,7 +95,6 @@ function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
         );
       } else {
         reject("Failed to get stock data");
-        throw new Error("Failed to get stock data");
       }
     }
 
@@ -154,7 +134,7 @@ function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
 }
 
 function getStockData(symbol, storedStock) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     function resolveWithBackup() {
       if (storedStock) {
         return resolve(
@@ -163,7 +143,7 @@ function getStockData(symbol, storedStock) {
           })
         );
       } else {
-        throw new Error("Failed to get stock data");
+        reject("Failed to get stock data");
       }
     }
 
@@ -284,68 +264,40 @@ function getData() {
   });
 }
 
-function getPurchaseRate(stock, stockCurrency) {
-  return new Promise(resolve => {
-    if (stock.purchaseRate) {
-      resolve(stock.purchaseRate);
-    } else {
-      getHistoricalCurrencyData(stock.purchaseDate).then(
-        historicalCurrencies => {
-          resolve(
-            utils.convert(
-              parseFloat(stock.purchasePrice) / parseFloat(stock.qty),
-              storage.getUserSetting("currency"),
-              stockCurrency,
-              historicalCurrencies
-            )
-          );
-        }
-      );
-    }
-  });
-}
-
 function addStock(formData) {
   return new Promise((resolve, reject) => {
+    // Try to fetch stock from API. Reject promise if no stock was found
     getStock(formData)
-      .then(stockData => {
-        // Get exchange rate at time of purchase
-        getPurchaseRate(formData, stockData.currency)
-          .then(purchaseRate => {
-            const newStock = {
-              id: String(new Date().getTime()),
-              intermediateCurrency: formData.intermediateCurrency,
-              purchasePrice: parseFloat(formData.purchasePrice),
-              purchaseRate: parseFloat(purchaseRate),
-              qty: parseFloat(formData.qty),
-              symbol: formData.symbol,
-              type: formData.type.toLowerCase()
-            };
+      .then(() => {
+        const newStock = {
+          id: String(new Date().getTime()),
+          intermediateCurrency: formData.intermediateCurrency,
+          purchasePrice: parseFloat(formData.purchasePrice),
+          purchaseRate: parseFloat(formData.purchaseRate),
+          qty: parseFloat(formData.qty),
+          symbol: formData.symbol,
+          type: formData.type.toLowerCase()
+        };
 
-            const userStocks = storage.getUserStocks();
-            storage.setUserStocks(userStocks.concat(newStock));
+        const userStocks = storage.getUserStocks();
+        storage.setUserStocks(userStocks.concat(newStock));
 
-            getData()
-              .then(({ stocks, sum, graphData }) => {
-                resolve({
-                  stocks,
-                  sum,
-                  graphData
-                });
-              })
-              .catch(e => {
-                console.log(e);
-                reject("Failed to get new stock data");
-              });
+        getData()
+          .then(({ stocks, sum, graphData }) => {
+            resolve({
+              stocks,
+              sum,
+              graphData
+            });
           })
           .catch(e => {
             console.log(e);
-            reject("Failed to get exchange rate at purchase date");
+            reject("Failed to get new stock data");
           });
       })
       .catch(e => {
         console.log(e);
-        reject("Stock not found");
+        reject(formData.symbol);
       });
   });
 }

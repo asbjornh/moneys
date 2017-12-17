@@ -1,8 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
-
 import Select from "../select";
 
 import css from "./form.module.scss";
@@ -21,12 +19,7 @@ class Form extends React.Component {
   };
 
   state = {
-    dateInputHasContent: false,
     investmentType: "stock"
-  };
-
-  onDateInput = () => {
-    this.setState({ dateInputHasContent: true });
   };
 
   onSubmit = e => {
@@ -38,10 +31,10 @@ class Form extends React.Component {
       formData[value[0]] = value[1].toUpperCase();
     });
 
-    const { symbol, qty, purchasePrice, purchaseRate, purchaseDate } = formData;
+    const { symbol, qty, purchasePrice } = formData;
     let formIsValid = true;
 
-    if (!symbol || !qty || !purchasePrice || (!purchaseRate && !purchaseDate)) {
+    if (!symbol || !qty || !purchasePrice) {
       formIsValid = false;
     }
 
@@ -105,32 +98,19 @@ class Form extends React.Component {
             <label>{`${labels.qtyInput} *`}</label>
             <input name="qty" type="number" placeholder="1" />
           </div>
+        </div>
+        <div className={css.formRow}>
           <div className={css.input}>
             <label>{`${labels.purchasePriceInput} (${
               this.props.userCurrency
             }) *`}</label>
             <input name="purchasePrice" type="number" placeholder="1000" />
           </div>
-        </div>
-        <div className={css.formRow}>
           <div className={css.input}>
             <label>{labels.purchaseRateInput}</label>
             <input name="purchaseRate" type="number" placeholder="100" />
           </div>
-          <div className={css.input}>
-            <label>{labels.purchaseDateInput}</label>
-            <input
-              className={cn({
-                [css.hasContent]: this.state.dateInputHasContent
-              })}
-              name="purchaseDate"
-              type="date"
-              onKeyPress={this.onDateInput}
-              onChange={this.onDateInput}
-            />
-          </div>
         </div>
-        <p>{labels.rateOrDateHelpText}</p>
         <button
           className={css.cancelButton}
           type="button"

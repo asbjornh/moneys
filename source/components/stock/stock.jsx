@@ -124,7 +124,6 @@ class Stock extends React.Component {
       currencies,
       currency,
       lastUpdated,
-      purchaseRate,
       purchasePrice,
       price,
       qty,
@@ -133,7 +132,8 @@ class Stock extends React.Component {
     const { slideProgress, springConfig } = this.state;
 
     const shouldConvertCurrency =
-      this.state.shouldConvertCurrency && currency !== userCurrency;
+      !this.props.purchaseRate ||
+      (this.state.shouldConvertCurrency && currency !== userCurrency);
     const convertedPrice = utils.convert(
       price,
       currency,
@@ -142,10 +142,13 @@ class Stock extends React.Component {
     );
     const absoluteDifference = shouldConvertCurrency
       ? convertedPrice * qty - purchasePrice
-      : (price - purchaseRate) * qty;
+      : (price - this.props.purchaseRate) * qty;
     const relativeDifference = shouldConvertCurrency
       ? convertedPrice * qty / purchasePrice * 100 - 100
-      : price / purchaseRate * 100 - 100;
+      : price / this.props.purchaseRate * 100 - 100;
+
+    const purchaseRate =
+      currency !== userCurrency ? this.props.purchaseRate : purchasePrice / qty;
 
     const currencySymbol = get(
       currencySymbols,
@@ -268,11 +271,12 @@ class Stock extends React.Component {
                     <div className={css.longName}>{this.props.longName}</div>
                     <div className={css.moreStuff}>
                       <span>
-                        {`${stockCurrencySymbol} ${utils.formatNumber(
-                          purchaseRate
-                        )} → ${stockCurrencySymbol} ${utils.formatNumber(
-                          price
-                        )}`}
+                        {(!purchaseRate
+                          ? ""
+                          : `${stockCurrencySymbol} ${utils.formatNumber(
+                              purchaseRate
+                            )} → `) +
+                          `${stockCurrencySymbol} ${utils.formatNumber(price)}`}
                       </span>
                       <span>
                         {`${this.props.labels.qtyLabel}: ${utils.formatNumber(

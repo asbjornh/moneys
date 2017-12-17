@@ -109,9 +109,9 @@ class Main extends React.Component {
               })
             );
           })
-          .catch(() => {
+          .catch(stockName => {
             this.setState({ isLoading: false });
-            alert(this.state.labels.main.stockNotFound);
+            alert(this.state.labels.main.stockNotFound + ` '${stockName}'`);
           });
       }, 700);
     });
@@ -244,42 +244,46 @@ class Main extends React.Component {
 
             <TinyTransition duration={1000}>
               {!!this.state.stocks.length && (
-                <SortableList
-                  className="stocks"
-                  element="table"
-                  helperClass="stock-is-sorting"
-                  lockAxis="y"
-                  onSortEnd={this.onSortEnd}
-                  shouldCancelStart={() =>
-                    this.state.isLoading || !this.state.isSorting
-                  }
-                >
-                  {this.state.stocks.map(
-                    stock =>
-                      !stock.isRealized ? (
-                        <Stock
-                          currencies={this.state.currencies}
-                          isSorting={this.state.isSorting}
-                          key={stock.id}
-                          labels={labels.stock}
-                          onDelete={this.deleteStock}
-                          onRealize={this.realizeStock}
-                          shouldConvertCurrency={this.state.shouldConvertStocks}
-                          userCurrency={this.state.userCurrency}
-                          {...stock}
-                        />
-                      ) : (
-                        <RealizedStock
-                          isSorting={this.state.isSorting}
-                          key={stock.id}
-                          labels={labels.realizedStock}
-                          onDelete={this.deleteStock}
-                          userCurrency={this.state.userCurrency}
-                          {...stock}
-                        />
-                      )
-                  )}
-                </SortableList>
+                <Collapse isOpened={true}>
+                  <SortableList
+                    className="stocks"
+                    element="table"
+                    helperClass="stock-is-sorting"
+                    lockAxis="y"
+                    onSortEnd={this.onSortEnd}
+                    shouldCancelStart={() =>
+                      this.state.isLoading || !this.state.isSorting
+                    }
+                  >
+                    {this.state.stocks.map(
+                      stock =>
+                        !stock.isRealized ? (
+                          <Stock
+                            currencies={this.state.currencies}
+                            isSorting={this.state.isSorting}
+                            key={stock.id}
+                            labels={labels.stock}
+                            onDelete={this.deleteStock}
+                            onRealize={this.realizeStock}
+                            shouldConvertCurrency={
+                              this.state.shouldConvertStocks
+                            }
+                            userCurrency={this.state.userCurrency}
+                            {...stock}
+                          />
+                        ) : (
+                          <RealizedStock
+                            isSorting={this.state.isSorting}
+                            key={stock.id}
+                            labels={labels.realizedStock}
+                            onDelete={this.deleteStock}
+                            userCurrency={this.state.userCurrency}
+                            {...stock}
+                          />
+                        )
+                    )}
+                  </SortableList>
+                </Collapse>
               )}
             </TinyTransition>
 

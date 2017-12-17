@@ -11,10 +11,7 @@
       "invalidForm": "Complete all required fields",
       "purchasePriceInput": "Total price",
       "purchaseRateInput": "Rate at purchase",
-      "purchaseDateInput": "Date of purchase",
       "qtyInput": "Quantity",
-      "rateOrDateHelpText":
-        "Add the stock rate at time of purchase if you know it or the date of purchase if you don't (less precise currency conversion)",
       "tickerInput": "Ticker",
       "typeInput": "Type",
       "typeInputStock": "Stock",
@@ -32,7 +29,7 @@
       "maxLabel": "Max"
     },
     "main": {
-      "stockNotFound": "Stock not found",
+      "stockNotFound": "Couldn't find",
       "deleteAllConfirmation": "Are you sure you want to delete all data?",
       "deleteConfirmation": "Are you sure you want to delete this?",
       "realizeStockPrompt": "Payout, total",
