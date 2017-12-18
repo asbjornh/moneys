@@ -7,7 +7,8 @@
   height: 100%;
   top: 0;
   right: -70%;
-  padding-top: 20px;
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
   padding-right: 20px;
   transition: transform 0.4s $ease-out;
 
@@ -20,6 +21,7 @@
     padding: 0;
     margin: 0;
     text-align: right;
+    padding-top: 20px;
   }
 
   li {

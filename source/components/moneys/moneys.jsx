@@ -19,6 +19,7 @@ class Moneys extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     graphData: PropTypes.array,
+    graphReady: PropTypes.bool,
     labels: PropTypes.object,
     sum: PropTypes.shape({
       total: PropTypes.number,
@@ -94,13 +95,14 @@ class Moneys extends React.Component {
         ref={div => (this.container = div)}
       >
         <TinyTransition duration={1000}>
-          {this.state.graphSize && (
-            <Graph
-              data={this.props.graphData}
-              labels={this.props.labels}
-              {...this.state.graphSize}
-            />
-          )}
+          {this.state.graphSize &&
+            this.props.graphReady && (
+              <Graph
+                data={this.props.graphData}
+                labels={this.props.labels}
+                {...this.state.graphSize}
+              />
+            )}
         </TinyTransition>
 
         <div className={css.text} ref={div => (this.textContainer = div)}>

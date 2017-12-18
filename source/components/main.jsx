@@ -35,6 +35,7 @@ class Main extends React.Component {
     currencies: get(storage.getStoredData("currencies"), "data", {}),
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
+    graphReady: false,
     hasAvailableUpdate: false,
     hasMouseScroll: true,
     isLoading: api.hasStoredStocks(),
@@ -91,6 +92,7 @@ class Main extends React.Component {
           console.log("Updated");
           this.setState(
             Object.assign({}, newState, {
+              graphReady: true,
               isLoading: false
             })
           );
@@ -236,6 +238,7 @@ class Main extends React.Component {
             {!!this.state.stocks.length && (
               <Moneys
                 graphData={this.state.graphData}
+                graphReady={this.state.graphReady}
                 labels={labels.moneys}
                 sum={this.state.sum}
                 userCurrency={this.state.userCurrency}
