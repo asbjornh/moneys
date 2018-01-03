@@ -1,4 +1,5 @@
 <?php
+	$cryptoCurrenciesUrl = "https://api.coinmarketcap.com/v1/ticker/";
 	$currencyPriceUrl = "https://api.coinbase.com/v2/prices/";
 	$currencyListUrl = "https://api.coinbase.com/v2/currencies";
 	$exchangeRatesUrl = "https://api.coinbase.com/v2/exchange-rates";

@@ -3,6 +3,7 @@
 * Add openexchangerates for currency conversion
 * Remove no-server logic
 * Limit supported intermediary currencies and user currencies to EUR, USD and NOK (control from settings file)
+* merge settings.js and config.json
 
 * Add settings.js to .gitignore and provide settings.example.js
 * safe-area padding jump on load in web app mode
