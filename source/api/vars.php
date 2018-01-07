@@ -1,7 +1,10 @@
 <?php
+	include "../config.php";
+	
 	$cryptoCurrenciesUrl = "https://api.coinmarketcap.com/v1/ticker/";
 	$currencyPriceUrl = "https://api.coinbase.com/v2/prices/";
 	$currencyListUrl = "https://api.coinbase.com/v2/currencies";
+	$currencyNameUrl = $moneysRoot . "api/getCurrencyName/";
 	$exchangeRatesUrl = "https://api.coinbase.com/v2/exchange-rates";
 	$openExchangeRatesBaseUrl = "https://openexchangerates.org/api/latest.json";
 	$stockUrl = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/";

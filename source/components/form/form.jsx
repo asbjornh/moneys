@@ -4,18 +4,14 @@ import PropTypes from "prop-types";
 import Select from "../select";
 
 import css from "./form.module.scss";
+import settings from "../../settings";
 
 class Form extends React.Component {
   static propTypes = {
-    currencies: PropTypes.object,
     labels: PropTypes.object,
     onCancelClick: PropTypes.func,
     onSubmit: PropTypes.func,
     userCurrency: PropTypes.string
-  };
-
-  static defaultProps = {
-    currencies: {}
   };
 
   state = {
@@ -54,10 +50,9 @@ class Form extends React.Component {
     const currencies = [
       { value: "", label: labels.intermediateCurrencyDefault }
     ].concat(
-      Object.keys(this.props.currencies).map(currency => ({
-        value: currency,
-        label: currency
-      }))
+      settings.intermediateCurrencies
+        .filter(currency => currency !== this.props.userCurrency)
+        .map(currency => ({ value: currency, label: currency }))
     );
 
     return (

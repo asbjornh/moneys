@@ -64,10 +64,6 @@ class Main extends React.Component {
       }
     );
 
-    api.getCurrencies().then(currencies => {
-      this.setState({ currencies });
-    });
-
     window.addEventListener("touchstart", this.onMouseWheel);
   }
 
@@ -169,7 +165,7 @@ class Main extends React.Component {
   };
 
   onCurrencySelect = currency => {
-    storage.setUserCurrency(currency);
+    storage.setUserSetting("currency", currency);
   };
 
   onLanguageSelect = language => {

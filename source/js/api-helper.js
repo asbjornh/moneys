@@ -1,7 +1,6 @@
 import get from "lodash/get";
 
 import config from "../../config.json";
-import cryptoCurrencies from "../data/cryptocurrencies.json";
 import storage from "./storage-helper";
 import utils from "./utils";
 import yahooHelper from "../js/yahoo-helper";
@@ -14,44 +13,11 @@ const headers = new Headers(
       }
 );
 
-let currencyNames = [];
-function getCurrencyNames() {
-  const storedCurrencyNames = get(
-    storage.getStoredData("currencyNames"),
-    "data",
-    []
-  );
-
-  return new Promise(resolve => {
-    if (currencyNames.length) {
-      resolve(currencyNames);
-    } else {
-      fetch(`${config.proxy}${config.currencyNamesEndpoint}`)
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error("Couldn't get currency names");
-          }
-        })
-        .then(json => {
-          currencyNames = json.data;
-          storage.storeData("currencyNames", currencyNames);
-          resolve(currencyNames);
-        })
-        .catch(e => {
-          console.log(e);
-          resolve(storedCurrencyNames);
-        });
-    }
-  });
-}
-
 function getCurrencies() {
   const storedCurrencies = storage.getStoredData("currencies");
 
   return new Promise(resolve => {
-    fetch(config.exchangeRatesEndpoint)
+    fetch(config.proxy + config.exchangeRatesEndpoint)
       .then(response => {
         if (response.ok) {
           return response.json();
@@ -99,10 +65,8 @@ function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
     }
 
     fetch(
-      config.currencySellPriceEndpoint.replace(
-        "{0}",
-        `${fromCurrency}-${toCurrency}`
-      )
+      `${config.proxy +
+        config.currencySellPriceEndpoint}?ticker=${fromCurrency}&currency=${toCurrency}`
     )
       .then(response => {
         if (response.ok) {
@@ -112,18 +76,10 @@ function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
         }
       })
       .then(json => {
-        getCurrencyNames().then(currencyNames => {
-          resolve({
-            currency: toCurrency,
-            longName: get(
-              currencyNames.find(
-                currencyName => currencyName.id === fromCurrency
-              ),
-              "name",
-              cryptoCurrencies[fromCurrency]
-            ),
-            price: parseFloat(get(json, "data.amount", 0))
-          });
+        resolve({
+          currency: get(json, "currency"),
+          longName: get(json, "longName"),
+          price: parseFloat(get(json, "price", 0))
         });
       })
       .catch(e => {
