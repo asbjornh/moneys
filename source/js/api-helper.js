@@ -161,9 +161,10 @@ function getData() {
         );
         storage.addGraphPoint(sum.difference);
         resolve({
+          currencies,
+          graphData: storage.getGraphPoints(),
           stocks: storedStocks.data,
-          sum,
-          graphData: storage.getGraphPoints()
+          sum
         });
       } else {
         Promise.all(
@@ -206,9 +207,10 @@ function getData() {
             storage.storeData("stocks", stocks);
             storage.addGraphPoint(sum.difference);
             resolve({
+              currencies,
+              graphData: storage.getGraphPoints(),
               stocks,
-              sum,
-              graphData: storage.getGraphPoints()
+              sum
             });
           })
           .catch(e => {
