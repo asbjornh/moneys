@@ -1,5 +1,6 @@
 /build
 /dist
+firebase-config.json
 config.json
 config.php
 .htaccess

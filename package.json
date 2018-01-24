@@ -46,5 +46,12 @@
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7",
     "world-currencies": "^0.0.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.4",
+    "firebase": "^4.9.0",
+    "firebase-admin": "^5.8.1",
+    "firebase-functions": "^0.8.1",
+    "node-fetch": "^1.7.3"
   }
 }

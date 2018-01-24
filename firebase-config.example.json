@@ -1,0 +1,11 @@
+{
+  "addStockUrl": "url to firebase cloud function 'add'",
+  "init": {
+    "apiKey": "api key",
+    "authDomain": "auth domain",
+    "databaseURL": "database url",
+    "projectId": "project id",
+    "storageBucket": "storage bucket",
+    "messagingSenderId": "message sender id"
+  }
+}

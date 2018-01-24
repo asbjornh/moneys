@@ -1,9 +1,95 @@
 import get from "lodash/get";
 
+import * as firebase from "firebase/app";
+import "firebase/database";
+
 import config from "../../config.json";
+import firebaseConfig from "../../firebase-config.json";
 import storage from "./storage-helper";
 import utils from "./utils";
 import yahooHelper from "../js/yahoo-helper";
+
+// yahoo uses dots in some of their ticker names, which firebase doesn't like. In firebase, keys with dots are stored with colons instead and need to be decoded.
+function decodeTicker(ticker) {
+  return ticker.replace(":", ".");
+}
+
+// Get firebase-compatible ticker name based on stock type
+function getTicker(userStock) {
+  const ticker = userStock.symbol;
+
+  if (userStock.type === "currency") {
+    const currency =
+      userStock.intermediateCurrency || storage.getUserSetting("currency");
+
+    return `${ticker}-${currency}`;
+  } else {
+    return ticker;
+  }
+}
+
+function getMissingStocks(stockData) {
+  return storage.getUserStocks().reduce((accum, userStock) => {
+    const ticker = getTicker(userStock);
+
+    if (!stockData[ticker]) {
+      accum.push(userStock);
+    }
+
+    return accum;
+  }, []);
+}
+
+function init(callback) {
+  firebase.initializeApp(firebaseConfig.init);
+
+  const ref = firebase.database().ref("tickers/");
+  ref.on("value", snapshot => {
+    let stockData = snapshot.val() || {};
+
+    // Convert object of weird firebase keys to object of ticker names
+    stockData = Object.keys(stockData).reduce((accum, ticker) => {
+      accum[decodeTicker(ticker)] = stockData[ticker];
+      return accum;
+    }, {});
+
+    console.log("data", stockData);
+
+    // Get stocks that are missing in db
+    const missingStocks = getMissingStocks(stockData);
+
+    console.log("missing", missingStocks);
+
+    // Add only one at a time, to avoid adding duplicates to database
+    if (missingStocks.length) {
+      const missingStock = missingStocks[0];
+
+      fetch(firebaseConfig.addStockUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          currency:
+            missingStock.type === "currency"
+              ? missingStock.intermediateCurrency ||
+                storage.getUserSetting("currency")
+              : null,
+          ticker: missingStock.symbol,
+          type: missingStock.type || "stock"
+        })
+      });
+    } else {
+      console.log("no missing stocks!");
+      const userStocks = storage.getUserStocks();
+
+      callback(
+        userStocks.reduce((accum, userStock) => {
+          return accum.concat(
+            Object.assign({}, userStock, stockData[getTicker(userStock)])
+          );
+        }, [])
+      );
+    }
+  });
+}
 
 const headers = new Headers(
   !config.proxy
@@ -300,5 +386,6 @@ export default {
   getCurrencies,
   getData,
   hasStoredStocks,
+  init,
   realizeStock
 };

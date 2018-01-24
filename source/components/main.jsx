@@ -49,6 +49,8 @@ class Main extends React.Component {
   };
 
   componentDidMount() {
+    // api.init(this.onNewData);
+
     if (window.applicationCache) {
       applicationCache.addEventListener("updateready", () => {
         this.setState({ hasAvailableUpdate: true });
@@ -59,7 +61,8 @@ class Main extends React.Component {
       { stocks: get(storage.getStoredData("stocks"), "data", []) },
       () => {
         setTimeout(() => {
-          this.refreshData();
+          // this.refreshData();
+          api.init(this.onNewData);
         }, 1000);
       }
     );
@@ -71,6 +74,11 @@ class Main extends React.Component {
     clearInterval(this.updateLoop);
     window.removeEventListener("touchstart", this.onMouseWheel);
   }
+
+  onNewData = newStocks => {
+    // console.log("new data", newData);
+    this.setState({ isLoading: false, stocks: newStocks });
+  };
 
   onMouseWheel = () => {
     if (this.state.hasMouseScroll) {
