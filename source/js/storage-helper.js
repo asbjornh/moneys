@@ -101,8 +101,14 @@ function insertBackupData(data) {
   window.location.reload();
 }
 
+function deleteAllData() {
+  localStorage.clear();
+  window.location.reload();
+}
+
 export default {
   addGraphPoint,
+  deleteAllData,
   getBackupData,
   getGraphPoints,
   getStoredData,

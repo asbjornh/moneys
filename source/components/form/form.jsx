@@ -11,6 +11,7 @@ class Form extends React.Component {
     labels: PropTypes.object,
     onCancelClick: PropTypes.func,
     onSubmit: PropTypes.func,
+    supportedCurrencies: PropTypes.array,
     userCurrency: PropTypes.string
   };
 
@@ -82,12 +83,19 @@ class Form extends React.Component {
         </div>
         <div className={css.formRow}>
           <div className={css.input}>
-            <label>{`${
-              this.state.investmentType === "currency"
-                ? labels.currencyInput
-                : labels.tickerInput
-            } *`}</label>
-            <input name="symbol" placeholder="AAPL" />
+            {this.state.investmentType === "currency"
+              ? [
+                  <label key="label">{`${labels.currencyInput} *`}</label>,
+                  <Select
+                    name="symbol"
+                    key="input"
+                    values={this.props.supportedCurrencies}
+                  />
+                ]
+              : [
+                  <label key="label">{`${labels.tickerInput} *`}</label>,
+                  <input name="symbol" placeholder="AAPL" key="input" />
+                ]}
           </div>
           <div className={css.input}>
             <label>{`${labels.qtyInput} *`}</label>

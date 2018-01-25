@@ -3,11 +3,30 @@ const cors = require("cors")({ origin: true });
 const functions = require("firebase-functions");
 
 const crypto = require("./crypto");
+const exchangeRates = require("./exchange-rates");
 const stock = require("./stock");
 
 admin.initializeApp(functions.config().firebase);
 
-// TODO: legg til remove-funksjon
+exports.delete = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
+    const body = JSON.parse(req.body);
+    const currency = body.currency;
+    const ticker = body.ticker;
+    const type = body.type;
+    const tickerToRemove =
+      type === "currency"
+        ? `${ticker}-${currency}`
+        : stock.encodeTicker(ticker);
+
+    admin
+      .database()
+      .ref(`/tickers/${tickerToRemove}`)
+      .remove(() => {
+        res.status(200).send("success");
+      });
+  });
+});
 
 exports.update = functions.https.onRequest((req, res) => {
   admin
@@ -32,13 +51,13 @@ exports.update = functions.https.onRequest((req, res) => {
                     if (e) {
                       reject(e);
                     } else {
-                      resolve("success");
+                      resolve();
                     }
                   });
               })
               .catch(e => {
-                reject("Failed to get crypto");
-                console.error("get crypto", e);
+                reject("Failed to get " + tickerName);
+                console.error("get stock", e);
               });
           });
         })
@@ -46,6 +65,22 @@ exports.update = functions.https.onRequest((req, res) => {
         console.error("catch all", e);
       });
     })
+    .then(() => exchangeRates.get())
+    .then(
+      exchangeRates =>
+        new Promise((resolve, reject) => {
+          admin
+            .database()
+            .ref("/exchangeRates")
+            .update(exchangeRates, e => {
+              if (e) {
+                reject(e);
+              } else {
+                resolve();
+              }
+            });
+        })
+    )
     .then(() => {
       res.status(200).send("finished");
     })

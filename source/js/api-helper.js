@@ -1,13 +1,10 @@
 import get from "lodash/get";
-
 import * as firebase from "firebase/app";
 import "firebase/database";
 
-import config from "../../config.json";
 import firebaseConfig from "../../firebase-config.json";
 import storage from "./storage-helper";
 import utils from "./utils";
-import yahooHelper from "../js/yahoo-helper";
 
 // yahoo uses dots in some of their ticker names, which firebase doesn't like. In firebase, keys with dots are stored with colons instead and need to be decoded.
 function decodeTicker(ticker) {
@@ -28,363 +25,186 @@ function getTicker(userStock) {
   }
 }
 
+// Find stocks that are present in userStocks but missing in firebase
 function getMissingStocks(stockData) {
-  return storage.getUserStocks().reduce((accum, userStock) => {
-    const ticker = getTicker(userStock);
+  return storage
+    .getUserStocks()
+    .filter(stock => !stock.isRealized)
+    .reduce((accum, userStock) => {
+      const ticker = getTicker(userStock);
 
-    if (!stockData[ticker]) {
-      accum.push(userStock);
-    }
+      if (!stockData[ticker]) {
+        accum.push(userStock);
+      }
 
-    return accum;
-  }, []);
+      return accum;
+    }, []);
 }
 
+// This is where everything happens. When adding or deleting stocks to/from firebase, the callback wil be run with the updated data.
 function init(callback) {
   firebase.initializeApp(firebaseConfig.init);
 
-  const ref = firebase.database().ref("tickers/");
-  ref.on("value", snapshot => {
-    let stockData = snapshot.val() || {};
-
-    // Convert object of weird firebase keys to object of ticker names
-    stockData = Object.keys(stockData).reduce((accum, ticker) => {
-      accum[decodeTicker(ticker)] = stockData[ticker];
-      return accum;
-    }, {});
-
-    console.log("data", stockData);
-
-    // Get stocks that are missing in db
-    const missingStocks = getMissingStocks(stockData);
-
-    console.log("missing", missingStocks);
-
-    // Add only one at a time, to avoid adding duplicates to database
-    if (missingStocks.length) {
-      const missingStock = missingStocks[0];
-
-      fetch(firebaseConfig.addStockUrl, {
-        method: "POST",
-        body: JSON.stringify({
-          currency:
-            missingStock.type === "currency"
-              ? missingStock.intermediateCurrency ||
-                storage.getUserSetting("currency")
-              : null,
-          ticker: missingStock.symbol,
-          type: missingStock.type || "stock"
-        })
-      });
-    } else {
-      console.log("no missing stocks!");
-      const userStocks = storage.getUserStocks();
-
-      callback(
-        userStocks.reduce((accum, userStock) => {
-          return accum.concat(
-            Object.assign({}, userStock, stockData[getTicker(userStock)])
-          );
-        }, [])
-      );
-    }
-  });
-}
-
-const headers = new Headers(
-  !config.proxy
-    ? {}
-    : {
-        Origin: window.location
-      }
-);
-
-function getCurrencies() {
-  const storedCurrencies = storage.getStoredData("currencies");
-
-  return new Promise(resolve => {
-    fetch(config.proxy + config.exchangeRatesEndpoint)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          resolve(storedCurrencies.data);
-        }
-      })
-      .then(currencies => {
-        if (currencies) {
-          storage.storeData("currencies", currencies.data.rates);
-          resolve(currencies.data.rates);
-        }
-      })
-      .catch(e => {
-        console.log(e);
-        resolve(storedCurrencies.data);
-      });
-  });
-}
-
-function getStock({ symbol, type, intermediateCurrency }, storedStock) {
-  if (type && type.toLowerCase() === "currency") {
-    return getCurrencySellPrice(
-      symbol,
-      intermediateCurrency || storage.getUserSetting("currency"),
-      storedStock
-    );
+  if (!navigator.onLine) {
+    const stocks = get(storage.getStoredData("stocks"), "data", []);
+    const currencies = get(storage.getStoredData("currencies"), "data", {});
+    callback({
+      currencies,
+      graphData: storage.getGraphPoints(),
+      stocks,
+      sum: utils.sumAndConvert(
+        stocks,
+        currencies,
+        storage.getUserSetting("currency")
+      )
+    });
   } else {
-    return getStockData(symbol, storedStock);
+    firebase
+      .database()
+      .ref()
+      .on("value", snapshot => {
+        const data = snapshot.val() || {};
+        let stockData = data.tickers;
+        const currencies = data.exchangeRates;
+        const supportedCurrencies = Object.keys(data.cryptoNames).reduce(
+          (accum, name) => {
+            accum.push({ value: name, label: data.cryptoNames[name] });
+            return accum;
+          },
+          []
+        );
+
+        // Convert object of weird firebase keys to object of ticker names
+        stockData = Object.keys(stockData).reduce((accum, ticker) => {
+          accum[decodeTicker(ticker)] = stockData[ticker];
+          return accum;
+        }, {});
+
+        const missingStocks = getMissingStocks(stockData);
+
+        if (missingStocks.length) {
+          // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
+          addStockToDatabase(missingStocks[0]);
+        } else {
+          const userStocks = storage.getUserStocks();
+          const stocks = userStocks.reduce((accum, userStock) => {
+            return accum.concat(
+              Object.assign({}, userStock, stockData[getTicker(userStock)])
+            );
+          }, []);
+
+          const sum = utils.sumAndConvert(
+            stocks,
+            currencies,
+            storage.getUserSetting("currency")
+          );
+
+          storage.storeData("currencies", currencies);
+          storage.storeData("stocks", stocks);
+          storage.addGraphPoint(sum.difference);
+
+          console.log("Updated!", new Date().toLocaleTimeString());
+
+          callback({
+            currencies,
+            graphData: storage.getGraphPoints(),
+            stocks,
+            supportedCurrencies,
+            sum
+          });
+        }
+      });
   }
 }
 
-function getCurrencySellPrice(fromCurrency, toCurrency, storedStock) {
-  return new Promise((resolve, reject) => {
-    function resolveWithBackup() {
-      if (storedStock) {
-        return resolve(
-          Object.assign({}, storedStock, {
-            isOutdated: true
-          })
-        );
-      } else {
-        reject("Failed to get stock data");
-      }
-    }
-
-    fetch(
-      `${config.proxy +
-        config.currencySellPriceEndpoint}?ticker=${fromCurrency}&currency=${toCurrency}`
-    )
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          resolveWithBackup();
-        }
-      })
-      .then(json => {
-        resolve({
-          currency: get(json, "currency"),
-          longName: get(json, "longName"),
-          price: parseFloat(get(json, "price", 0))
-        });
-      })
-      .catch(e => {
-        console.log(e);
-        resolveWithBackup();
-      });
-  });
+function addOrDelete(url, { intermediateCurrency, symbol, type }) {
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      currency:
+        type === "currency"
+          ? intermediateCurrency || storage.getUserSetting("currency")
+          : null,
+      ticker: symbol,
+      type: type || "stock"
+    })
+  })
+    .then(res => {
+      return res.ok;
+    })
+    .catch(e => {
+      console.log(e);
+    });
 }
 
-function getStockData(symbol, storedStock) {
-  return new Promise((resolve, reject) => {
-    function resolveWithBackup() {
-      if (storedStock) {
-        return resolve(
-          Object.assign({}, storedStock, {
-            isOutdated: true
-          })
-        );
-      } else {
-        reject("Failed to get stock data");
-      }
-    }
+function addStockToDatabase(stock) {
+  return addOrDelete(firebaseConfig.addStockUrl, stock);
+}
 
-    fetch(
-      `${config.proxy}${config.stockEndpoint.replace(
-        "{0}",
-        symbol.toUpperCase()
-      )}`,
-      { headers }
-    )
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          resolveWithBackup();
-        }
-      })
-      .then(json => {
-        const data = config.isUsingServer
-          ? Object.assign({}, json, {
-              price: parseFloat(json.price),
-              longName: json.longName.replace(/&amp;/g, "&")
-            })
-          : yahooHelper.getStockData(json);
-
-        if (data) {
-          resolve(data);
-        } else {
-          resolveWithBackup();
-        }
-      })
-      .catch(e => {
-        console.log(e);
-        resolveWithBackup();
-      });
-  });
+function deleteStockFromDatabase(stock) {
+  return addOrDelete(firebaseConfig.deleteStockUrl, stock);
 }
 
 function hasStoredStocks() {
   return !!storage.getUserStocks().length;
 }
 
-function getData() {
+function addStock(formData) {
   return new Promise((resolve, reject) => {
+    const id = String(new Date().getTime());
+    const newStock = {
+      id,
+      intermediateCurrency: formData.intermediateCurrency,
+      purchasePrice: parseFloat(formData.purchasePrice),
+      purchaseRate: parseFloat(formData.purchaseRate),
+      qty: parseFloat(formData.qty),
+      symbol: formData.symbol,
+      type: formData.type.toLowerCase()
+    };
+
+    // Add stock to user stocks list. This will be removed if the fetch fails
     const userStocks = storage.getUserStocks();
-    const storedStocks = storage.getStoredData("stocks");
+    storage.setUserStocks(userStocks.concat(newStock));
 
-    getCurrencies().then(currencies => {
-      if (
-        storedStocks &&
-        !storedStocks.isOutdated &&
-        storedStocks.data &&
-        storedStocks.data.length >= userStocks.length
-      ) {
-        const sum = utils.sumAndConvert(
-          storedStocks.data,
-          currencies,
-          storage.getUserSetting("currency")
-        );
-        storage.addGraphPoint(sum.difference);
-        resolve({
-          currencies,
-          graphData: storage.getGraphPoints(),
-          stocks: storedStocks.data,
-          sum
-        });
+    addStockToDatabase(newStock).then(success => {
+      if (success) {
+        resolve();
       } else {
-        Promise.all(
-          userStocks.map(stock => {
-            if (!stock.isRealized) {
-              return getStock(
-                stock,
-                get(storedStocks, "data", []).find(
-                  storedStock => storedStock.id === stock.id
-                )
-              );
-            } else {
-              return new Promise(resolve => {
-                resolve(stock);
-              });
-            }
-          })
-        )
-          .then(stockData => {
-            // Merge userStocks data and stockData
-            const stocks = userStocks.map((stock, index) => {
-              const isOutdated = get(stockData, `[${index}].isOutdated`, false);
-              return Object.assign(
-                {},
-                stock,
-                stockData[index],
-                isOutdated
-                  ? {}
-                  : {
-                      lastUpdated: new Date().getTime()
-                    }
-              );
-            });
-
-            const sum = utils.sumAndConvert(
-              stocks,
-              currencies,
-              storage.getUserSetting("currency")
-            );
-            storage.storeData("stocks", stocks);
-            storage.addGraphPoint(sum.difference);
-            resolve({
-              currencies,
-              graphData: storage.getGraphPoints(),
-              stocks,
-              sum
-            });
-          })
-          .catch(e => {
-            console.log(e);
-            reject("Failed to get new stock data");
-          });
+        deleteStock(id);
+        reject(newStock.symbol);
       }
     });
   });
 }
 
-function addStock(formData) {
-  return new Promise((resolve, reject) => {
-    // Try to fetch stock from API. Reject promise if no stock was found
-    getStock(formData)
-      .then(() => {
-        const newStock = {
-          id: String(new Date().getTime()),
-          intermediateCurrency: formData.intermediateCurrency,
-          purchasePrice: parseFloat(formData.purchasePrice),
-          purchaseRate: parseFloat(formData.purchaseRate),
-          qty: parseFloat(formData.qty),
-          symbol: formData.symbol,
-          type: formData.type.toLowerCase()
-        };
-
-        const userStocks = storage.getUserStocks();
-        storage.setUserStocks(userStocks.concat(newStock));
-
-        getData()
-          .then(({ stocks, sum, graphData }) => {
-            resolve({
-              stocks,
-              sum,
-              graphData
-            });
-          })
-          .catch(e => {
-            console.log(e);
-            reject("Failed to get new stock data");
-          });
-      })
-      .catch(e => {
-        console.log(e);
-        reject(formData.symbol);
-      });
-  });
-}
-
 function deleteStock(id) {
-  return new Promise(resolve => {
-    const userStocks = storage.getUserStocks();
-    storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
-    const stocks = storage.getStoredData("stocks");
-    storage.storeData("stocks", stocks.data.filter(stock => stock.id !== id));
+  const userStocks = storage.getUserStocks();
+  const stockToBeDeleted = userStocks.find(stock => stock.id === id);
+  deleteStockFromDatabase(stockToBeDeleted);
 
-    getData().then(({ stocks, sum, graphData }) => {
-      resolve({ stocks, sum, graphData });
-    });
-  });
+  storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
+
+  const stocks = storage.getStoredData("stocks");
+  storage.storeData("stocks", stocks.data.filter(stock => stock.id !== id));
+
+  if (stockToBeDeleted.isRealized) {
+    window.location.reload();
+  }
 }
 
 function realizeStock(id, sellPrice) {
-  return new Promise(resolve => {
-    const userStocks = storage.getUserStocks();
-    const realizedStock = userStocks.find(stock => stock.id === id);
-    realizedStock.isRealized = true;
-    realizedStock.sellPrice = sellPrice;
-    realizedStock.sellDate = new Date().getTime();
-    storage.setUserStocks(userStocks);
-
-    getData().then(({ stocks, sum, graphData }) => {
-      resolve({ stocks, sum, graphData });
-    });
-  });
-}
-
-function deleteAllData() {
-  localStorage.clear();
-  window.location.reload();
+  const userStocks = storage.getUserStocks();
+  const realizedStock = userStocks.find(stock => stock.id === id);
+  realizedStock.isRealized = true;
+  realizedStock.sellPrice = sellPrice;
+  realizedStock.sellDate = new Date().getTime();
+  storage.setUserStocks(userStocks);
+  deleteStockFromDatabase(realizedStock);
 }
 
 export default {
   addStock,
-  deleteAllData,
   deleteStock,
-  getCurrencies,
-  getData,
   hasStoredStocks,
   init,
   realizeStock

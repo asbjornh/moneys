@@ -1,5 +1,6 @@
 {
   "addStockUrl": "url to firebase cloud function 'add'",
+  "deleteStockUrl": "url to firebase cloud function 'delete'",
   "init": {
     "apiKey": "api key",
     "authDomain": "auth domain",

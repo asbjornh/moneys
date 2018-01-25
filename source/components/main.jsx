@@ -7,7 +7,6 @@ import get from "lodash/get";
 
 import api from "../js/api-helper";
 import languages from "../data/languages";
-import settings from "../settings";
 import storage from "../js/storage-helper";
 
 import Form from "./form";
@@ -44,13 +43,12 @@ class Main extends React.Component {
     languages: languages.map(({ id, name }) => ({ id, name })),
     shouldConvertStocks: storage.getUserSetting("shouldConvertStocks"),
     stocks: [],
+    supportedCurrencies: [],
     userCurrency: storage.getUserSetting("currency"),
     userLanguage: storage.getUserSetting("language")
   };
 
   componentDidMount() {
-    // api.init(this.onNewData);
-
     if (window.applicationCache) {
       applicationCache.addEventListener("updateready", () => {
         this.setState({ hasAvailableUpdate: true });
@@ -61,9 +59,8 @@ class Main extends React.Component {
       { stocks: get(storage.getStoredData("stocks"), "data", []) },
       () => {
         setTimeout(() => {
-          // this.refreshData();
           api.init(this.onNewData);
-        }, 1000);
+        }, 500);
       }
     );
 
@@ -75,9 +72,8 @@ class Main extends React.Component {
     window.removeEventListener("touchstart", this.onMouseWheel);
   }
 
-  onNewData = newStocks => {
-    // console.log("new data", newData);
-    this.setState({ isLoading: false, stocks: newStocks });
+  onNewData = newState => {
+    this.setState({ ...newState, graphReady: true, isLoading: false });
   };
 
   onMouseWheel = () => {
@@ -86,46 +82,17 @@ class Main extends React.Component {
     }
   };
 
-  refreshData = () => {
-    this.updateLoop = setTimeout(this.refreshData, settings.updateInterval);
-    console.log("Updating");
-    this.setState({ isLoading: true }, () => {
-      api
-        .getData()
-        .then(newState => {
-          console.log("Updated");
-          this.setState(
-            Object.assign({}, newState, {
-              graphReady: true,
-              isLoading: false
-            })
-          );
-        })
-        .catch(e => {
-          this.setState({ isLoading: false });
-          console.log(e);
-        });
-    });
-  };
-
   addStock = formData => {
     this.setState({ formIsVisible: false, isLoading: true }, () => {
-      // Delay api call because flipMove doesn't do interrupts well
-      setTimeout(() => {
-        api
-          .addStock(formData)
-          .then(newState => {
-            this.setState(
-              Object.assign({}, newState, {
-                isLoading: false
-              })
-            );
-          })
-          .catch(stockName => {
-            this.setState({ isLoading: false });
-            alert(this.state.labels.main.stockNotFound + ` '${stockName}'`);
-          });
-      }, 700);
+      api
+        .addStock(formData)
+        .then(() => {
+          this.setState({ isLoading: false });
+        })
+        .catch(stockName => {
+          this.setState({ isLoading: false });
+          alert(this.state.labels.main.stockNotFound + ` '${stockName}'`);
+        });
     });
   };
 
@@ -148,9 +115,7 @@ class Main extends React.Component {
     );
 
     if (id && sellPrice && sellPrice.search(",") === -1) {
-      api.realizeStock(id, parseFloat(sellPrice)).then(newState => {
-        this.setState(newState);
-      });
+      api.realizeStock(id, parseFloat(sellPrice));
     } else if (!id) {
       alert(this.state.labels.main.realizeStockFailedId);
     } else {
@@ -160,15 +125,13 @@ class Main extends React.Component {
 
   deleteStock = id => {
     if (confirm(this.state.labels.main.deleteConfirmation)) {
-      api.deleteStock(id).then(newState => {
-        this.setState(newState);
-      });
+      api.deleteStock(id);
     }
   };
 
   deleteAllData = () => {
     if (confirm(this.state.labels.main.deleteAllConfirmation)) {
-      api.deleteAllData();
+      storage.deleteAllData();
     }
   };
 
@@ -301,6 +264,7 @@ class Main extends React.Component {
                 labels={labels.form}
                 onSubmit={this.addStock}
                 onCancelClick={this.hideForm}
+                supportedCurrencies={this.state.supportedCurrencies}
                 userCurrency={this.state.userCurrency}
               />
             </Collapse>

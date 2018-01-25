@@ -48,6 +48,7 @@
     "world-currencies": "^0.0.6"
   },
   "dependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "cors": "^2.8.4",
     "firebase": "^4.9.0",
     "firebase-admin": "^5.8.1",

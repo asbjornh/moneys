@@ -7,9 +7,15 @@ function encodeTicker(ticker) {
   return ticker.replace(".", ":");
 }
 
+function decodeTicker(ticker) {
+  return ticker.replace(":", ".");
+}
+
 function getStock(ticker) {
   return fetch(
-    `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?formatted=false&modules=price`
+    `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${decodeTicker(
+      ticker
+    )}?formatted=false&modules=price`
   )
     .then(res => {
       return res.json();
@@ -51,5 +57,7 @@ function add(ticker) {
   });
 }
 
+exports.decodeTicker = decodeTicker;
+exports.encodeTicker = encodeTicker;
 exports.get = getStock;
 exports.add = add;
