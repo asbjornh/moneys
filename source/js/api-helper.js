@@ -43,7 +43,65 @@ function getMissingStocks(stockData) {
 
 // This is where everything happens. When adding or deleting stocks to/from firebase, the callback wil be run with the updated data.
 function init(callback) {
+  const db = {};
   firebase.initializeApp(firebaseConfig.init);
+
+  function resolve() {
+    console.log(db);
+    if (db.exchangeRates && db.stocks && db.currencies && db.cryptoNames) {
+      const supportedCurrencies = Object.keys(db.cryptoNames).reduce(
+        (accum, name) => {
+          accum.push({ value: name, label: db.cryptoNames[name] });
+          return accum;
+        },
+        []
+      );
+
+      let stockData = { ...db.stocks, ...db.currencies };
+
+      // Decode stock ticker names
+      stockData = Object.keys(stockData).reduce((accum, ticker) => {
+        accum[decodeTicker(ticker)] = stockData[ticker];
+        return accum;
+      }, {});
+
+      const missingStocks = getMissingStocks(stockData);
+
+      if (missingStocks.length) {
+        // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
+        addStockToDatabase(missingStocks[0]);
+      } else {
+        const userStocks = storage.getUserStocks();
+        const stocks = userStocks.reduce((accum, userStock) => {
+          return accum.concat(
+            Object.assign({}, userStock, stockData[getTicker(userStock)])
+          );
+        }, []);
+
+        const sum = utils.sumAndConvert(
+          stocks,
+          db.exchangeRates,
+          storage.getUserSetting("currency")
+        );
+
+        storage.storeData("currencies", db.exchangeRates);
+        storage.storeData("stocks", stocks);
+        storage.addGraphPoint(sum.difference);
+
+        console.log("Updated!", new Date().toLocaleTimeString());
+
+        callback({
+          currencies: db.exchangeRates,
+          graphData: storage.getGraphPoints(),
+          stocks,
+          supportedCurrencies,
+          sum
+        });
+      }
+    } else {
+      console.log("missing data");
+    }
+  }
 
   if (!navigator.onLine) {
     const stocks = get(storage.getStoredData("stocks"), "data", []);
@@ -61,59 +119,94 @@ function init(callback) {
   } else {
     firebase
       .database()
-      .ref()
+      .ref("tickers")
+      .orderByChild("type")
+      .equalTo("currency")
       .on("value", snapshot => {
-        const data = snapshot.val() || {};
-        let stockData = data.tickers;
-        const currencies = data.exchangeRates;
-        const supportedCurrencies = Object.keys(data.cryptoNames).reduce(
-          (accum, name) => {
-            accum.push({ value: name, label: data.cryptoNames[name] });
-            return accum;
-          },
-          []
-        );
-
-        // Convert object of weird firebase keys to object of ticker names
-        stockData = Object.keys(stockData).reduce((accum, ticker) => {
-          accum[decodeTicker(ticker)] = stockData[ticker];
-          return accum;
-        }, {});
-
-        const missingStocks = getMissingStocks(stockData);
-
-        if (missingStocks.length) {
-          // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
-          addStockToDatabase(missingStocks[0]);
-        } else {
-          const userStocks = storage.getUserStocks();
-          const stocks = userStocks.reduce((accum, userStock) => {
-            return accum.concat(
-              Object.assign({}, userStock, stockData[getTicker(userStock)])
-            );
-          }, []);
-
-          const sum = utils.sumAndConvert(
-            stocks,
-            currencies,
-            storage.getUserSetting("currency")
-          );
-
-          storage.storeData("currencies", currencies);
-          storage.storeData("stocks", stocks);
-          storage.addGraphPoint(sum.difference);
-
-          console.log("Updated!", new Date().toLocaleTimeString());
-
-          callback({
-            currencies,
-            graphData: storage.getGraphPoints(),
-            stocks,
-            supportedCurrencies,
-            sum
-          });
-        }
+        db.currencies = snapshot.val();
+        resolve();
       });
+
+    firebase
+      .database()
+      .ref("tickers")
+      .orderByChild("type")
+      .equalTo("stock")
+      .on("value", snapshot => {
+        db.stocks = snapshot.val();
+        resolve();
+      });
+
+    firebase
+      .database()
+      .ref("exchangeRates")
+      .on("value", snapshot => {
+        db.exchangeRates = snapshot.val();
+        resolve();
+      });
+
+    firebase
+      .database()
+      .ref("cryptoNames")
+      .once("value", snapshot => {
+        db.cryptoNames = snapshot.val();
+        resolve();
+      });
+    // firebase
+    //   .database()
+    //   .ref()
+    //   .on("value", snapshot => {
+    //     const data = snapshot.val() || {};
+    //     let stockData = data.tickers;
+    //     const currencies = data.exchangeRates;
+    //     const supportedCurrencies = Object.keys(data.cryptoNames).reduce(
+    //       (accum, name) => {
+    //         accum.push({ value: name, label: data.cryptoNames[name] });
+    //         return accum;
+    //       },
+    //       []
+    //     );
+
+    //     // Decode stock ticker names
+    //     stockData = Object.keys(stockData).reduce((accum, ticker) => {
+    //       accum[decodeTicker(ticker)] = stockData[ticker];
+    //       return accum;
+    //     }, {});
+
+    //     const missingStocks = getMissingStocks(stockData);
+
+    //     if (missingStocks.length) {
+    //       // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
+    //       addStockToDatabase(missingStocks[0]);
+    //     } else {
+    //       const userStocks = storage.getUserStocks();
+    //       const stocks = userStocks.reduce((accum, userStock) => {
+    //         return accum.concat(
+    //           Object.assign({}, userStock, stockData[getTicker(userStock)])
+    //         );
+    //       }, []);
+
+    //       const sum = utils.sumAndConvert(
+    //         stocks,
+    //         currencies,
+    //         storage.getUserSetting("currency")
+    //       );
+
+    //       storage.storeData("currencies", currencies);
+    //       storage.storeData("stocks", stocks);
+    //       storage.addGraphPoint(sum.difference);
+
+    //       console.log("Updated!", new Date().toLocaleTimeString());
+
+    //       callback({
+    //         currencies,
+    //         graphData: storage.getGraphPoints(),
+    //         stocks,
+    //         supportedCurrencies,
+    //         sum
+    //       });
+    //     }
+    //   });
   }
 }
 

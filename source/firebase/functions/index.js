@@ -8,64 +8,65 @@ const stock = require("./stock");
 
 admin.initializeApp(functions.config().firebase);
 
-exports.delete = functions.https.onRequest((req, res) => {
-  cors(req, res, () => {
-    const body = JSON.parse(req.body);
-    const currency = body.currency;
-    const ticker = body.ticker;
-    const type = body.type;
-    const tickerToRemove =
-      type === "currency"
-        ? `${ticker}-${currency}`
-        : stock.encodeTicker(ticker);
+exports.updateTickers = functions.https.onRequest((req, res) => {
+  const type = req.query.type;
 
+  if (!type) {
+    res.status(500).send("Bad request");
+  } else {
     admin
       .database()
-      .ref(`/tickers/${tickerToRemove}`)
-      .remove(() => {
-        res.status(200).send("success");
+      .ref("/tickers")
+      .orderByChild("type")
+      .equalTo(type)
+      .once("value")
+      .then(snapshot => {
+        const tickers = snapshot.val();
+
+        return Promise.all(
+          Object.keys(tickers).forEach(tickerName => {
+            return new Promise((resolve, reject) => {
+              const getter =
+                tickers[tickerName].type === "currency"
+                  ? crypto.get
+                  : stock.get;
+
+              getter(tickerName)
+                .then(data => {
+                  admin
+                    .database()
+                    .ref(`/tickers/${tickerName}`)
+                    .update(data, e => {
+                      if (e) {
+                        reject(e);
+                      } else {
+                        resolve();
+                      }
+                    });
+                })
+                .catch(e => {
+                  reject("Failed to get " + tickerName);
+                  console.error("get stock", e);
+                });
+            });
+          })
+        ).catch(e => {
+          console.warn("Ignore this?", e);
+        });
+      })
+      .then(() => {
+        res.status(200).send("finished");
+      })
+      .catch(e => {
+        console.error(e);
+        res.status(500).send("fail");
       });
-  });
+  }
 });
 
-exports.update = functions.https.onRequest((req, res) => {
-  admin
-    .database()
-    .ref("/tickers")
-    .once("value")
-    .then(snapshot => {
-      const tickers = snapshot.val();
-
-      return Promise.all(
-        Object.keys(tickers).forEach(tickerName => {
-          return new Promise((resolve, reject) => {
-            const getter =
-              tickers[tickerName].type === "currency" ? crypto.get : stock.get;
-
-            getter(tickerName)
-              .then(data => {
-                admin
-                  .database()
-                  .ref(`/tickers/${tickerName}`)
-                  .update(data, e => {
-                    if (e) {
-                      reject(e);
-                    } else {
-                      resolve();
-                    }
-                  });
-              })
-              .catch(e => {
-                reject("Failed to get " + tickerName);
-                console.error("get stock", e);
-              });
-          });
-        })
-      ).catch(e => {
-        console.error("catch all", e);
-      });
-    })
-    .then(() => exchangeRates.get())
+exports.updateExchangeRates = functions.https.onRequest((req, res) => {
+  exchangeRates
+    .get()
     .then(
       exchangeRates =>
         new Promise((resolve, reject) => {
@@ -120,5 +121,25 @@ exports.add = functions.https.onRequest((req, res) => {
     } else {
       res.status(500).send("missing data");
     }
+  });
+});
+
+exports.delete = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
+    const body = JSON.parse(req.body);
+    const currency = body.currency;
+    const ticker = body.ticker;
+    const type = body.type;
+    const tickerToRemove =
+      type === "currency"
+        ? `${ticker}-${currency}`
+        : stock.encodeTicker(ticker);
+
+    admin
+      .database()
+      .ref(`/tickers/${tickerToRemove}`)
+      .remove(() => {
+        res.status(200).send("success");
+      });
   });
 });
