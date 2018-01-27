@@ -47,7 +47,6 @@ function init(callback) {
   firebase.initializeApp(firebaseConfig.init);
 
   function resolve() {
-    console.log(db);
     if (db.exchangeRates && db.stocks && db.currencies && db.cryptoNames) {
       const supportedCurrencies = Object.keys(db.cryptoNames).reduce(
         (accum, name) => {
@@ -84,35 +83,37 @@ function init(callback) {
           storage.getUserSetting("currency")
         );
 
-        storage.storeData("currencies", db.exchangeRates);
+        storage.storeData("exchangeRates", db.exchangeRates);
         storage.storeData("stocks", stocks);
         storage.addGraphPoint(sum.difference);
 
         console.log("Updated!", new Date().toLocaleTimeString());
 
         callback({
-          currencies: db.exchangeRates,
+          exchangeRates: db.exchangeRates,
           graphData: storage.getGraphPoints(),
           stocks,
           supportedCurrencies,
           sum
         });
       }
-    } else {
-      console.log("missing data");
     }
   }
 
   if (!navigator.onLine) {
     const stocks = get(storage.getStoredData("stocks"), "data", []);
-    const currencies = get(storage.getStoredData("currencies"), "data", {});
+    const exchangeRates = get(
+      storage.getStoredData("exchangeRates"),
+      "data",
+      {}
+    );
     callback({
-      currencies,
+      exchangeRates,
       graphData: storage.getGraphPoints(),
       stocks,
       sum: utils.sumAndConvert(
         stocks,
-        currencies,
+        exchangeRates,
         storage.getUserSetting("currency")
       )
     });
@@ -123,7 +124,7 @@ function init(callback) {
       .orderByChild("type")
       .equalTo("currency")
       .on("value", snapshot => {
-        db.currencies = snapshot.val();
+        db.currencies = snapshot.val() || {};
         resolve();
       });
 
@@ -133,7 +134,7 @@ function init(callback) {
       .orderByChild("type")
       .equalTo("stock")
       .on("value", snapshot => {
-        db.stocks = snapshot.val();
+        db.stocks = snapshot.val() || {};
         resolve();
       });
 
@@ -158,7 +159,7 @@ function init(callback) {
     //   .on("value", snapshot => {
     //     const data = snapshot.val() || {};
     //     let stockData = data.tickers;
-    //     const currencies = data.exchangeRates;
+    //     const exchangeRates = data.exchangeRates;
     //     const supportedCurrencies = Object.keys(data.cryptoNames).reduce(
     //       (accum, name) => {
     //         accum.push({ value: name, label: data.cryptoNames[name] });
@@ -188,18 +189,18 @@ function init(callback) {
 
     //       const sum = utils.sumAndConvert(
     //         stocks,
-    //         currencies,
+    //         exchangeRates,
     //         storage.getUserSetting("currency")
     //       );
 
-    //       storage.storeData("currencies", currencies);
+    //       storage.storeData("exchangeRates", exchangeRates);
     //       storage.storeData("stocks", stocks);
     //       storage.addGraphPoint(sum.difference);
 
     //       console.log("Updated!", new Date().toLocaleTimeString());
 
     //       callback({
-    //         currencies,
+    //         exchangeRates,
     //         graphData: storage.getGraphPoints(),
     //         stocks,
     //         supportedCurrencies,

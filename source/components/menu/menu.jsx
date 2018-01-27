@@ -21,7 +21,7 @@ const onFileUpload = content => {
 };
 
 const Menu = ({
-  currencies,
+  exchangeRates,
   deleteAllData,
   isVisible,
   labels,
@@ -55,14 +55,14 @@ const Menu = ({
         />
       </li>
       <li>
-        {currencies && (
+        {exchangeRates && (
           <Select
             confirmationMessage={labels.currencyConfirmationMessage}
             defaultValue={userCurrency}
             label={labels.currencySelect}
             onChange={onCurrencySelect}
             requireConfirmation={true}
-            values={Object.keys(currencies).map(currency => ({
+            values={Object.keys(exchangeRates).map(currency => ({
               label: currency,
               value: currency
             }))}
@@ -91,7 +91,7 @@ const Menu = ({
 );
 
 Menu.propTypes = {
-  currencies: PropTypes.object,
+  exchangeRates: PropTypes.object,
   deleteAllData: PropTypes.func,
   isVisible: PropTypes.bool,
   labels: PropTypes.object,

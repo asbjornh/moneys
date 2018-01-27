@@ -1,9 +1,9 @@
-function convert(value, fromCurrency, toCurrency, currencies) {
-  const baseValue = value / currencies[fromCurrency]; // convert to base value
-  return baseValue * currencies[toCurrency]; // convert to output currency
+function convert(value, fromCurrency, toCurrency, exchangeRates) {
+  const baseValue = value / exchangeRates[fromCurrency]; // convert to base value
+  return baseValue * exchangeRates[toCurrency]; // convert to output currency
 }
 
-function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
+function sumAndConvert(stocks, exchangeRates, outputCurrency = "NOK") {
   const realizedSum = stocks.reduce((accum, stock) => {
     return stock.isRealized
       ? accum + stock.sellPrice - stock.purchasePrice
@@ -20,7 +20,7 @@ function sumAndConvert(stocks, currencies, outputCurrency = "NOK") {
           currentPrice,
           stock.currency,
           outputCurrency,
-          currencies
+          exchangeRates
         );
         const difference = convertedCurrentPrice - stock.purchasePrice;
 

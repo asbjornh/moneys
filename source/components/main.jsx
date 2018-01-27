@@ -31,7 +31,7 @@ const getLanguageLabels = langId => {
 
 class Main extends React.Component {
   state = {
-    currencies: get(storage.getStoredData("currencies"), "data", {}),
+    exchangeRates: get(storage.getStoredData("exchangeRates"), "data", {}),
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
     graphReady: false,
@@ -175,7 +175,7 @@ class Main extends React.Component {
     return (
       <NoScrollbar>
         <Menu
-          currencies={this.state.currencies}
+          exchangeRates={this.state.exchangeRates}
           deleteAllData={this.deleteAllData}
           isVisible={this.state.menuIsVisible}
           labels={labels.menu}
@@ -231,7 +231,7 @@ class Main extends React.Component {
                     stock =>
                       !stock.isRealized ? (
                         <Stock
-                          currencies={this.state.currencies}
+                          exchangeRates={this.state.exchangeRates}
                           isSorting={this.state.isSorting}
                           key={stock.id}
                           labels={labels.stock}
@@ -260,7 +260,7 @@ class Main extends React.Component {
           <div className="form-container">
             <Collapse isOpened={this.state.formIsVisible}>
               <Form
-                currencies={this.state.currencies}
+                exchangeRates={this.state.exchangeRates}
                 labels={labels.form}
                 onSubmit={this.addStock}
                 onCancelClick={this.hideForm}

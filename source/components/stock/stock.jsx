@@ -15,7 +15,7 @@ import StaticContainer from "../static-container";
 
 class Stock extends React.Component {
   static propTypes = {
-    currencies: PropTypes.object,
+    exchangeRates: PropTypes.object,
     currency: PropTypes.string,
     id: PropTypes.string.isRequired,
     isOutdated: PropTypes.bool,
@@ -133,7 +133,7 @@ class Stock extends React.Component {
 
   render() {
     const {
-      currencies,
+      exchangeRates,
       currency,
       lastUpdated,
       purchasePrice,
@@ -150,7 +150,7 @@ class Stock extends React.Component {
       price,
       currency,
       userCurrency,
-      currencies
+      exchangeRates
     );
     const absoluteDifference = shouldConvertCurrency
       ? convertedPrice * qty - purchasePrice

@@ -48,7 +48,7 @@ class Form extends React.Component {
 
   render() {
     const labels = this.props.labels;
-    const currencies = [
+    const exchangeRates = [
       { value: "", label: labels.intermediateCurrencyDefault }
     ].concat(
       settings.intermediateCurrencies
@@ -76,7 +76,7 @@ class Form extends React.Component {
               <Select
                 name="intermediateCurrency"
                 key="select"
-                values={currencies}
+                values={exchangeRates}
               />
             ]}
           </div>
