@@ -1,3 +1,40 @@
+// Converts minutes to milliseconds
+function minutesToMs(minutes) {
+  return minutes * 60 * 1000;
+}
+
+// Converts hours to milliseconds
+function hoursToMs(hours) {
+  return minutesToMs(hours * 60);
+}
+
+function inRange(val, min, max) {
+  return val >= min && val <= max;
+}
+
+function stockIsOutdated(lastUpdated) {
+  const hour = new Date().getHours();
+  const day = new Date().getDay(); // Sunday is 0
+
+  if (inRange(day, 0, 1) || !inRange(hour, 8, 18)) {
+    return false;
+  } else {
+    return new Date().getTime - lastUpdated > hoursToMs(2) + minutesToMs(1);
+  }
+}
+
+function currencyIsOutdated(lastUpdated) {
+  const hour = new Date().getHours();
+
+  if (inRange(hour, 2, 5)) {
+    return false;
+  } else if (!inRange(hour, 9, 18)) {
+    return new Date.getTime() - lastUpdated > minutesToMs(31);
+  } else {
+    return new Date().getTime() - lastUpdated > minutesToMs(11);
+  }
+}
+
 function convert(value, fromCurrency, toCurrency, exchangeRates) {
   const baseValue = value / exchangeRates[fromCurrency]; // convert to base value
   return baseValue * exchangeRates[toCurrency]; // convert to output currency
@@ -89,7 +126,11 @@ function clamp(value, min, max) {
 export default {
   clamp,
   convert,
+  currencyIsOutdated,
   formatNumber,
+  hoursToMs,
+  minutesToMs,
   rangeMap,
+  stockIsOutdated,
   sumAndConvert
 };

@@ -1,4 +1,3 @@
-import get from "lodash/get";
 import * as firebase from "firebase/app";
 import "firebase/database";
 
@@ -87,8 +86,6 @@ function init(callback) {
         storage.storeData("stocks", stocks);
         storage.addGraphPoint(sum.difference);
 
-        console.log("Updated!", new Date().toLocaleTimeString());
-
         callback({
           exchangeRates: db.exchangeRates,
           graphData: storage.getGraphPoints(),
@@ -101,12 +98,9 @@ function init(callback) {
   }
 
   if (!navigator.onLine) {
-    const stocks = get(storage.getStoredData("stocks"), "data", []);
-    const exchangeRates = get(
-      storage.getStoredData("exchangeRates"),
-      "data",
-      {}
-    );
+    // Resolve with data from localStorage
+    const stocks = storage.getStoredData("stocks", []);
+    const exchangeRates = storage.getStoredData("exchangeRates", []);
     callback({
       exchangeRates,
       graphData: storage.getGraphPoints(),
@@ -118,12 +112,14 @@ function init(callback) {
       )
     });
   } else {
+    // Attach to firebase
     firebase
       .database()
       .ref("tickers")
       .orderByChild("type")
       .equalTo("currency")
       .on("value", snapshot => {
+        console.log(new Date().toLocaleTimeString(), "Got currencies");
         db.currencies = snapshot.val() || {};
         resolve();
       });
@@ -134,6 +130,7 @@ function init(callback) {
       .orderByChild("type")
       .equalTo("stock")
       .on("value", snapshot => {
+        console.log(new Date().toLocaleTimeString(), "Got stocks");
         db.stocks = snapshot.val() || {};
         resolve();
       });
@@ -142,6 +139,7 @@ function init(callback) {
       .database()
       .ref("exchangeRates")
       .on("value", snapshot => {
+        console.log(new Date().toLocaleTimeString(), "Got exchange rates");
         db.exchangeRates = snapshot.val();
         resolve();
       });
@@ -153,61 +151,6 @@ function init(callback) {
         db.cryptoNames = snapshot.val();
         resolve();
       });
-    // firebase
-    //   .database()
-    //   .ref()
-    //   .on("value", snapshot => {
-    //     const data = snapshot.val() || {};
-    //     let stockData = data.tickers;
-    //     const exchangeRates = data.exchangeRates;
-    //     const supportedCurrencies = Object.keys(data.cryptoNames).reduce(
-    //       (accum, name) => {
-    //         accum.push({ value: name, label: data.cryptoNames[name] });
-    //         return accum;
-    //       },
-    //       []
-    //     );
-
-    //     // Decode stock ticker names
-    //     stockData = Object.keys(stockData).reduce((accum, ticker) => {
-    //       accum[decodeTicker(ticker)] = stockData[ticker];
-    //       return accum;
-    //     }, {});
-
-    //     const missingStocks = getMissingStocks(stockData);
-
-    //     if (missingStocks.length) {
-    //       // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
-    //       addStockToDatabase(missingStocks[0]);
-    //     } else {
-    //       const userStocks = storage.getUserStocks();
-    //       const stocks = userStocks.reduce((accum, userStock) => {
-    //         return accum.concat(
-    //           Object.assign({}, userStock, stockData[getTicker(userStock)])
-    //         );
-    //       }, []);
-
-    //       const sum = utils.sumAndConvert(
-    //         stocks,
-    //         exchangeRates,
-    //         storage.getUserSetting("currency")
-    //       );
-
-    //       storage.storeData("exchangeRates", exchangeRates);
-    //       storage.storeData("stocks", stocks);
-    //       storage.addGraphPoint(sum.difference);
-
-    //       console.log("Updated!", new Date().toLocaleTimeString());
-
-    //       callback({
-    //         exchangeRates,
-    //         graphData: storage.getGraphPoints(),
-    //         stocks,
-    //         supportedCurrencies,
-    //         sum
-    //       });
-    //     }
-    //   });
   }
 }
 
@@ -237,10 +180,6 @@ function addStockToDatabase(stock) {
 
 function deleteStockFromDatabase(stock) {
   return addOrDelete(firebaseConfig.deleteStockUrl, stock);
-}
-
-function hasStoredStocks() {
-  return !!storage.getUserStocks().length;
 }
 
 function addStock(formData) {
@@ -278,8 +217,8 @@ function deleteStock(id) {
 
   storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
 
-  const stocks = storage.getStoredData("stocks");
-  storage.storeData("stocks", stocks.data.filter(stock => stock.id !== id));
+  const stocks = storage.getStoredData("stocks", []);
+  storage.storeData("stocks", stocks.filter(stock => stock.id !== id));
 
   if (stockToBeDeleted.isRealized) {
     window.location.reload();
@@ -299,7 +238,6 @@ function realizeStock(id, sellPrice) {
 export default {
   addStock,
   deleteStock,
-  hasStoredStocks,
   init,
   realizeStock
 };

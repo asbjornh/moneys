@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Select from "../select";
 
 import css from "./form.module.scss";
-import settings from "../../settings";
+import settings from "../../../settings";
 
 class Form extends React.Component {
   static propTypes = {

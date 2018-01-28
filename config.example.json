@@ -1,8 +1,0 @@
-{
-  "userDefaults": {
-    "currency": "USD",
-    "language": "english",
-    "shouldConvertStocks": false,
-    "graphInitialDaysToShow": 7
-  }
-}

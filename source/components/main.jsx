@@ -3,7 +3,6 @@ import React from "react";
 import { arrayMove } from "react-sortable-hoc";
 import cn from "classnames";
 import { UnmountClosed as Collapse } from "react-collapse";
-import get from "lodash/get";
 
 import api from "../js/api-helper";
 import languages from "../data/languages";
@@ -31,13 +30,13 @@ const getLanguageLabels = langId => {
 
 class Main extends React.Component {
   state = {
-    exchangeRates: get(storage.getStoredData("exchangeRates"), "data", {}),
+    exchangeRates: storage.getStoredData("exchangeRates", {}),
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
     graphReady: false,
     hasAvailableUpdate: false,
     hasMouseScroll: true,
-    isLoading: api.hasStoredStocks(),
+    isLoading: !!storage.getUserStocks().length,
     isSorting: false,
     labels: getLanguageLabels(storage.getUserSetting("language")),
     languages: languages.map(({ id, name }) => ({ id, name })),
@@ -55,14 +54,11 @@ class Main extends React.Component {
       });
     }
 
-    this.setState(
-      { stocks: get(storage.getStoredData("stocks"), "data", []) },
-      () => {
-        setTimeout(() => {
-          api.init(this.onNewData);
-        }, 500);
-      }
-    );
+    this.setState({ stocks: storage.getStoredData("stocks", []) }, () => {
+      setTimeout(() => {
+        api.init(this.onNewData);
+      }, 500);
+    });
 
     window.addEventListener("touchstart", this.onMouseWheel);
   }

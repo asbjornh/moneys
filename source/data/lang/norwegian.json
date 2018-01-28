@@ -52,7 +52,7 @@
     },
     "stock": {
       "deleteButton": "Slett",
-      "isOutdated": "Utdatert data",
+      "isOutdated": "Utdaterte data",
       "qtyLabel": "Ant.",
       "realizeButton": "Realiser"
     }

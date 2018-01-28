@@ -18,7 +18,6 @@ class Stock extends React.Component {
     exchangeRates: PropTypes.object,
     currency: PropTypes.string,
     id: PropTypes.string.isRequired,
-    isOutdated: PropTypes.bool,
     isSorting: PropTypes.bool,
     labels: PropTypes.object,
     lastUpdated: PropTypes.number,
@@ -31,6 +30,7 @@ class Stock extends React.Component {
     qty: PropTypes.number,
     shouldConvertCurrency: PropTypes.bool,
     symbol: PropTypes.string,
+    type: PropTypes.string,
     userCurrency: PropTypes.string
   };
 
@@ -173,6 +173,11 @@ class Stock extends React.Component {
       ""
     );
 
+    const isOutdated =
+      this.props.type === "currency"
+        ? utils.currencyIsOutdated(this.props.lastUpdated)
+        : utils.stockIsOutdated(this.props.lastUpdated);
+
     const lastUpdatedText = lastUpdated
       ? new Date(lastUpdated).toLocaleString()
       : "";
@@ -209,7 +214,7 @@ class Stock extends React.Component {
                 </div>
                 <div className={css.ticker}>
                   {this.props.symbol}
-                  {this.props.isOutdated && (
+                  {isOutdated && (
                     <span
                       className={css.warning}
                       title={`${

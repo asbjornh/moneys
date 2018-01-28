@@ -1,29 +1,20 @@
 import { arrayMove } from "react-sortable-hoc";
 import get from "lodash/get";
 
-import settings from "../settings";
-import { userDefaults } from "../../config.json";
+import settings from "../../settings";
 
 function getGraphPoints() {
   return JSON.parse(localStorage.getItem("graphData")) || [];
 }
 
-function getStoredData(key) {
+function getStoredData(key, defaultValue) {
   const data = JSON.parse(localStorage.getItem(key));
 
-  const isOutdated =
-    data && new Date().getTime() - data.timeStamp > settings.storage.maxAge;
-  return Object.assign({}, data, { isOutdated });
+  return data || defaultValue;
 }
 
 function storeData(key, data) {
-  localStorage.setItem(
-    key,
-    JSON.stringify({
-      data,
-      timeStamp: new Date().getTime()
-    })
-  );
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
 function addGraphPoint(sum = 0) {
@@ -75,7 +66,7 @@ function sortUserStocks({ oldIndex, newIndex }) {
 
 function getUserSetting(setting) {
   const userSettings = JSON.parse(localStorage.getItem("userSettings"));
-  return get(userSettings, setting, userDefaults[setting]);
+  return get(userSettings, setting, settings.userDefaults[setting]);
 }
 
 function setUserSetting(setting, value) {
