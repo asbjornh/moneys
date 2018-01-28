@@ -29,7 +29,7 @@ function currencyIsOutdated(lastUpdated) {
   if (inRange(hour, 2, 5)) {
     return false;
   } else if (!inRange(hour, 9, 18)) {
-    return new Date.getTime() - lastUpdated > minutesToMs(31);
+    return new Date().getTime() - lastUpdated > minutesToMs(31);
   } else {
     return new Date().getTime() - lastUpdated > minutesToMs(11);
   }

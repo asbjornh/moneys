@@ -118,8 +118,6 @@ module.exports = (env = {}) => {
           new webpack.optimize.UglifyJsPlugin(),
           new CopyWebpackPlugin([
             { from: "source/assets/apple-touch-icon.png", to: "" },
-            { from: "source/api", to: "api" },
-            { from: "config.php", to: "" },
             { from: ".htaccess", to: "" }
           ])
         ]);
