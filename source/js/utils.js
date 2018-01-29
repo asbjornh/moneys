@@ -19,7 +19,7 @@ function stockIsOutdated(lastUpdated) {
   if (inRange(day, 0, 1) || !inRange(hour, 8, 18)) {
     return false;
   } else {
-    return new Date().getTime - lastUpdated > hoursToMs(2) + minutesToMs(1);
+    return new Date().getTime - lastUpdated > hoursToMs(1) + minutesToMs(1);
   }
 }
 
