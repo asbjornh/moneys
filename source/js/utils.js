@@ -25,13 +25,16 @@ function stockIsOutdated(lastUpdated) {
 
 function currencyIsOutdated(lastUpdated) {
   const hour = new Date().getHours();
+  const time = new Date().getTime();
 
   if (inRange(hour, 2, 5)) {
     return false;
+  } else if (inRange(hour, 0, 6) || hour >= 23) {
+    return time - lastUpdated > hoursToMs(1) + minutesToMs(1);
   } else if (!inRange(hour, 9, 18)) {
-    return new Date().getTime() - lastUpdated > minutesToMs(31);
+    return time - lastUpdated > minutesToMs(31);
   } else {
-    return new Date().getTime() - lastUpdated > minutesToMs(11);
+    return time - lastUpdated > minutesToMs(11);
   }
 }
 
