@@ -49,6 +49,8 @@ class Stock extends React.Component {
     shouldConvertCurrency: this.props.shouldConvertCurrency
   };
 
+  hasTouchStart = false;
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.shouldConvertCurrency !== this.props.shouldConvertCurrency) {
       this.setState({ shouldConvertCurrency: nextProps.shouldConvertCurrency });
@@ -56,12 +58,14 @@ class Stock extends React.Component {
   }
 
   onMouseEnter = () => {
-    this.setState({
-      isAnimating: true,
-      isSliding: true,
-      slideProgress: 1,
-      springConfig: {}
-    });
+    if (!this.hasTouchStart) {
+      this.setState({
+        isAnimating: true,
+        isSliding: true,
+        slideProgress: 1,
+        springConfig: {}
+      });
+    }
   };
 
   onMouseLeave = () => {
@@ -77,6 +81,8 @@ class Stock extends React.Component {
   };
 
   onTouchStart = e => {
+    this.hasTouchStart = true;
+
     if (!this.props.isSorting) {
       this.touchStartX = e.touches[0].clientX;
       this.lastTouchX = e.touches[0].clientX;
@@ -110,6 +116,10 @@ class Stock extends React.Component {
   };
 
   onTouchEnd = () => {
+    setTimeout(() => {
+      this.hasTouchStart = false;
+    }, 20);
+
     if (!this.props.isSorting) {
       this.setState(state => ({
         isAnimating: state.slideProgress !== 0 && state.slideProgress !== 1,
