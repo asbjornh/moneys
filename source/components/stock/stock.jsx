@@ -9,9 +9,9 @@ import { Motion, spring } from "react-motion";
 import css from "./stock.module.scss";
 import utils from "../../js/utils";
 
-import Number from "../number";
 import Icons from "../icons";
 import StaticContainer from "../static-container";
+import StockResult from "./stock-result";
 
 class Stock extends React.Component {
   static propTypes = {
@@ -142,41 +142,13 @@ class Stock extends React.Component {
   };
 
   render() {
-    const {
-      exchangeRates,
-      currency,
-      lastUpdated,
-      purchasePrice,
-      price,
-      qty,
-      userCurrency
-    } = this.props;
-    const { slideProgress, springConfig } = this.state;
+    const { currency, purchasePrice, price, qty, userCurrency } = this.props;
 
-    const shouldConvertCurrency =
-      !this.props.purchaseRate ||
-      (this.state.shouldConvertCurrency && currency !== userCurrency);
-    const convertedPrice = utils.convert(
-      price,
-      currency,
-      userCurrency,
-      exchangeRates
-    );
-    const absoluteDifference = shouldConvertCurrency
-      ? convertedPrice * qty - purchasePrice
-      : (price - this.props.purchaseRate) * qty;
-    const relativeDifference = shouldConvertCurrency
-      ? convertedPrice * qty / purchasePrice * 100 - 100
-      : price / this.props.purchaseRate * 100 - 100;
+    const { slideProgress, springConfig } = this.state;
 
     const purchaseRate =
       currency !== userCurrency ? this.props.purchaseRate : purchasePrice / qty;
 
-    const currencySymbol = get(
-      currencySymbols,
-      `${shouldConvertCurrency ? userCurrency : currency}.units.major.symbol`,
-      ""
-    );
     const stockCurrencySymbol = get(
       currencySymbols,
       `${currency}.units.major.symbol`,
@@ -188,8 +160,8 @@ class Stock extends React.Component {
         ? utils.currencyIsOutdated(this.props.lastUpdated)
         : utils.stockIsOutdated(this.props.lastUpdated);
 
-    const lastUpdatedText = lastUpdated
-      ? new Date(lastUpdated).toLocaleString()
+    const lastUpdatedText = this.props.lastUpdated
+      ? new Date(this.props.lastUpdated).toLocaleString()
       : "";
 
     return (
@@ -206,7 +178,7 @@ class Stock extends React.Component {
         }}
       >
         {motion => (
-          <tbody
+          <div
             className={cn(css.stock, {
               [css.isSliding]: this.state.isSliding,
               [css.isSorting]: this.props.isSorting
@@ -217,11 +189,12 @@ class Stock extends React.Component {
             onTouchEnd={this.onTouchEnd}
             style={{ transform: `translateX(${-motion.x}px)` }}
           >
-            <tr className={css.firstRow}>
-              <td>
-                <div className={css.sortingHandle}>
-                  <Icons.DragHandle />
-                </div>
+            <StaticContainer shouldUpdate={!this.state.isAnimating}>
+              <div className={css.sortingHandle}>
+                <Icons.DragHandle />
+              </div>
+
+              <div className={css.row}>
                 <div className={css.ticker}>
                   {this.props.symbol}
                   {isOutdated && (
@@ -235,95 +208,71 @@ class Stock extends React.Component {
                     </span>
                   )}
                 </div>
-              </td>
-              <td
-                className={cn(css.percentage, {
-                  [css.isPositive]: absoluteDifference > 0,
-                  [css.isNegative]: absoluteDifference < 0
-                })}
-              >
-                <StaticContainer shouldUpdate={!this.state.isAnimating}>
-                  <Number
-                    number={relativeDifference}
-                    currencySymbol="%"
-                    currencySymbolIsSuperScript={false}
-                  />
-                </StaticContainer>
-              </td>
-              <td className={css.number}>
-                <StaticContainer shouldUpdate={!this.state.isAnimating}>
-                  <Number
-                    className={css.innerNumber}
-                    number={absoluteDifference}
-                    currencySymbol={currencySymbol}
-                  />
-                </StaticContainer>
 
-                <div
-                  className={css.hoverTarget}
-                  onMouseEnter={this.onMouseEnter}
-                  onMouseLeave={this.onMouseLeave}
-                  style={{ transform: `translateX(${motion.x}px)` }}
-                >
-                  <button
-                    className={css.realizeButton}
-                    onClick={this.realize}
-                    title={this.props.labels.realizeButton}
-                    type="button"
-                    style={{
-                      opacity: motion.opacity,
-                      transform: `scale(${motion.scale})`
-                    }}
-                  >
-                    <Icons.CircleDollar />
-                  </button>
-                  <button
-                    className={css.deleteButton}
-                    type="button"
-                    title={this.props.labels.deleteButton}
-                    onClick={this.delete}
-                    style={{
-                      opacity: motion.opacity,
-                      transform: `scale(${motion.scale})`
-                    }}
-                  >
-                    <Icons.CircleX />
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr className={css.lastRow}>
-              <td colSpan={3}>
-                <StaticContainer shouldUpdate={!this.state.isAnimating}>
-                  <div className={css.lastRowContent}>
-                    <div className={css.longName}>{this.props.longName}</div>
-                    <div className={css.moreStuff}>
-                      <span>
-                        {(!purchaseRate
-                          ? ""
-                          : `${stockCurrencySymbol} ${utils.formatNumber(
-                              purchaseRate
-                            )} → `) +
-                          `${stockCurrencySymbol} ${utils.formatNumber(price)}`}
-                      </span>
-                      <span>
-                        {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
-                          qty
-                        )}`}
-                      </span>
-                    </div>
-                  </div>
-                </StaticContainer>
-
-                <div
-                  className={css.hoverTarget}
-                  onMouseEnter={this.onMouseEnter}
-                  onMouseLeave={this.onMouseLeave}
-                  style={{ transform: `translateX(${motion.x}px)` }}
+                <StockResult
+                  exchangeRates={this.props.exchangeRates}
+                  currency={this.props.currency}
+                  purchasePrice={this.props.purchasePrice}
+                  purchaseRate={this.props.purchaseRate}
+                  price={this.props.price}
+                  qty={this.props.qty}
+                  shouldConvertCurrency={this.state.shouldConvertCurrency}
+                  userCurrency={this.props.userCurrency}
                 />
-              </td>
-            </tr>
-          </tbody>
+              </div>
+
+              <div className={css.row}>
+                <div className={css.longName}>{this.props.longName}</div>
+                <div className={css.moreStuff}>
+                  <span>
+                    {(!purchaseRate
+                      ? ""
+                      : `${stockCurrencySymbol} ${utils.formatNumber(
+                          purchaseRate
+                        )} → `) +
+                      `${stockCurrencySymbol} ${utils.formatNumber(price)}`}
+                  </span>
+                  <span>
+                    {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
+                      qty
+                    )}`}
+                  </span>
+                </div>
+              </div>
+            </StaticContainer>
+
+            <div
+              className={css.buttonContainer}
+              onMouseEnter={this.onMouseEnter}
+              onMouseLeave={this.onMouseLeave}
+              style={{ transform: `translateX(${motion.x}px)` }}
+            >
+              <button
+                className={css.realizeButton}
+                onClick={this.realize}
+                title={this.props.labels.realizeButton}
+                type="button"
+                style={{
+                  opacity: motion.opacity,
+                  transform: `scale(${motion.scale})`
+                }}
+              >
+                <Icons.CircleDollar />
+              </button>
+              <button
+                className={css.deleteButton}
+                type="button"
+                title={this.props.labels.deleteButton}
+                onClick={this.delete}
+                style={{
+                  opacity: motion.opacity,
+                  transform: `scale(${motion.scale})`
+                }}
+              >
+                <Icons.CircleX />
+              </button>
+            </div>
+          </div>
         )}
       </Motion>
     );

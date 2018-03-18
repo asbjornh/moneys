@@ -214,7 +214,6 @@ class Main extends React.Component {
               <Collapse isOpened={true}>
                 <SortableList
                   className="stocks"
-                  element="table"
                   helperClass="stock-is-sorting"
                   lockAxis="y"
                   onSortEnd={this.onSortEnd}

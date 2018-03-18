@@ -2,26 +2,19 @@
 @import "../../scss/mixins";
 
 .stock {
+  position: relative;
   user-select: none;
   cursor: default;
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
   background-color: $dark-gray;
+  padding: 15px 0;
+  border-bottom: 1px solid $border-color;
 
   &.isSorting {
-    tr {
-      transform: translateX(40px) scale(0.85);
+    .row {
+      transform: scale(0.9);
     }
-  }
-
-  td {
-    position: relative;
-    padding: 0;
-  }
-
-  tr {
-    vertical-align: baseline;
-    transition: transform 0.3s $ease-out;
   }
 }
 
@@ -32,22 +25,31 @@
     transition-delay: 0s;
   }
 
-  .number div:not(.hoverTarget),
-  .percentage,
-  .ticker {
+  .row {
     opacity: 0.4;
   }
 }
 
-.hoverTarget {
+.row {
+  display: flex;
+  align-items: baseline;
+  transform-origin: 100% 100%;
+  transition: transform 0.3s $ease-out, opacity 0.4s;
+
+  + .row {
+    transform-origin: 100% 0;
+  }
+}
+
+.buttonContainer {
   position: absolute;
   z-index: 2;
   height: 100%;
   top: 0;
   right: 0;
   width: 80px;
-  // transition: transform 0.3s $ease-out;
   padding-top: 15px;
+  text-align: right;
   box-sizing: border-box;
   will-change: transform;
 }
@@ -73,27 +75,6 @@
   transition: visibility 0s 0.3s;
 }
 
-.firstRow {
-  transform-origin: 0 100%;
-
-  td {
-    padding-top: 15px;
-  }
-}
-
-.lastRow {
-  transform-origin: 0 0;
-
-  td {
-    padding-bottom: 20px;
-    box-shadow: inset 0 -1px 0 0 $border-color;
-  }
-}
-
-.lastRowContent {
-  display: flex;
-}
-
 .ticker {
   @include font-size-lg;
   font-weight: bold;
@@ -117,31 +98,15 @@
 
 .number {
   @include font-size-lg;
-  text-align: right;
-  width: 20%;
-
-  div:not(.hoverTarget) {
-    transition: opacity 0.3s;
-  }
-}
-
-.innerNumber {
   min-width: 4.2em;
-}
-
-.isPositive {
-  color: $green;
-}
-
-.isNegative {
-  color: $red;
-}
-
-td.percentage {
-  font-weight: normal;
-  padding-right: 10px;
   text-align: right;
   transition: opacity 0.3s;
+}
+
+.percentage {
+  font-weight: normal;
+  padding-right: 10px;
+  margin-left: auto;
 }
 
 .moreStuff {
@@ -156,6 +121,7 @@ td.percentage {
 
 .sortingHandle {
   position: absolute;
+  top: 0;
   height: 100%;
   display: flex;
   align-items: center;
@@ -164,10 +130,9 @@ td.percentage {
   opacity: 0;
   transition: transform 0.3s $ease-out, opacity 0.3s;
   transform: scale(0.1);
-  transform-origin: 100% 50%;
 
   .isSorting & {
     opacity: 1;
-    transform: translateX(-40px) scale((1/0.85));
+    transform: none;
   }
 }
