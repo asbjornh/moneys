@@ -253,6 +253,7 @@ class Stock extends React.Component {
               <td className={css.number}>
                 <StaticContainer shouldUpdate={!this.state.isAnimating}>
                   <Number
+                    className={css.innerNumber}
                     number={absoluteDifference}
                     currencySymbol={currencySymbol}
                   />

@@ -17,8 +17,7 @@ const Number = ({
 
   return (
     <div
-      className={cn(css.number, {
-        [className]: className,
+      className={cn(css.number, className, {
         [css.isPositive]: parsedNumber > 0,
         [css.isNegative]: parsedNumber < 0
       })}
