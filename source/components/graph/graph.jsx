@@ -65,7 +65,6 @@ class Graph extends React.Component {
     const max = Math.max(...points.map(p => p.y));
     const min = Math.min(...points.map(p => p.y));
     const mid = utils.rangeMap(0, min, max, 1, 0);
-    const pxr = window.devicePixelRatio;
 
     if (max < 0) return colors.red;
     if (min > 0) return colors.green;
@@ -77,9 +76,11 @@ class Graph extends React.Component {
       0,
       canvas.offsetHeight - padding
     );
-    gradient.addColorStop(Math.max(0, mid - 0.2 * pxr), colors.green);
+
+    gradient.addColorStop(Math.max(0, mid - 0.35), colors.green);
     gradient.addColorStop(utils.clamp(mid, 0, 1), colors.orange);
-    gradient.addColorStop(Math.min(1, mid + 0.2 * pxr), colors.red);
+    gradient.addColorStop(Math.min(1, mid + 0.35), colors.red);
+
     return gradient;
   };
 
