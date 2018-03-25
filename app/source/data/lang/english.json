@@ -1,0 +1,65 @@
+{
+  "name": "🇺🇸 English",
+  "id": "english",
+  "labels": {
+    "form": {
+      "addButton": "Add",
+      "cancelButton": "Cancel",
+      "currencyInput": "Currency",
+      "intermediateCurrencyInput": "Intermediate currency",
+      "intermediateCurrencyDefault": "None",
+      "invalidForm": "Complete all required fields",
+      "purchasePriceInput": "Total price",
+      "purchaseRateInput": "Rate at purchase",
+      "qtyInput": "Quantity",
+      "tickerInput": "Ticker",
+      "typeInput": "Type",
+      "typeInputStock": "Stock",
+      "typeInputCurrency": "Currency"
+    },
+    "header": {
+      "updateAvailable": "New version!"
+    },
+    "moneys": {
+      "lastUpdatedLabel": "Last updated",
+      "totalValueLabel": "Total value",
+      "weekLabel": "1 wk",
+      "monthLabel": "1 mth",
+      "yearLabel": "1 yr",
+      "maxLabel": "Max"
+    },
+    "main": {
+      "stockNotFound": "Couldn't find",
+      "deleteAllConfirmation": "Are you sure you want to delete all data?",
+      "deleteConfirmation": "Are you sure you want to delete this?",
+      "realizeStockPrompt": "Payout, total",
+      "realizeStockFailedId": "Couldn't realize. Id missing.",
+      "realizeStockFailedPrice": "Couldn't realize. Invalid payout."
+    },
+    "menu": {
+      "convertStocksSwitch": "Currency convert stocks",
+      "currencyConfirmationMessage": "This will delete all data. Continue?",
+      "deleteAllData": "Delete all data",
+      "downloadBackupButton": "Download backup",
+      "downloadBackupLink": "Download as file",
+      "downloadBackupTitle": "Copy the data or download backup file below.",
+      "uploadBackupButton": "Upload backup",
+      "uploadBackupFailed": "Restoring from backup failed because of bad data",
+      "uploadBackupInput": "Upload file",
+      "uploadBackupSubmit": "Save",
+      "uploadBackupTitle": "Paste data or upload file below.",
+      "currencySelect": "Currency"
+    },
+    "realizedStock": {
+      "dateLabel": "Realized",
+      "deleteLabel": "Delete",
+      "qtyLabel": "Qty."
+    },
+    "stock": {
+      "deleteButton": "Delete",
+      "isOutdated": "Outdated data",
+      "qtyLabel": "Qty.",
+      "realizeButton": "Realize"
+    }
+  }
+}

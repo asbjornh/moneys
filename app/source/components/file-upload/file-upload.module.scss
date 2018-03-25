@@ -1,0 +1,11 @@
+@import "../../scss/mixins";
+
+.fileUpload {
+  @include button($green);
+  display: block;
+  text-align: center;
+
+  input {
+    display: none;
+  }
+}

@@ -8,33 +8,42 @@ _Note: Coinbase is used for currency conversion, which might differ from the rat
 
 ### First:
 
-Before you build, make a copy of `config.example.json` and
-rename it to `config.json`. There is an optional proxy API (PHP and MySQL) in this repo, so if you want to use this, put URLs to your server in config.json. If you use the API, you also need to make a config.php and put your info in there (see `config.example.php`)
+This app uses firebase for hosting. Before you build, make a copy of `firebase-init.example.json` and
+rename it to `firebase-init.json`. Put [Firebase initialization options](https://firebase.google.com/docs/reference/js/firebase) in there.
 
 ### Then:
 
 Install deps:
 
 ```
+cd app/
 yarn
 ```
 
-Run the thing:
+Run the thing (in app folder):
 
 ```
 yarn run dev
 ```
 
-Build the thing (if you want to put it on a server):
+Build the thing (in app folder):
 
 ```
 yarn run build
 ```
 
+Deploy (in root directory):
+
+```
+firebase deploy
+```
+
+Deploying with firebase will also build the client code.
+
 ### Pro tip:
 
 If you need to know the ticker / symbol of a stock, go to
-[https://finance.yahoo.com/](finance.yahoo.com) and search for it there. The
+[finance.yahoo.com](https://finance.yahoo.com/) and search for it there. The
 search box will display the ticker / symbol in blue text:
 
 ![stock search](https://imgur.com/cULOAT5.png)

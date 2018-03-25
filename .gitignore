@@ -1,9 +1,11 @@
-/build
-/dist
+/app/build
+/app/dist
+firebase-init.json
 config.json
 config.php
 .htaccess
 .vscode
+.firebaserc
 
 
 # Logs
