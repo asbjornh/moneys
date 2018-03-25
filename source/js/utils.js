@@ -126,6 +126,14 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function tryParseJSON(maybeJSON) {
+  try {
+    return JSON.parse(maybeJSON);
+  } catch (e) {
+    return {};
+  }
+}
+
 export default {
   clamp,
   convert,
@@ -135,5 +143,6 @@ export default {
   minutesToMs,
   rangeMap,
   stockIsOutdated,
-  sumAndConvert
+  sumAndConvert,
+  tryParseJSON
 };

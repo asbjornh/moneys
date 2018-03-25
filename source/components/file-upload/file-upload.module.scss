@@ -1,10 +1,9 @@
 @import "../../scss/mixins";
 
 .fileUpload {
-  @include button($border-color);
+  @include button($green);
   display: block;
   text-align: center;
-  color: white;
 
   input {
     display: none;

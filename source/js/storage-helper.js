@@ -2,6 +2,7 @@ import { arrayMove } from "react-sortable-hoc";
 import get from "lodash/get";
 
 import settings from "../../settings";
+import utils from "../js/utils";
 
 function getGraphPoints() {
   return JSON.parse(localStorage.getItem("graphData")) || [];
@@ -76,20 +77,27 @@ function setUserSetting(setting, value) {
 }
 
 function getBackupData() {
-  return JSON.stringify({
-    userStocks: JSON.parse(localStorage.getItem("userStocks")),
-    graphData: JSON.parse(localStorage.getItem("graphData"))
-  });
+  return JSON.stringify(
+    {
+      userStocks: JSON.parse(localStorage.getItem("userStocks")),
+      graphData: JSON.parse(localStorage.getItem("graphData"))
+    },
+    null,
+    2
+  );
 }
 
-function insertBackupData(data) {
-  const newData = JSON.parse(data);
+function insertBackupData(data, callback) {
+  const { userStocks, graphData } = utils.tryParseJSON(data);
 
-  Object.keys(newData).forEach(key => {
-    localStorage.setItem(key, JSON.stringify(newData[key]));
-  });
+  if (userStocks && graphData) {
+    localStorage.setItem("userStocks", JSON.stringify(userStocks));
+    localStorage.setItem("graphData", JSON.stringify(graphData));
 
-  window.location.reload();
+    callback(true);
+  } else {
+    callback(false);
+  }
 }
 
 function deleteAllData() {

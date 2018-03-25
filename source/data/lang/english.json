@@ -40,8 +40,14 @@
       "convertStocksSwitch": "Currency convert stocks",
       "currencyConfirmationMessage": "This will delete all data. Continue?",
       "deleteAllData": "Delete all data",
-      "downloadBackup": "Download backup",
-      "uploadBackup": "Upload backup",
+      "downloadBackupButton": "Download backup",
+      "downloadBackupLink": "Download as file",
+      "downloadBackupTitle": "Copy the data or download backup file below.",
+      "uploadBackupButton": "Upload backup",
+      "uploadBackupFailed": "Restoring from backup failed because of bad data",
+      "uploadBackupInput": "Upload file",
+      "uploadBackupSubmit": "Save",
+      "uploadBackupTitle": "Paste data or upload file below.",
       "currencySelect": "Currency"
     },
     "realizedStock": {

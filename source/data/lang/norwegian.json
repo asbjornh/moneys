@@ -41,8 +41,14 @@
       "currencyConfirmationMessage":
         "Dette vil slette alle data. Vil du fortsette?",
       "deleteAllData": "Slett alle data",
-      "downloadBackup": "Last ned backup",
-      "uploadBackup": "Last opp backup",
+      "downloadBackupButton": "Last ned backup",
+      "downloadBackupLink": "Last ned som fil",
+      "downloadBackupTitle": "Kopier dataene eller last ned backup-fil under.",
+      "uploadBackupButton": "Last opp backup",
+      "uploadBackupFailed": "Kunne ikke gjenopprette backup pga feil i data",
+      "uploadBackupInput": "Last opp fil",
+      "uploadBackupSubmit": "Lagre",
+      "uploadBackupTitle": "Lim inn data eller last opp fil under.",
       "currencySelect": "Valuta"
     },
     "realizedStock": {

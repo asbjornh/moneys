@@ -7,18 +7,10 @@ import storage from "../../js/storage-helper";
 
 import css from "./menu.module.scss";
 
-import FileUpload from "../file-upload";
+import DownloadBackup from "./download-backup";
 import Select from "../select";
 import Switch from "../switch";
-
-const createDownloadLink = content => {
-  var file = new Blob([content], { type: "application/json" });
-  return URL.createObjectURL(file);
-};
-
-const onFileUpload = content => {
-  storage.insertBackupData(content);
-};
+import UploadBackup from "./upload-backup";
 
 const Menu = ({
   exchangeRates,
@@ -40,19 +32,10 @@ const Menu = ({
         </button>
       </li>
       <li>
-        <a
-          href={createDownloadLink(storage.getBackupData())}
-          download="moneys.json"
-        >
-          {labels.downloadBackup}
-        </a>
+        <DownloadBackup labels={labels} />
       </li>
       <li>
-        <FileUpload
-          label={labels.uploadBackup}
-          accept="application/json"
-          onFileUpload={onFileUpload}
-        />
+        <UploadBackup labels={labels} />
       </li>
       <li>
         {exchangeRates && (
