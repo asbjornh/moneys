@@ -16,7 +16,7 @@
     },
     "sourceType": "module"
   },
-  "plugins": ["react"],
+  "plugins": ["react", "promise"],
   "rules": {
     "strict": 0,
     "eqeqeq": 1,
@@ -35,6 +35,7 @@
     "no-dupe-keys": 2,
     "no-dupe-args": 2,
     "semi": 1,
+    "promise/no-nesting": 1,
     "react/no-deprecated": 2,
     "react/no-direct-mutation-state": 2,
     "react/no-multi-comp": 1,

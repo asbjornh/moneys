@@ -1,5 +1,3 @@
-/* eslint-disable promise/no-nesting */
-
 const admin = require("firebase-admin");
 const cors = require("cors")({ origin: true });
 const functions = require("firebase-functions");
@@ -9,6 +7,12 @@ const exchangeRates = require("./exchange-rates");
 const stock = require("./stock");
 
 admin.initializeApp(functions.config().firebase);
+
+function getTickerData(type, tickerName) {
+  const getter = type === "currency" ? crypto.get : stock.get;
+
+  return getter(tickerName).then(data => ({ tickerName, data }));
+}
 
 exports.updateTickers = functions.https.onRequest((req, res) => {
   const type = req.query.type;
@@ -26,33 +30,28 @@ exports.updateTickers = functions.https.onRequest((req, res) => {
         const tickers = snapshot.val();
 
         return Promise.all(
-          Object.keys(tickers).map(tickerName => {
-            const getter =
-              tickers[tickerName].type === "currency" ? crypto.get : stock.get;
-
-            return getter(tickerName)
-              .then(data => {
-                return new Promise(resolve => {
-                  admin
-                    .database()
-                    .ref(`/tickers/${tickerName}`)
-                    .update(data, e => {
-                      if (e) {
-                        throw new Error(e);
-                      } else {
-                        resolve();
-                      }
-                    });
+          Object.keys(tickers).map(tickerName =>
+            getTickerData(tickers[tickerName].type, tickerName)
+          )
+        );
+      })
+      .then(tickersData => {
+        return Promise.all(
+          tickersData.map(({ tickerName, data }) => {
+            return new Promise(resolve => {
+              admin
+                .database()
+                .ref(`/tickers/${tickerName}`)
+                .update(data, e => {
+                  if (e) {
+                    throw new Error(e);
+                  } else {
+                    resolve();
+                  }
                 });
-              })
-              .catch(e => {
-                console.error("get stock", e);
-                throw new Error("Failed to get " + tickerName);
-              });
+            });
           })
-        ).catch(e => {
-          console.warn("Ignore this?", e);
-        });
+        );
       })
       .then(() => res.status(200).send("finished"))
       .catch(e => {
