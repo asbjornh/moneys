@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-const cors = require("cors")({ origin: true });
 const functions = require("firebase-functions");
 
 const crypto = require("./crypto");
@@ -86,55 +85,26 @@ exports.updateExchangeRates = functions.https.onRequest((req, res) => {
     });
 });
 
-exports.add = functions.https.onRequest((req, res) => {
-  cors(req, res, () => {
-    const body = JSON.parse(req.body);
-    const currency = body.currency;
-    const ticker = body.ticker;
-    const type = body.type;
-
-    if (type === "currency" && ticker && currency) {
-      crypto
-        .add(ticker, currency)
-        .then(success =>
-          res.status(success ? 200 : 500).send(success ? "success" : "fail")
-        )
-        .catch(e => {
-          console.error(e);
-          res.status(500).send(e);
-        });
-    } else if (ticker) {
-      stock
-        .add(ticker)
-        .then(success =>
-          res.status(success ? 200 : 500).send(success ? "success" : "fail")
-        )
-        .catch(e => {
-          console.error(e);
-          res.status(500).send(e);
-        });
-    } else {
-      res.status(500).send("missing data");
-    }
-  });
+exports.add = functions.https.onCall(({ type, ticker, currency }) => {
+  if (type === "currency" && ticker && currency) {
+    return crypto.add(ticker, currency);
+  } else if (ticker) {
+    return stock.add(ticker);
+  } else {
+    return { success: false };
+  }
 });
 
-exports.delete = functions.https.onRequest((req, res) => {
-  cors(req, res, () => {
-    const body = JSON.parse(req.body);
-    const currency = body.currency;
-    const ticker = body.ticker;
-    const type = body.type;
-    const tickerToRemove =
-      type === "currency"
-        ? `${ticker}-${currency}`
-        : stock.encodeTicker(ticker);
+exports.delete = functions.https.onCall(({ type, ticker, currency }) => {
+  const tickerToRemove =
+    type === "currency" ? `${ticker}-${currency}` : stock.encodeTicker(ticker);
 
+  return new Promise(resolve => {
     admin
       .database()
       .ref(`/tickers/${tickerToRemove}`)
       .remove(() => {
-        res.status(200).send("success");
+        resolve({ success: true });
       });
   });
 });

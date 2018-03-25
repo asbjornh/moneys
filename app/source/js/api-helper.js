@@ -1,9 +1,12 @@
 import * as firebase from "firebase/app";
 import "firebase/database";
+import "firebase/functions";
 
-import firebaseConfig from "../../firebase-config.json";
+import firebaseInit from "../../firebase-init.json";
 import storage from "./storage-helper";
 import utils from "./utils";
+
+firebase.initializeApp(firebaseInit);
 
 // yahoo uses dots in some of their ticker names, which firebase doesn't like. In firebase, keys with dots are stored with colons instead and need to be decoded.
 function decodeTicker(ticker) {
@@ -43,7 +46,6 @@ function getMissingStocks(stockData) {
 // This is where everything happens. When adding or deleting stocks to/from firebase, the callback wil be run with the updated data.
 function init(callback) {
   const db = {};
-  firebase.initializeApp(firebaseConfig.init);
 
   function resolve() {
     if (db.exchangeRates && db.stocks && db.currencies && db.cryptoNames) {
@@ -154,32 +156,23 @@ function init(callback) {
   }
 }
 
-function addOrDelete(url, { intermediateCurrency, symbol, type }) {
-  return fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      currency:
-        type === "currency"
-          ? intermediateCurrency || storage.getUserSetting("currency")
-          : null,
-      ticker: symbol,
-      type: type || "stock"
-    })
-  })
-    .then(res => {
-      return res.ok;
-    })
-    .catch(e => {
-      console.log(e);
-    });
+function addOrDelete(cloudFunction, { intermediateCurrency, symbol, type }) {
+  return cloudFunction({
+    currency:
+      type === "currency"
+        ? intermediateCurrency || storage.getUserSetting("currency")
+        : null,
+    ticker: symbol,
+    type: type || "stock"
+  }).then(res => res.data.success);
 }
 
 function addStockToDatabase(stock) {
-  return addOrDelete(firebaseConfig.addStockUrl, stock);
+  return addOrDelete(firebase.functions().httpsCallable("add"), stock);
 }
 
 function deleteStockFromDatabase(stock) {
-  return addOrDelete(firebaseConfig.deleteStockUrl, stock);
+  return addOrDelete(firebase.functions().httpsCallable("delete"), stock);
 }
 
 function addStock(formData) {

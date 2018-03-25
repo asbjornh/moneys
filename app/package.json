@@ -53,9 +53,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "cors": "^2.8.4",
     "eslint-plugin-promise": "^3.7.0",
-    "firebase": "^4.9.0",
-    "firebase-admin": "^5.8.1",
-    "firebase-functions": "^0.8.1",
+    "firebase": "^4.12.0",
     "node-fetch": "^1.7.3"
   }
 }

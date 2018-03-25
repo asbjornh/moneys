@@ -47,7 +47,7 @@ function add(ticker) {
           .database()
           .ref(`/tickers/${encodeTicker(ticker)}`)
           .update(Object.assign({}, newStockData, { type: "stock" }), e => {
-            resolve({ success: Boolean(e) });
+            resolve({ success: !e });
           })
       );
     })

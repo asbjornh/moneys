@@ -50,7 +50,7 @@ function add(ticker, currency) {
           .database()
           .ref(`/tickers/${tickerName}`)
           .update(newCryptoData, e => {
-            resolve({ success: Boolean(e) });
+            resolve({ success: !e });
           });
       });
     })

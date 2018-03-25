@@ -121,7 +121,9 @@ class Main extends React.Component {
 
   deleteStock = id => {
     if (confirm(this.state.labels.main.deleteConfirmation)) {
-      api.deleteStock(id);
+      this.setState({ isLoading: true }, () => {
+        api.deleteStock(id);
+      });
     }
   };
 
