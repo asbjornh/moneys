@@ -80,6 +80,7 @@ function getBackupData() {
   return JSON.stringify(
     {
       userStocks: JSON.parse(localStorage.getItem("userStocks")),
+      userSettings: JSON.parse(localStorage.getItem("userSettings")),
       graphData: JSON.parse(localStorage.getItem("graphData"))
     },
     null,
@@ -88,10 +89,11 @@ function getBackupData() {
 }
 
 function insertBackupData(data, callback) {
-  const { userStocks, graphData } = utils.tryParseJSON(data);
+  const { userStocks, userSettings, graphData } = utils.tryParseJSON(data);
 
   if (userStocks && graphData) {
     localStorage.setItem("userStocks", JSON.stringify(userStocks));
+    localStorage.setItem("userSettings", JSON.stringify(userSettings));
     localStorage.setItem("graphData", JSON.stringify(graphData));
 
     callback(true);
