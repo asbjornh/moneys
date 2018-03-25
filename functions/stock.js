@@ -40,21 +40,21 @@ function getStock(ticker) {
 }
 
 function add(ticker) {
-  return new Promise((resolve, reject) => {
-    getStock(ticker)
-      .then(newStockData => {
+  return getStock(ticker)
+    .then(newStockData => {
+      return new Promise(resolve =>
         admin
           .database()
           .ref(`/tickers/${encodeTicker(ticker)}`)
           .update(Object.assign({}, newStockData, { type: "stock" }), e => {
-            resolve({ success: !!e });
-          });
-      })
-      .catch(e => {
-        console.error(e);
-        reject("Stock not found");
-      });
-  });
+            resolve({ success: Boolean(e) });
+          })
+      );
+    })
+    .catch(e => {
+      console.error(e);
+      throw new Error("Stock not found");
+    });
 }
 
 exports.decodeTicker = decodeTicker;

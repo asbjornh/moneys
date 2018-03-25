@@ -1,3 +1,5 @@
+/* eslint-disable promise/no-nesting */
+
 const admin = require("firebase-admin");
 const cors = require("cors")({ origin: true });
 const functions = require("firebase-functions");
@@ -24,39 +26,35 @@ exports.updateTickers = functions.https.onRequest((req, res) => {
         const tickers = snapshot.val();
 
         return Promise.all(
-          Object.keys(tickers).forEach(tickerName => {
-            return new Promise((resolve, reject) => {
-              const getter =
-                tickers[tickerName].type === "currency"
-                  ? crypto.get
-                  : stock.get;
+          Object.keys(tickers).map(tickerName => {
+            const getter =
+              tickers[tickerName].type === "currency" ? crypto.get : stock.get;
 
-              getter(tickerName)
-                .then(data => {
+            return getter(tickerName)
+              .then(data => {
+                return new Promise(resolve => {
                   admin
                     .database()
                     .ref(`/tickers/${tickerName}`)
                     .update(data, e => {
                       if (e) {
-                        reject(e);
+                        throw new Error(e);
                       } else {
                         resolve();
                       }
                     });
-                })
-                .catch(e => {
-                  reject("Failed to get " + tickerName);
-                  console.error("get stock", e);
                 });
-            });
+              })
+              .catch(e => {
+                console.error("get stock", e);
+                throw new Error("Failed to get " + tickerName);
+              });
           })
         ).catch(e => {
           console.warn("Ignore this?", e);
         });
       })
-      .then(() => {
-        res.status(200).send("finished");
-      })
+      .then(() => res.status(200).send("finished"))
       .catch(e => {
         console.error(e);
         res.status(500).send("fail");
@@ -82,9 +80,7 @@ exports.updateExchangeRates = functions.https.onRequest((req, res) => {
             });
         })
     )
-    .then(() => {
-      res.status(200).send("finished");
-    })
+    .then(() => res.status(200).send("finished"))
     .catch(e => {
       console.error(e);
       res.status(500).send("fail");
@@ -101,9 +97,9 @@ exports.add = functions.https.onRequest((req, res) => {
     if (type === "currency" && ticker && currency) {
       crypto
         .add(ticker, currency)
-        .then(success => {
-          res.status(success ? 200 : 500).send(success ? "success" : "fail");
-        })
+        .then(success =>
+          res.status(success ? 200 : 500).send(success ? "success" : "fail")
+        )
         .catch(e => {
           console.error(e);
           res.status(500).send(e);
@@ -111,9 +107,9 @@ exports.add = functions.https.onRequest((req, res) => {
     } else if (ticker) {
       stock
         .add(ticker)
-        .then(success => {
-          res.status(success ? 200 : 500).send(success ? "success" : "fail");
-        })
+        .then(success =>
+          res.status(success ? 200 : 500).send(success ? "success" : "fail")
+        )
         .catch(e => {
           console.error(e);
           res.status(500).send(e);

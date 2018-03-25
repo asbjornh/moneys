@@ -17,45 +17,47 @@ function getCrypto(currencyPair) {
     });
 }
 
+function getCryptoWithName(currencyPair, longName) {
+  return getCrypto(currencyPair).then(data =>
+    Object.assign({}, data, {
+      longName: longName,
+      type: "currency"
+    })
+  );
+}
+
 function add(ticker, currency) {
-  return new Promise((resolve, reject) => {
-    admin
-      .database()
-      .ref("/cryptoNames")
-      .once("value")
-      .then(snapshot => {
-        const cryptoNames = snapshot.val();
+  return admin
+    .database()
+    .ref("/cryptoNames")
+    .once("value")
+    .then(snapshot => {
+      const cryptoNames = snapshot.val();
 
-        // If ticker doesn't exist in cryptoNames, it isn't supported
-        if (cryptoNames[ticker]) {
-          return getCrypto(`${ticker}-${currency}`)
-            .then(data => {
-              return Object.assign({}, data, {
-                longName: cryptoNames[ticker],
-                type: "currency"
-              });
-            })
-            .catch(() => {
-              reject("Crypto not found");
-            });
-        } else {
-          reject("Crypto not supported");
-        }
-      })
-      .then(newCryptoData => {
-        const tickerName = `${ticker}-${currency}`;
+      // If ticker doesn't exist in cryptoNames, it isn't supported
+      if (cryptoNames[ticker]) {
+        return getCryptoWithName(`${ticker}-${currency}`, cryptoNames[ticker]);
+      } else {
+        throw new Error("Crypto not supported");
+      }
+    })
+    .then(newCryptoData => {
+      console.log("crypto data", newCryptoData);
+      const tickerName = `${ticker}-${currency}`;
 
+      return new Promise(resolve => {
         admin
           .database()
           .ref(`/tickers/${tickerName}`)
           .update(newCryptoData, e => {
-            resolve({ success: !!e });
+            resolve({ success: Boolean(e) });
           });
-      })
-      .catch(() => {
-        reject("Couldn't connect to database");
       });
-  });
+    })
+    .catch(e => {
+      console.log(e);
+      throw new Error("Couldn't connect to database");
+    });
 }
 
 exports.get = getCrypto;
