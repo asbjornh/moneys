@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { Collapse } from "react-collapse";
 import cn from "classnames";
 import { Motion, spring } from "react-motion";
-import TinyTransition from "react-tiny-transition";
 
 import currencySymbols from "world-currencies";
 import get from "lodash/get";
@@ -94,16 +93,14 @@ class Moneys extends React.Component {
         className={cn(css.moneys, this.props.className)}
         ref={div => (this.container = div)}
       >
-        <TinyTransition duration={1000}>
-          {this.state.graphSize &&
-            this.props.graphReady && (
-              <Graph
-                data={this.props.graphData}
-                labels={this.props.labels}
-                {...this.state.graphSize}
-              />
-            )}
-        </TinyTransition>
+        {this.state.graphSize &&
+          this.props.graphReady && (
+            <Graph
+              data={this.props.graphData}
+              labels={this.props.labels}
+              {...this.state.graphSize}
+            />
+          )}
 
         <div className={css.text} ref={div => (this.textContainer = div)}>
           <h1 ref={h1 => (this.titleEl = h1)}>Moneys:</h1>

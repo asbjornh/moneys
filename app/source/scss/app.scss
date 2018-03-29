@@ -6,6 +6,7 @@
 :after {
   box-sizing: border-box;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 div,
@@ -31,7 +32,6 @@ body {
   color: white;
   width: 100%;
   min-height: 100%;
-  -webkit-tap-highlight-color: transparent;
 }
 
 html {

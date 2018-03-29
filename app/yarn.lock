@@ -5501,9 +5501,9 @@ react-sortable-hoc@^0.6.8:
     lodash "^4.12.0"
     prop-types "^15.5.7"
 
-react-tiny-transition@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/react-tiny-transition/-/react-tiny-transition-1.0.3.tgz#2660d0afbabe7fd1905529033ae36f6196f69e9c"
+react-tiny-transition@^2.1.7:
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/react-tiny-transition/-/react-tiny-transition-2.1.7.tgz#67399d45bda09d6bd97cfa982bde9a1de44759dd"
 
 react@^16.2.0:
   version "16.2.0"

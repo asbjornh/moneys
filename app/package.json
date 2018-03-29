@@ -43,7 +43,7 @@
     "react-dom": "^16.2.0",
     "react-motion": "^0.5.2",
     "react-sortable-hoc": "^0.6.8",
-    "react-tiny-transition": "^1.0.3",
+    "react-tiny-transition": "^2.1.7",
     "rename-loader": "^1.0.0",
     "resolve-url-loader": "^2.2.1",
     "sass-loader": "^6.0.3",

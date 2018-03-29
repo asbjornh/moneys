@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
 import { Line } from "react-chartjs-2";
+import TinyTransition from "react-tiny-transition";
 
 import colors from "../../data/colors.json";
 import css from "./graph.module.scss";
@@ -15,7 +15,6 @@ import GraphFilters from "./graph-filters";
 
 class Graph extends React.Component {
   static propTypes = {
-    className: PropTypes.string,
     data: PropTypes.array,
     labels: PropTypes.object,
     height: PropTypes.number,
@@ -31,11 +30,17 @@ class Graph extends React.Component {
     showGraph: true
   };
 
-  componentWillReceiveProps() {
-    // Unmount and mount graph again to force repaint
-    this.setState({ showGraph: false }, () => {
-      this.setState({ showGraph: true });
-    });
+  componentWillReceiveProps(nextProps) {
+    const didChange = Object.keys(this.props).some(
+      key => this.props[key] !== nextProps[key]
+    );
+
+    if (didChange) {
+      // Unmount and mount graph again to force repaint
+      this.setState({ showGraph: false }, () => {
+        this.setState({ showGraph: true });
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -100,7 +105,7 @@ class Graph extends React.Component {
     });
 
     return (
-      <div className={cn(css.graph, this.props.className)}>
+      <div className={css.graph}>
         {!this.state.showGraph ||
           (points.length >= 2 &&
             (() => {
@@ -128,13 +133,19 @@ class Graph extends React.Component {
               const height = this.props.height;
 
               return (
-                <Line
-                  data={data}
-                  width={width}
-                  height={height}
-                  options={graphUtils.getOptions(points, graphPadding, height)}
-                  ref={l => (this.chart = l)}
-                />
+                <TinyTransition duration={1000}>
+                  <Line
+                    data={data}
+                    width={width}
+                    height={height}
+                    options={graphUtils.getOptions(
+                      points,
+                      graphPadding,
+                      height
+                    )}
+                    ref={l => (this.chart = l)}
+                  />
+                </TinyTransition>
               );
             })())}
         <GraphFilters
