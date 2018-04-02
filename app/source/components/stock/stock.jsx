@@ -51,9 +51,11 @@ class Stock extends React.Component {
 
   hasTouchStart = false;
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.shouldConvertCurrency !== this.props.shouldConvertCurrency) {
-      this.setState({ shouldConvertCurrency: nextProps.shouldConvertCurrency });
+  componentDidUpdate(prevProps) {
+    if (prevProps.shouldConvertCurrency !== this.props.shouldConvertCurrency) {
+      this.setState({
+        shouldConvertCurrency: this.props.shouldConvertCurrency
+      });
     }
   }
 

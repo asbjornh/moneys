@@ -38,9 +38,9 @@ class Modal extends React.Component {
     this.modal.removeEventListener("keyup", this.handleEscPress);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isVisible !== this.props.isVisible) {
-      if (nextProps.isVisible) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.isVisible !== this.props.isVisible) {
+      if (this.props.isVisible) {
         this.onAfterShowModal();
       }
     }

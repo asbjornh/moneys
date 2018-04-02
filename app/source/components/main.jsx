@@ -31,6 +31,7 @@ const getLanguageLabels = langId => {
 class Main extends React.Component {
   state = {
     exchangeRates: storage.getStoredData("exchangeRates", {}),
+    formButtonIsVisible: false,
     formIsVisible: false,
     graphData: storage.getGraphPoints(),
     graphReady: false,
@@ -54,11 +55,17 @@ class Main extends React.Component {
       });
     }
 
-    this.setState({ stocks: storage.getStoredData("stocks", []) }, () => {
-      setTimeout(() => {
-        api.init(this.onNewData);
-      }, 500);
-    });
+    this.setState(
+      {
+        formButtonIsVisible: true,
+        stocks: storage.getStoredData("stocks", [])
+      },
+      () => {
+        requestAnimationFrame(() => {
+          api.init(this.onNewData);
+        });
+      }
+    );
 
     window.addEventListener("touchstart", this.onMouseWheel);
   }
@@ -266,14 +273,18 @@ class Main extends React.Component {
               />
             </Collapse>
 
-            <button
-              className="form-button"
-              onClick={this.showForm}
-              type="button"
-              disabled={this.state.formIsVisible}
-            >
-              +
-            </button>
+            <TinyTransition duration={1000}>
+              {this.state.formButtonIsVisible && (
+                <button
+                  className="form-button"
+                  onClick={this.showForm}
+                  type="button"
+                  disabled={this.state.formIsVisible}
+                >
+                  +
+                </button>
+              )}
+            </TinyTransition>
           </div>
         </div>
       </NoScrollbar>

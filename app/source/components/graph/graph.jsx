@@ -30,9 +30,9 @@ class Graph extends React.Component {
     showGraph: true
   };
 
-  componentWillReceiveProps(nextProps) {
-    const didChange = Object.keys(this.props).some(
-      key => this.props[key] !== nextProps[key]
+  componentDidUpdate(prevProps) {
+    const didChange = Object.keys(prevProps).some(
+      key => this.props[key] !== prevProps[key]
     );
 
     if (didChange) {
