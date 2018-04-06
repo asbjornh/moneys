@@ -5,7 +5,7 @@ const crypto = require("./crypto");
 const exchangeRates = require("./exchange-rates");
 const stock = require("./stock");
 
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp();
 
 function getTickerData(type, tickerName) {
   const getter = type === "currency" ? crypto.get : stock.get;
