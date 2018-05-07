@@ -1,48 +1,50 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
+import { Text, View } from "react-native";
 
-import css from "./number.module.scss";
+import s from "./number.style";
 import utils from "../../js/utils";
+import { fontSize } from "../../styles/vars";
 
 const Number = ({
-  className,
   currencySymbol,
   currencySymbolIsSuperScript,
+  fontSize,
   number,
   numberOfDecimals
 }) => {
   const parsedNumber = parseFloat(number);
 
   return (
-    <div
-      className={cn(css.number, className, {
-        [css.isPositive]: parsedNumber > 0,
-        [css.isNegative]: parsedNumber < 0
-      })}
-    >
-      {utils.formatNumber(parsedNumber, true, numberOfDecimals)}
-      <span
-        className={cn({ [css.isSuperScript]: currencySymbolIsSuperScript })}
+    <View style={s.wrapper}>
+      <Text style={s.number(fontSize, parsedNumber)}>
+        {utils.formatNumber(parsedNumber, true, numberOfDecimals)}
+      </Text>
+      <Text
+        style={[
+          s.number(fontSize, parsedNumber),
+          s.symbol(fontSize, currencySymbolIsSuperScript)
+        ]}
       >
         {currencySymbol}
-      </span>
-    </div>
+      </Text>
+    </View>
   );
 };
 
 Number.propTypes = {
-  className: PropTypes.string,
   currencySymbol: PropTypes.string,
   currencySymbolIsSuperScript: PropTypes.bool,
+  fontSize: PropTypes.number,
   number: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   numberOfDecimals: PropTypes.number
 };
 
 Number.defaultProps = {
-  number: 0,
-  currencySymbolIsSuperScript: true
+  currencySymbolIsSuperScript: true,
+  fontSize: fontSize,
+  number: 0
 };
 
 export default Number;

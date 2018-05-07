@@ -1,11 +1,25 @@
 {
   "name": "moneys",
   "version": "1.0.0",
+  "devDependencies": {
+    "jest-expo": "~27.0.0",
+    "react-native-scripts": "1.14.0",
+    "react-test-renderer": "16.3.1"
+  },
+  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
     "build": "rm -rf build && webpack --env.production",
     "dev": "webpack-dev-server --content-base dist/ --inline",
     "lint": "eslint --ext js,jsx ./source",
-    "lint:fix": "eslint --ext js,jsx ./source --fix"
+    "lint:fix": "eslint --ext js,jsx ./source --fix",
+    "start": "react-native-scripts start",
+    "eject": "react-native-scripts eject",
+    "android": "react-native-scripts android",
+    "ios": "react-native-scripts ios",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "dependencies": {
     "appcache-webpack-plugin": "^1.3.0",
@@ -29,18 +43,19 @@
     "expose-loader": "^0.7.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
-    "firebase": "^4.12.0",
     "formdata-polyfill": "^3.0.9",
     "html-webpack-plugin": "^3.1.0",
-    "lodash": "^4.17.4",
     "node-sass": "^4.7.2",
     "path": "^0.12.7",
     "postcss-loader": "^2.0.9",
     "prop-types": "^15.5.8",
-    "react": "^16.2.0",
     "react-chartjs-2": "^2.6.4",
     "react-collapse": "^4.0.3",
     "react-dom": "^16.2.0",
+    "expo": "^27.0.1",
+    "firebase": "^4.13.1",
+    "lodash": "^4.17.10",
+    "react": "16.3.1",
     "react-motion": "^0.5.2",
     "react-sortable-hoc": "^0.6.8",
     "react-tiny-transition": "^2.2.1",
@@ -50,6 +65,8 @@
     "style-loader": "^0.20.3",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7",
+    "react-native": "~0.55.2",
+    "react-native-svg": "^6.3.1",
     "world-currencies": "^0.0.8"
   }
 }

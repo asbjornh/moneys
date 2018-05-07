@@ -3,7 +3,7 @@ import "firebase/database";
 import "firebase/functions";
 
 import firebaseInit from "../../firebase-init.json";
-import storage from "./storage-helper";
+// import storage from "./storage-helper";
 import utils from "./utils";
 
 firebase.initializeApp(firebaseInit);
@@ -29,8 +29,9 @@ function getTicker(userStock) {
 
 // Find stocks that are present in userStocks but missing in firebase
 function getMissingStocks(stockData) {
-  return storage
-    .getUserStocks()
+  // return storage
+  //   .getUserStocks()
+  return userStocks
     .filter(stock => !stock.isRealized)
     .reduce((accum, userStock) => {
       const ticker = getTicker(userStock);
@@ -42,6 +43,33 @@ function getMissingStocks(stockData) {
       return accum;
     }, []);
 }
+const userStocks = [
+  {
+    id: "1511477137213",
+    symbol: "SPY5.L",
+    qty: 5,
+    purchasePrice: 10842,
+    purchaseRate: 265.2
+  },
+  {
+    id: "1515613274657",
+    intermediateCurrency: "EUR",
+    purchasePrice: 1064,
+    purchaseRate: 11283,
+    qty: 0.01,
+    symbol: "BTC",
+    type: "currency"
+  },
+  {
+    id: "1515613226697",
+    intermediateCurrency: "EUR",
+    purchasePrice: 4000,
+    purchaseRate: 215.06,
+    qty: 1.8583,
+    symbol: "LTC",
+    type: "currency"
+  }
+];
 
 // This is where everything happens. When adding or deleting stocks to/from firebase, the callback wil be run with the updated data.
 function init(callback) {
@@ -71,7 +99,7 @@ function init(callback) {
         // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
         addStockToDatabase(missingStocks[0]);
       } else {
-        const userStocks = storage.getUserStocks();
+        // const userStocks = storage.getUserStocks();
         const stocks = userStocks.reduce((accum, userStock) => {
           return accum.concat(
             Object.assign({}, userStock, stockData[getTicker(userStock)])
@@ -81,16 +109,17 @@ function init(callback) {
         const sum = utils.sumAndConvert(
           stocks,
           db.exchangeRates,
-          storage.getUserSetting("currency")
+          "NOK"
+          // storage.getUserSetting("currency")
         );
 
-        storage.storeData("exchangeRates", db.exchangeRates);
-        storage.storeData("stocks", stocks);
-        storage.addGraphPoint(sum.difference);
+        // storage.storeData("exchangeRates", db.exchangeRates);
+        // storage.storeData("stocks", stocks);
+        // storage.addGraphPoint(sum.difference);
 
         callback({
           exchangeRates: db.exchangeRates,
-          graphData: storage.getGraphPoints(),
+          // graphData: storage.getGraphPoints(),
           stocks,
           supportedCurrencies,
           sum
@@ -99,61 +128,61 @@ function init(callback) {
     }
   }
 
-  if (!navigator.onLine) {
-    // Resolve with data from localStorage
-    const stocks = storage.getStoredData("stocks", []);
-    const exchangeRates = storage.getStoredData("exchangeRates", []);
-    callback({
-      exchangeRates,
-      graphData: storage.getGraphPoints(),
-      stocks,
-      sum: utils.sumAndConvert(
-        stocks,
-        exchangeRates,
-        storage.getUserSetting("currency")
-      )
+  // if (!navigator.onLine) {
+  //   // Resolve with data from localStorage
+  //   const stocks = storage.getStoredData("stocks", []);
+  //   const exchangeRates = storage.getStoredData("exchangeRates", []);
+  //   callback({
+  //     exchangeRates,
+  //     graphData: storage.getGraphPoints(),
+  //     stocks,
+  //     sum: utils.sumAndConvert(
+  //       stocks,
+  //       exchangeRates,
+  //       storage.getUserSetting("currency")
+  //     )
+  //   });
+  // } else {
+  // Attach to firebase
+  firebase
+    .database()
+    .ref("tickers")
+    .orderByChild("type")
+    .equalTo("currency")
+    .on("value", snapshot => {
+      console.log(new Date().toLocaleTimeString(), "Got currencies");
+      db.currencies = snapshot.val() || {};
+      resolve();
     });
-  } else {
-    // Attach to firebase
-    firebase
-      .database()
-      .ref("tickers")
-      .orderByChild("type")
-      .equalTo("currency")
-      .on("value", snapshot => {
-        console.log(new Date().toLocaleTimeString(), "Got currencies");
-        db.currencies = snapshot.val() || {};
-        resolve();
-      });
 
-    firebase
-      .database()
-      .ref("tickers")
-      .orderByChild("type")
-      .equalTo("stock")
-      .on("value", snapshot => {
-        console.log(new Date().toLocaleTimeString(), "Got stocks");
-        db.stocks = snapshot.val() || {};
-        resolve();
-      });
+  firebase
+    .database()
+    .ref("tickers")
+    .orderByChild("type")
+    .equalTo("stock")
+    .on("value", snapshot => {
+      console.log(new Date().toLocaleTimeString(), "Got stocks");
+      db.stocks = snapshot.val() || {};
+      resolve();
+    });
 
-    firebase
-      .database()
-      .ref("exchangeRates")
-      .on("value", snapshot => {
-        console.log(new Date().toLocaleTimeString(), "Got exchange rates");
-        db.exchangeRates = snapshot.val();
-        resolve();
-      });
+  firebase
+    .database()
+    .ref("exchangeRates")
+    .on("value", snapshot => {
+      console.log(new Date().toLocaleTimeString(), "Got exchange rates");
+      db.exchangeRates = snapshot.val();
+      resolve();
+    });
 
-    firebase
-      .database()
-      .ref("cryptoNames")
-      .once("value", snapshot => {
-        db.cryptoNames = snapshot.val();
-        resolve();
-      });
-  }
+  firebase
+    .database()
+    .ref("cryptoNames")
+    .once("value", snapshot => {
+      db.cryptoNames = snapshot.val();
+      resolve();
+    });
+  // }
 }
 
 function addOrDelete(cloudFunction, { intermediateCurrency, symbol, type }) {

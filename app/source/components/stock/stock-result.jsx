@@ -1,11 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import { View } from "react-native";
+
 import currencySymbols from "world-currencies";
 import get from "lodash/get";
 
-import css from "./stock.module.scss";
+import s from "./stock.styles";
 import utils from "../../js/utils";
+import { fontSizeLg } from "../../styles/vars";
 
 import Number from "../number";
 
@@ -45,17 +48,21 @@ const StockResult = ({
 
   return (
     <React.Fragment>
-      <div className={css.percentage}>
+      <View style={s.percentage}>
         <Number
           number={relativeDifference}
           currencySymbol="%"
           currencySymbolIsSuperScript={false}
         />
-      </div>
+      </View>
 
-      <div className={css.number}>
-        <Number number={absoluteDifference} currencySymbol={currencySymbol} />
-      </div>
+      <View style={s.number}>
+        <Number
+          fontSize={fontSizeLg}
+          number={absoluteDifference}
+          currencySymbol={currencySymbol}
+        />
+      </View>
     </React.Fragment>
   );
 };

@@ -1,17 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
+import { Animated, Text, View } from "react-native";
+
 import currencySymbols from "world-currencies";
 import get from "lodash/get";
-import { Motion, spring } from "react-motion";
 
-import css from "./stock.module.scss";
+import s from "./stock.styles";
 import utils from "../../js/utils";
 
+import Button from "../button";
 import Icons from "../icons";
 import StaticContainer from "../static-container";
 import StockResult from "./stock-result";
+import SwipeWrapper from "../swipe-wrapper";
 
 class Stock extends React.Component {
   static propTypes = {
@@ -43,13 +45,8 @@ class Stock extends React.Component {
   };
 
   state = {
-    isAnimating: false,
-    isSliding: false,
-    slideProgress: 0,
     shouldConvertCurrency: this.props.shouldConvertCurrency
   };
-
-  hasTouchStart = false;
 
   componentDidUpdate(prevProps) {
     if (prevProps.shouldConvertCurrency !== this.props.shouldConvertCurrency) {
@@ -59,80 +56,12 @@ class Stock extends React.Component {
     }
   }
 
-  onMouseEnter = () => {
-    if (!this.hasTouchStart) {
-      this.setState({
-        isAnimating: true,
-        isSliding: true,
-        slideProgress: 1,
-        springConfig: {}
-      });
-    }
-  };
-
-  onMouseLeave = () => {
-    this.setState({ isAnimating: true, isSliding: false, slideProgress: 0 });
-  };
-
   onClick = () => {
     if (!this.props.isSorting) {
       this.setState(state => ({
         shouldConvertCurrency: !state.shouldConvertCurrency
       }));
     }
-  };
-
-  onTouchStart = e => {
-    this.hasTouchStart = true;
-
-    if (!this.props.isSorting) {
-      this.touchStartX = e.touches[0].clientX;
-      this.lastTouchX = e.touches[0].clientX;
-      this.lastTouchY = e.touches[0].clientY;
-      this.setState({ springConfig: { stiffness: 300, damping: 20 } });
-    }
-  };
-
-  onTouchMove = e => {
-    if (!this.props.isSorting) {
-      const { clientX, clientY } = e.touches[0];
-
-      if (
-        Math.abs(clientX - this.lastTouchX) >
-        Math.abs(clientY - this.lastTouchY)
-      ) {
-        e.preventDefault();
-
-        const deltaX = (this.lastTouchX - clientX) / 90;
-
-        this.setState(state => ({
-          isAnimating: true,
-          isSliding: true,
-          slideProgress: utils.clamp(state.slideProgress + deltaX, 0, 1)
-        }));
-      }
-
-      this.lastTouchX = clientX;
-      this.lastTouchY = clientY;
-    }
-  };
-
-  onTouchEnd = () => {
-    setTimeout(() => {
-      this.hasTouchStart = false;
-    }, 20);
-
-    if (!this.props.isSorting) {
-      this.setState(state => ({
-        isAnimating: state.slideProgress !== 0 && state.slideProgress !== 1,
-        isSliding: state.slideProgress > 0.5,
-        slideProgress: state.slideProgress > 0.5 ? 1 : 0
-      }));
-    }
-  };
-
-  onMotionRest = () => {
-    this.setState({ isAnimating: false });
   };
 
   delete = () => {
@@ -145,8 +74,6 @@ class Stock extends React.Component {
 
   render() {
     const { currency, purchasePrice, price, qty, userCurrency } = this.props;
-
-    const { slideProgress, springConfig } = this.state;
 
     const purchaseRate =
       currency !== userCurrency ? this.props.purchaseRate : purchasePrice / qty;
@@ -167,116 +94,130 @@ class Stock extends React.Component {
       : "";
 
     return (
-      <Motion
-        defaultStyle={{ x: 0, opacity: 0, scale: 0.4 }}
-        onRest={this.onMotionRest}
-        style={{
-          x: spring(90 * slideProgress, springConfig),
-          opacity: spring(slideProgress, springConfig),
-          scale: spring(
-            utils.rangeMap(slideProgress, 0, 1, 0.4, 1),
-            springConfig
-          )
-        }}
-      >
-        {motion => (
-          <div
-            className={cn(css.stock, {
-              [css.isSliding]: this.state.isSliding,
-              [css.isSorting]: this.props.isSorting
-            })}
-            onClick={this.onClick}
-            onTouchStart={this.onTouchStart}
-            onTouchMove={this.onTouchMove}
-            onTouchEnd={this.onTouchEnd}
-            style={{ transform: `translateX(${-motion.x}px)` }}
-          >
-            <StaticContainer shouldUpdate={!this.state.isAnimating}>
-              <div className={css.sortingHandle}>
-                <Icons.DragHandle />
-              </div>
-
-              <div className={css.row}>
-                <div className={css.ticker}>
-                  {this.props.symbol}
-                  {isOutdated && (
-                    <span
-                      className={css.warning}
-                      title={`${
-                        this.props.labels.isOutdated
-                      } (${lastUpdatedText})`}
-                    >
-                      <Icons.Warning />
-                    </span>
+      <SwipeWrapper maxDistance={90} isEnabled={!this.props.isSorting}>
+        {({ isAnimating, slideProgress }) => (
+          <React.Fragment>
+            <Animated.View
+              style={[
+                s.stock,
+                {
+                  transform: [
+                    {
+                      translateX: slideProgress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -90]
+                      })
+                    }
+                  ]
+                }
+              ]}
+            >
+              <StaticContainer shouldUpdate={!isAnimating}>
+                <View
+                  style={[s.sortingHandle].concat(
+                    this.props.isSorting
+                      ? {
+                          opacity: 1,
+                          transform: []
+                        }
+                      : []
                   )}
-                </div>
+                >
+                  <Icons.DragHandle />
+                </View>
 
-                <StockResult
-                  exchangeRates={this.props.exchangeRates}
-                  currency={this.props.currency}
-                  purchasePrice={this.props.purchasePrice}
-                  purchaseRate={this.props.purchaseRate}
-                  price={this.props.price}
-                  qty={this.props.qty}
-                  shouldConvertCurrency={this.state.shouldConvertCurrency}
-                  userCurrency={this.props.userCurrency}
-                />
-              </div>
+                <View style={s.row}>
+                  <Text style={s.ticker}>
+                    {this.props.symbol}
+                    {isOutdated && (
+                      <View
+                        style={s.warning}
+                        title={`${
+                          this.props.labels.isOutdated
+                        } (${lastUpdatedText})`}
+                      >
+                        <Icons.Warning />
+                      </View>
+                    )}
+                  </Text>
 
-              <div className={css.row}>
-                <div className={css.longName}>{this.props.longName}</div>
-                <div className={css.moreStuff}>
-                  <span>
-                    {(!purchaseRate
-                      ? ""
-                      : `${stockCurrencySymbol} ${utils.formatNumber(
-                          purchaseRate
-                        )} → `) +
-                      `${stockCurrencySymbol} ${utils.formatNumber(price)}`}
-                  </span>
-                  <span>
-                    {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
-                      qty
-                    )}`}
-                  </span>
-                </div>
-              </div>
-            </StaticContainer>
+                  <StockResult
+                    exchangeRates={this.props.exchangeRates}
+                    currency={this.props.currency}
+                    purchasePrice={this.props.purchasePrice}
+                    purchaseRate={this.props.purchaseRate}
+                    price={this.props.price}
+                    qty={this.props.qty}
+                    shouldConvertCurrency={this.state.shouldConvertCurrency}
+                    userCurrency={this.props.userCurrency}
+                  />
+                </View>
 
-            <div
-              className={css.buttonContainer}
+                <View style={s.row}>
+                  <Text style={s.longName}>{this.props.longName}</Text>
+                  <View style={s.moreStuff}>
+                    <Text style={s.moreStuffChild}>
+                      {(!purchaseRate
+                        ? ""
+                        : `${stockCurrencySymbol} ${utils.formatNumber(
+                            purchaseRate
+                          )} → `) +
+                        `${stockCurrencySymbol} ${utils.formatNumber(price)}`}
+                    </Text>
+                    <Text style={s.moreStuffChild} numberOfLines={1}>
+                      {`${this.props.labels.qtyLabel}: ${utils.formatNumber(
+                        qty
+                      )}`}
+                    </Text>
+                  </View>
+                </View>
+              </StaticContainer>
+            </Animated.View>
+
+            <View
               onMouseEnter={this.onMouseEnter}
               onMouseLeave={this.onMouseLeave}
-              style={{ transform: `translateX(${motion.x}px)` }}
+              style={s.buttonContainer}
             >
-              <button
-                className={css.realizeButton}
-                onClick={this.realize}
-                title={this.props.labels.realizeButton}
-                type="button"
+              <Animated.View
                 style={{
-                  opacity: motion.opacity,
-                  transform: `scale(${motion.scale})`
+                  flex: 0,
+                  alignSelf: "flex-start",
+                  opacity: slideProgress,
+                  transform: [{ scale: slideProgress }]
                 }}
               >
-                <Icons.CircleDollar />
-              </button>
-              <button
-                className={css.deleteButton}
-                type="button"
-                title={this.props.labels.deleteButton}
-                onClick={this.delete}
+                <Button
+                  title={this.props.labels.realizeButton}
+                  onClick={() => {
+                    // console.log("clicky");
+                  }}
+                >
+                  <Icons.CircleDollar />
+                </Button>
+              </Animated.View>
+
+              <Animated.View
                 style={{
-                  opacity: motion.opacity,
-                  transform: `scale(${motion.scale})`
+                  flex: 0,
+                  alignSelf: "flex-start",
+                  opacity: slideProgress,
+                  transform: [{ scale: slideProgress }]
                 }}
               >
-                <Icons.CircleX />
-              </button>
-            </div>
-          </div>
+                <Button
+                  title={this.props.labels.deleteButton}
+                  onClick={() => {
+                    // console.log("clicky");
+                  }}
+                >
+                  <Icons.CircleX />
+                </Button>
+              </Animated.View>
+            </View>
+          </React.Fragment>
         )}
-      </Motion>
+      </SwipeWrapper>
     );
   }
 }
