@@ -4,22 +4,76 @@ import get from "lodash/get";
 import settings from "../../settings";
 import utils from "../js/utils";
 
+import storage from "./storage-provider";
+
+function getExchangeRates() {
+  return storage.getItem("exchangeRates");
+}
+
 function getGraphPoints() {
-  return JSON.parse(localStorage.getItem("graphData")) || [];
+  return storage.getItem("graphData", []);
 }
 
-function getStoredData(key, defaultValue) {
-  const data = JSON.parse(localStorage.getItem(key));
-
-  return data || defaultValue;
+function getStocks() {
+  return storage.getItem("stocks", []);
 }
 
-function storeData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+function getUserSetting(key) {
+  const userSettings = storage.getItem("userSettings", {});
+  return get(userSettings, key, settings.userDefaults[key]);
+}
+
+function getUserStocks() {
+  // return storage.getItem("userStocks", []);
+  return Promise.resolve([
+    {
+      id: "1511477137213",
+      symbol: "SPY5.L",
+      qty: 5,
+      purchasePrice: 10842,
+      purchaseRate: 265.2
+    },
+    {
+      id: "1515613274657",
+      intermediateCurrency: "EUR",
+      purchasePrice: 1064,
+      purchaseRate: 11283,
+      qty: 0.01,
+      symbol: "BTC",
+      type: "currency"
+    },
+    {
+      id: "1515613226697",
+      intermediateCurrency: "EUR",
+      purchasePrice: 4000,
+      purchaseRate: 215.06,
+      qty: 1.8583,
+      symbol: "LTC",
+      type: "currency"
+    }
+  ]);
+}
+
+function setExchangeRates(exchangeRates) {
+  storage.setItem("exchangeRates", exchangeRates);
+}
+
+function setStocks(stocks) {
+  storage.setItem("stocks", stocks);
+}
+
+function setUserStocks(stocks) {
+  storage.setItem("userStocks", stocks);
+}
+
+function setUserSetting(key, value) {
+  const userSettings = storage.getItem("userSettings", {});
+  userSettings[key] = value;
+  storage.setItem("userSettings", userSettings);
 }
 
 function addGraphPoint(sum = 0) {
-  const points = JSON.parse(localStorage.getItem("graphData")) || [];
+  const points = getGraphPoints();
   const lastPoint = points[points.length - 1];
   const newPoint = {
     x: new Date(new Date().toDateString()).getTime(),
@@ -38,21 +92,13 @@ function addGraphPoint(sum = 0) {
   }
 
   if (sum) {
-    localStorage.setItem("graphData", JSON.stringify(points));
+    storage.setItem("graphData", points);
   }
-}
-
-function getUserStocks() {
-  return JSON.parse(localStorage.getItem("userStocks")) || [];
-}
-
-function setUserStocks(stocks) {
-  localStorage.setItem("userStocks", JSON.stringify(stocks));
 }
 
 function sortUserStocks({ oldIndex, newIndex }) {
   const userStocks = getUserStocks();
-  const stocks = get(getStoredData("stocks"), "data", []);
+  const stocks = get(storage.getItem("stocks", {}), "data", []);
   const sortedUserStocks = arrayMove(userStocks, oldIndex, newIndex);
   const sortedStocks = arrayMove(stocks, oldIndex, newIndex);
 
@@ -61,63 +107,53 @@ function sortUserStocks({ oldIndex, newIndex }) {
   }
 
   if (sortedStocks.length) {
-    storeData("stocks", sortedStocks);
+    storage.setItem("stocks", sortedStocks);
   }
 }
 
-function getUserSetting(setting) {
-  const userSettings = JSON.parse(localStorage.getItem("userSettings"));
-  return get(userSettings, setting, settings.userDefaults[setting]);
-}
-
-function setUserSetting(setting, value) {
-  const userSettings = JSON.parse(localStorage.getItem("userSettings")) || {};
-  userSettings[setting] = value;
-  localStorage.setItem("userSettings", JSON.stringify(userSettings));
-}
-
 function getBackupData() {
-  return JSON.stringify(
-    {
-      userStocks: JSON.parse(localStorage.getItem("userStocks")),
-      userSettings: JSON.parse(localStorage.getItem("userSettings")),
-      graphData: JSON.parse(localStorage.getItem("graphData"))
-    },
-    null,
-    2
+  return Promise.all([
+    storage.getItem("userStocks"),
+    storage.getItem("userSettings"),
+    storage.getItem("graphData")
+  ]).then(([userStocks, userSettings, graphData]) =>
+    JSON.stringify({ userStocks, userSettings, graphData }, null, 2)
   );
 }
 
-function insertBackupData(data, callback) {
+function insertBackupData(data) {
   const { userStocks, userSettings, graphData } = utils.tryParseJSON(data);
 
   if (userStocks && graphData) {
-    localStorage.setItem("userStocks", JSON.stringify(userStocks));
-    localStorage.setItem("userSettings", JSON.stringify(userSettings));
-    localStorage.setItem("graphData", JSON.stringify(graphData));
-
-    callback(true);
+    return Promise.all([
+      storage.setItem("userStocks", userStocks),
+      storage.setItem("userSettings", userSettings),
+      storage.setItem("graphData", graphData)
+    ]);
   } else {
-    callback(false);
+    return Promise.reject();
   }
 }
 
 function deleteAllData() {
-  localStorage.clear();
-  window.location.reload();
+  storage.clear().then(() => {
+    window.location.reload();
+  });
 }
 
 export default {
   addGraphPoint,
   deleteAllData,
+  getExchangeRates,
   getBackupData,
   getGraphPoints,
-  getStoredData,
+  getStocks,
   getUserStocks,
   getUserSetting,
   insertBackupData,
+  setExchangeRates,
+  setStocks,
   setUserStocks,
   setUserSetting,
-  sortUserStocks,
-  storeData
+  sortUserStocks
 };

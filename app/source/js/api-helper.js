@@ -3,7 +3,7 @@ import "firebase/database";
 import "firebase/functions";
 
 import firebaseInit from "../../firebase-init.json";
-// import storage from "./storage-helper";
+import storage from "./storage-helper";
 import utils from "./utils";
 
 firebase.initializeApp(firebaseInit);
@@ -29,47 +29,21 @@ function getTicker(userStock) {
 
 // Find stocks that are present in userStocks but missing in firebase
 function getMissingStocks(stockData) {
-  // return storage
-  //   .getUserStocks()
-  return userStocks
-    .filter(stock => !stock.isRealized)
-    .reduce((accum, userStock) => {
-      const ticker = getTicker(userStock);
+  return storage
+    .getUserStocks()
+    .then(userStocks => userStocks.filter(stock => !stock.isRealized))
+    .then(userStocks =>
+      userStocks.reduce((accum, userStock) => {
+        const ticker = getTicker(userStock);
 
-      if (!stockData[ticker]) {
-        accum.push(userStock);
-      }
+        if (!stockData[ticker]) {
+          accum.push(userStock);
+        }
 
-      return accum;
-    }, []);
+        return accum;
+      }, [])
+    );
 }
-const userStocks = [
-  {
-    id: "1511477137213",
-    symbol: "SPY5.L",
-    qty: 5,
-    purchasePrice: 10842,
-    purchaseRate: 265.2
-  },
-  {
-    id: "1515613274657",
-    intermediateCurrency: "EUR",
-    purchasePrice: 1064,
-    purchaseRate: 11283,
-    qty: 0.01,
-    symbol: "BTC",
-    type: "currency"
-  },
-  {
-    id: "1515613226697",
-    intermediateCurrency: "EUR",
-    purchasePrice: 4000,
-    purchaseRate: 215.06,
-    qty: 1.8583,
-    symbol: "LTC",
-    type: "currency"
-  }
-];
 
 // This is where everything happens. When adding or deleting stocks to/from firebase, the callback wil be run with the updated data.
 function init(callback) {
@@ -99,30 +73,31 @@ function init(callback) {
         // This will run every time the database is updated, so in order to avoid duplicate calls to the add function, call only one at a time
         addStockToDatabase(missingStocks[0]);
       } else {
-        // const userStocks = storage.getUserStocks();
-        const stocks = userStocks.reduce((accum, userStock) => {
-          return accum.concat(
-            Object.assign({}, userStock, stockData[getTicker(userStock)])
+        storage.getUserStocks().then(userStocks => {
+          const stocks = userStocks.reduce((accum, userStock) => {
+            return accum.concat(
+              Object.assign({}, userStock, stockData[getTicker(userStock)])
+            );
+          }, []);
+
+          const sum = utils.sumAndConvert(
+            stocks,
+            db.exchangeRates,
+            "NOK"
+            // storage.getUserSetting("currency")
           );
-        }, []);
 
-        const sum = utils.sumAndConvert(
-          stocks,
-          db.exchangeRates,
-          "NOK"
-          // storage.getUserSetting("currency")
-        );
+          // storage.setExchangeRates(db.exchangeRates);
+          // storage.setStocks(stocks);
+          // storage.addGraphPoint(sum.difference);
 
-        // storage.storeData("exchangeRates", db.exchangeRates);
-        // storage.storeData("stocks", stocks);
-        // storage.addGraphPoint(sum.difference);
-
-        callback({
-          exchangeRates: db.exchangeRates,
-          // graphData: storage.getGraphPoints(),
-          stocks,
-          supportedCurrencies,
-          sum
+          callback({
+            exchangeRates: db.exchangeRates,
+            // graphData: storage.getGraphPoints(),
+            stocks,
+            supportedCurrencies,
+            sum
+          });
         });
       }
     }
@@ -130,8 +105,8 @@ function init(callback) {
 
   // if (!navigator.onLine) {
   //   // Resolve with data from localStorage
-  //   const stocks = storage.getStoredData("stocks", []);
-  //   const exchangeRates = storage.getStoredData("exchangeRates", []);
+  //   const stocks = storage.getStocks();
+  //   const exchangeRates = storage.getExchangeRates();
   //   callback({
   //     exchangeRates,
   //     graphData: storage.getGraphPoints(),
@@ -239,8 +214,8 @@ function deleteStock(id) {
 
   storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
 
-  const stocks = storage.getStoredData("stocks", []);
-  storage.storeData("stocks", stocks.filter(stock => stock.id !== id));
+  const stocks = storage.getStocks();
+  storage.setStocks(stocks.filter(stock => stock.id !== id));
 
   if (stockToBeDeleted.isRealized) {
     window.location.reload();

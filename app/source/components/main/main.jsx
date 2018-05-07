@@ -42,7 +42,7 @@ class Main extends React.Component {
     };
   }
   // state = {
-  // exchangeRates: storage.getStoredData("exchangeRates", {}),
+  // exchangeRates: storage.getExchangeRates(),
   // formButtonIsVisible: false,
   // formIsVisible: false,
   // graphData: storage.getGraphPoints(),
@@ -70,7 +70,7 @@ class Main extends React.Component {
     this.setState(
       {
         formButtonIsVisible: true
-        // stocks: storage.getStoredData("stocks", [])
+        // stocks: storage.getStocks()
       },
       () => {
         requestAnimationFrame(() => {
