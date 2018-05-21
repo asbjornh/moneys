@@ -25,7 +25,7 @@ function getStock(ticker) {
 
       if (stock) {
         let longName = stock.longName || stock.shortName || ticker;
-        longName = longName.replace("&amp;", "&");
+        longName = longName.replace("&amp;", "&").replace("�", "");
 
         return {
           currency: stock.currency,

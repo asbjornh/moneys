@@ -94,6 +94,9 @@
 
 .longName {
   color: $medium-gray;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .number {
@@ -113,7 +116,7 @@
   color: $medium-gray;
   margin-left: auto;
 
-  span:not(:first-child) {
+  span {
     padding-left: 20px;
     white-space: nowrap;
   }
