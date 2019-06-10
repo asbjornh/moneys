@@ -1,5 +1,4 @@
 {
-  // NOTE: ESLINT CONFIG - it's JSON with comments http://eslint.org/docs/user-guide/configuring
   "root": true,
   "extends": ["eslint:recommended"],
   "env": {

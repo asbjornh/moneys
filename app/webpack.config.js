@@ -4,8 +4,9 @@ const webpack = require("webpack");
 const AppCachePlugin = require("appcache-webpack-plugin");
 const autoprefixer = require("autoprefixer");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const cssnano = require("cssnano");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = (env = {}) => {
   const isProduction = env.production === true;
@@ -29,29 +30,31 @@ module.exports = (env = {}) => {
       rules: [
         {
           test: /\.css$/,
-          use: ExtractTextPlugin.extract([
-            {
-              loader: "css-loader",
-              options: { importLoaders: 1, minimize: true }
-            }
-          ])
+          use: [{ loader: CssExtractPlugin.loader }, "css-loader"]
         },
         {
           test: /\.scss$/,
           exclude: /\.module\.scss$/,
-          use: ExtractTextPlugin.extract([
+          use: [
+            { loader: CssExtractPlugin.loader },
             {
               loader: "css-loader",
-              options: { importLoaders: 1, minimize: true }
+              options: { importLoaders: 1 }
             },
-            { loader: "postcss-loader", options: { plugins: [autoprefixer] } },
+            {
+              loader: "postcss-loader",
+              options: {
+                plugins: [autoprefixer].concat(isProduction ? cssnano : [])
+              }
+            },
             { loader: "resolve-url-loader" },
             { loader: "sass-loader", options: { sourceMap: true } }
-          ])
+          ]
         },
         {
           test: /\.module\.scss$/,
-          use: ExtractTextPlugin.extract([
+          use: [
+            { loader: CssExtractPlugin.loader },
             {
               loader: "css-loader",
               options: {
@@ -59,9 +62,14 @@ module.exports = (env = {}) => {
                 localIdentName: "[local]__[hash:base64:5]"
               }
             },
-            { loader: "postcss-loader", options: { plugins: [autoprefixer] } },
+            {
+              loader: "postcss-loader",
+              options: {
+                plugins: [autoprefixer].concat(isProduction ? cssnano : [])
+              }
+            },
             { loader: "sass-loader" }
-          ])
+          ]
         },
         {
           test: /\.png$/,
@@ -95,9 +103,8 @@ module.exports = (env = {}) => {
     },
     plugins: (() => {
       const plugins = [
-        new ExtractTextPlugin({
-          filename: isProduction ? "app.[hash].css" : "app.css",
-          allChunks: true
+        new CssExtractPlugin({
+          filename: isProduction ? "app.[hash].css" : "app.css"
         }),
         new HtmlWebpackPlugin({
           template: isProduction ? "source/index.html" : "source/index.dev.html"
