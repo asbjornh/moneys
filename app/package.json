@@ -2,7 +2,7 @@
   "name": "moneys",
   "version": "1.0.0",
   "scripts": {
-    "build": "rm -rf build && webpack --env.production",
+    "build": "rm -rf build && webpack --env.production --mode=production",
     "dev": "webpack-dev-server --content-base dist/ --inline",
     "lint": "eslint --ext js,jsx ./source",
     "lint:fix": "eslint --ext js,jsx ./source --fix"
