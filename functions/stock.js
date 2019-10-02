@@ -53,7 +53,7 @@ function add(ticker) {
     })
     .catch(e => {
       console.error(e);
-      throw new Error("Stock not found");
+      return { success: false };
     });
 }
 
