@@ -93,8 +93,9 @@ class Main extends React.Component {
           this.setState({ isLoading: false });
         })
         .catch(stockName => {
-          this.setState({ isLoading: false });
-          alert(this.state.labels.main.stockNotFound + ` '${stockName}'`);
+          this.setState({ isLoading: false }, () => {
+            alert(this.state.labels.main.stockNotFound + ` '${stockName}'`);
+          });
         });
     });
   };
@@ -233,28 +234,28 @@ class Main extends React.Component {
                 >
                   {this.state.stocks.map(
                     stock =>
-                      !stock.isRealized ? (
-                        <Stock
-                          exchangeRates={this.state.exchangeRates}
-                          isSorting={this.state.isSorting}
-                          key={stock.id}
-                          labels={labels.stock}
-                          onDelete={this.deleteStock}
-                          onRealize={this.realizeStock}
-                          shouldConvertCurrency={this.state.shouldConvertStocks}
-                          userCurrency={this.state.userCurrency}
-                          {...stock}
-                        />
-                      ) : (
-                        <RealizedStock
-                          isSorting={this.state.isSorting}
-                          key={stock.id}
-                          labels={labels.realizedStock}
-                          onDelete={this.deleteStock}
-                          userCurrency={this.state.userCurrency}
-                          {...stock}
-                        />
-                      )
+                    !stock.isRealized ? (
+                      <Stock
+                        exchangeRates={this.state.exchangeRates}
+                        isSorting={this.state.isSorting}
+                        key={stock.id}
+                        labels={labels.stock}
+                        onDelete={this.deleteStock}
+                        onRealize={this.realizeStock}
+                        shouldConvertCurrency={this.state.shouldConvertStocks}
+                        userCurrency={this.state.userCurrency}
+                        {...stock}
+                      />
+                    ) : (
+                      <RealizedStock
+                        isSorting={this.state.isSorting}
+                        key={stock.id}
+                        labels={labels.realizedStock}
+                        onDelete={this.deleteStock}
+                        userCurrency={this.state.userCurrency}
+                        {...stock}
+                      />
+                    )
                   )}
                 </SortableList>
               </Collapse>

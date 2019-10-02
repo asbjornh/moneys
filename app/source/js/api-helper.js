@@ -184,7 +184,7 @@ function addStock(formData) {
       purchasePrice: parseFloat(formData.purchasePrice),
       purchaseRate: parseFloat(formData.purchaseRate),
       qty: parseFloat(formData.qty),
-      symbol: formData.symbol,
+      symbol: decodeTicker(formData.symbol),
       type: formData.type.toLowerCase()
     };
 

@@ -124,7 +124,7 @@ module.exports = (env = {}) => {
           }),
           new CopyWebpackPlugin([
             { from: "source/assets/apple-touch-icon.png", to: "" },
-            { from: "../.htaccess", to: "" },
+            { from: "./.htaccess", to: "" },
             { from: "robots.txt", to: "" }
           ])
         ]);
