@@ -114,6 +114,9 @@ function init(callback) {
       )
     });
   } else {
+    firebase.functions().httpsCallable("updateTickers")();
+    firebase.functions().httpsCallable("updateExchangeRates")();
+
     // Attach to firebase
     firebase
       .database()
@@ -211,7 +214,10 @@ function deleteStock(id) {
   storage.setUserStocks(userStocks.filter(stock => stock.id !== id));
 
   const stocks = storage.getStoredData("stocks", []);
-  storage.storeData("stocks", stocks.filter(stock => stock.id !== id));
+  storage.storeData(
+    "stocks",
+    stocks.filter(stock => stock.id !== id)
+  );
 
   if (stockToBeDeleted.isRealized) {
     window.location.reload();

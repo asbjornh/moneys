@@ -13,54 +13,41 @@ function getTickerData(type, tickerName) {
   return getter(tickerName).then(data => ({ tickerName, data }));
 }
 
-exports.updateTickers = functions.https.onRequest((req, res) => {
-  const type = req.query.type;
+exports.updateTickers = functions.https.onCall(() =>
+  admin
+    .database()
+    .ref("/tickers")
+    .once("value")
+    .then(snapshot => {
+      const tickers = snapshot.val();
 
-  if (!type) {
-    res.status(500).send("Bad request");
-  } else {
-    admin
-      .database()
-      .ref("/tickers")
-      .orderByChild("type")
-      .equalTo(type)
-      .once("value")
-      .then(snapshot => {
-        const tickers = snapshot.val();
-
-        return Promise.all(
-          Object.keys(tickers).map(tickerName =>
-            getTickerData(tickers[tickerName].type, tickerName)
-          )
-        );
-      })
-      .then(tickersData => {
-        return Promise.all(
-          tickersData.map(({ tickerName, data }) => {
-            return new Promise(resolve => {
+      return Promise.all(
+        Object.keys(tickers).map(tickerName =>
+          getTickerData(tickers[tickerName].type, tickerName)
+        )
+      );
+    })
+    .then(tickersData =>
+      Promise.all(
+        tickersData.map(
+          ({ tickerName, data }) =>
+            new Promise((resolve, reject) => {
               admin
                 .database()
                 .ref(`/tickers/${tickerName}`)
-                .update(data, e => {
-                  if (e) {
-                    throw new Error(e);
-                  } else {
-                    resolve();
-                  }
-                });
-            });
-          })
-        );
-      })
-      .then(() => res.status(200).send("finished"))
-      .catch(e => {
-        console.error(e);
-        res.status(500).send("fail");
-      });
-  }
-});
+                .update(data, err => (err ? reject(err) : resolve()));
+            })
+        )
+      )
+    )
+    .then(() => ({ success: true }))
+    .catch(e => {
+      console.error(e);
+      return { success: false };
+    })
+);
 
-exports.updateExchangeRates = functions.https.onRequest((req, res) => {
+exports.updateExchangeRates = functions.https.onCall(() =>
   exchangeRates
     .get()
     .then(
@@ -69,21 +56,15 @@ exports.updateExchangeRates = functions.https.onRequest((req, res) => {
           admin
             .database()
             .ref("/exchangeRates")
-            .update(exchangeRates, e => {
-              if (e) {
-                reject(e);
-              } else {
-                resolve();
-              }
-            });
+            .update(exchangeRates, err => (err ? reject(err) : resolve()));
         })
     )
-    .then(() => res.status(200).send("finished"))
+    .then(() => ({ success: true }))
     .catch(e => {
       console.error(e);
-      res.status(500).send("fail");
-    });
-});
+      return { success: false };
+    })
+);
 
 exports.add = functions.https.onCall(({ type, ticker, currency }) => {
   if (type === "currency" && ticker && currency) {
